@@ -1,0 +1,19 @@
+:host {
+    display: inline-block;
+    width: auto;
+}
+
+.characters path {
+    fill: #334155;
+    transition: fill 0.2s ease-in-out;
+}
+
+.fire-icon {
+    fill: #F06428;
+}
+
+@media (prefers-color-scheme: dark) {
+    .characters path {
+        fill: white;
+    }
+}

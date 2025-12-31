@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 import { MenuItem } from 'primeng/api';
 import { MenuModule } from 'primeng/menu';
 import { ButtonModule } from 'primeng/button';
@@ -10,55 +11,94 @@ import { HestiaBrand } from '@shared/components/hestia-brand/hestia-brand';
 
 @Component({
   selector: 'hta-navbar',
-  imports: [CommonModule, ButtonModule, AvatarModule, MenuModule, BadgeModule, RippleModule, HestiaBrand],
+  imports: [CommonModule, ButtonModule, AvatarModule, MenuModule, BadgeModule, RippleModule, HestiaBrand, RouterLink, RouterLinkActive],
   templateUrl: './navbar.html',
   styleUrl: './navbar.css',
 })
 export class Navbar implements OnInit {
-  items: MenuItem[] | undefined;
+  items: (MenuItem & { routerLinkActiveOptions?: { exact: boolean } })[] | undefined;
 
   ngOnInit() {
     this.items = [
       {
-        separator: true
-      },
-      {
-        label: 'Documents',
+        label: 'Principal',
         items: [
           {
-            label: 'New',
-            icon: 'pi pi-plus',
-            shortcut: '⌘+N'
+            label: 'Dashboard',
+            icon: 'pi pi-home',
+            routerLink: '/app/dashboard'
           },
           {
-            label: 'Search',
-            icon: 'pi pi-search',
-            shortcut: '⌘+S'
+            label: 'Mis Espacios',
+            icon: 'pi pi-th-large',
+            routerLink: '/app/espacios'
           }
         ]
       },
       {
-        label: 'Profile',
+        separator: true
+      },
+      {
+        label: 'Dispositivos',
         items: [
           {
-            label: 'Settings',
+            label: 'Resumen',
+            icon: 'pi pi-list',
+            routerLink: '/app/dispositivos',
+            routerLinkActiveOptions: { exact: true }
+          },
+          {
+            label: 'Iluminación',
+            icon: 'pi pi-lightbulb',
+            routerLink: '/app/dispositivos/iluminacion'
+          },
+          {
+            label: 'Clima',
+            icon: 'pi pi-cloud',
+            routerLink: '/app/dispositivos/clima'
+          },
+          {
+            label: 'Seguridad',
+            icon: 'pi pi-shield',
+            routerLink: '/app/dispositivos/seguridad'
+          },
+          {
+            label: 'Energía',
+            icon: 'pi pi-bolt',
+            routerLink: '/app/dispositivos/energia'
+          }
+        ]
+      },
+      {
+        separator: true
+      },
+      {
+        label: 'Gestión',
+        items: [
+          {
+            label: 'Automatización',
             icon: 'pi pi-cog',
-            shortcut: '⌘+O'
+            routerLink: '/app/automatizacion'
           },
           {
-            label: 'Messages',
-            icon: 'pi pi-inbox',
-            badge: '2'
-          },
-          {
-            label: 'Logout',
-            icon: 'pi pi-sign-out',
-            shortcut: '⌘+Q'
+            label: 'Analítica',
+            icon: 'pi pi-chart-bar',
+            routerLink: '/app/analitica'
           }
         ]
       },
       {
         separator: true
+      },
+      {
+        label: 'Cuenta',
+        items: [
+          {
+            label: 'Configuración',
+            icon: 'pi pi-sliders-h',
+            routerLink: '/app/configuracion'
+          }
+        ]
       }
     ];
   }

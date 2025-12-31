@@ -1,0 +1,23 @@
+.subtitle-menu {
+    font-size: 0.785rem;
+}
+
+.active-item {
+    background-color: var(--p-orange-50) !important;
+    color: var(--p-orange-600) !important;
+}
+
+.active-item span {
+    color: var(--p-orange-600) !important;
+}
+
+@media (prefers-color-scheme: dark) {
+    .active-item {
+        background-color: rgb(255 247 237 / 20%) !important;
+        color: var(--p-orange-500) !important;
+    }
+
+    .active-item span {
+        color: var(--p-orange-500) !important;
+    }
+}

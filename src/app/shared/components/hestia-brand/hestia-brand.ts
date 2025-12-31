@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, HostBinding, input, signal } from '@angular/core';
 
 @Component({
   selector: 'hta-hestia-brand',
@@ -7,6 +7,10 @@ import { Component, signal } from '@angular/core';
   styleUrl: './hestia-brand.css',
 })
 export class HestiaBrand {
-  primaryColor = signal<string>('#f37321');
-  secondaryColor = signal<string>('#36454f');
+  width = input<string>('100%');
+
+  @HostBinding('style.width')
+  get widthStyle() {
+    return this.width();
+  }
 }
