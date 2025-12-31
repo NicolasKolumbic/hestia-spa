@@ -1,10 +1,9 @@
 import { ApplicationConfig, provideBrowserGlobalErrorListeners, provideZonelessChangeDetection } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { providePrimeNG } from 'primeng/config';
-import Nora from '@primeuix/themes/nora';
-import { definePreset } from '@primeuix/themes';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { routes } from './app.routes';
+import { HestiaPreset } from '@shared/styles/hestia-preset';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -14,7 +13,14 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     providePrimeNG({
       theme: {
-        preset: definePreset(Nora)
+        preset: HestiaPreset,
+        options: {
+          darkModeSelector: 'system',
+          cssLayer: {
+            name: 'primeng',
+            order: 'tailwind-base, primeng, tailwind-utilities'
+          }
+        }
       }
     })
   ]

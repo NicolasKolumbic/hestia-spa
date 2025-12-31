@@ -5,6 +5,10 @@
   "compilerOptions": {
     "outDir": "./out-tsc/app",
     "types": [],
+    "typeRoots": [
+      "./node_modules/@types",
+      "./node_modules/primeng/themes/types"
+    ],
     "baseUrl": "./",
     "paths": {
       "@shared/*": [
