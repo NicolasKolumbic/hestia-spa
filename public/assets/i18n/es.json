@@ -1,0 +1,30 @@
+{
+    "MENU": {
+        "MAIN": "Principal",
+        "DASHBOARD": "Tablero",
+        "MY_SPACES": "Mis Espacios",
+        "DEVICES": "Dispositivos",
+        "SUMMARY": "Resumen",
+        "LIGHTING": "Iluminación",
+        "CLIMATE": "Clima",
+        "SECURITY": "Seguridad",
+        "ENERGY": "Energía",
+        "MANAGEMENT": "Gestión",
+        "AUTOMATION": "Automatización",
+        "ANALYTICS": "Analítica",
+        "ACCOUNT": "Cuenta",
+        "SETTINGS": "Configuración"
+    },
+    "SECTIONS": {
+        "DASHBOARD": "Tablero Principal",
+        "SPACES": "Mis Espacios",
+        "DEVICES": "Dispositivos",
+        "LIGHTING": "Control de Iluminación",
+        "CLIMATE": "Climatización",
+        "SECURITY": "Sistema de Seguridad",
+        "ENERGY": "Consumo Energético",
+        "AUTOMATION": "Automatizaciones",
+        "ANALYTICS": "Reportes y Analítica",
+        "SETTINGS": "Configuración del Sistema"
+    }
+}

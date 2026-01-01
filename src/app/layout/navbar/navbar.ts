@@ -7,6 +7,7 @@ import { ButtonModule } from 'primeng/button';
 import { AvatarModule } from 'primeng/avatar';
 import { BadgeModule } from 'primeng/badge';
 import { RippleModule } from 'primeng/ripple';
+import { TranslateService } from '@ngx-translate/core';
 import { HestiaBrand } from '@shared/components/hestia-brand/hestia-brand';
 
 @Component({
@@ -18,18 +19,27 @@ import { HestiaBrand } from '@shared/components/hestia-brand/hestia-brand';
 export class Navbar implements OnInit {
   items: (MenuItem & { routerLinkActiveOptions?: { exact: boolean } })[] | undefined;
 
+  constructor(private translate: TranslateService) { }
+
   ngOnInit() {
+    this.buildMenu();
+    this.translate.onLangChange.subscribe(() => {
+      this.buildMenu();
+    });
+  }
+
+  buildMenu() {
     this.items = [
       {
-        label: 'Principal',
+        label: this.translate.instant('MENU.MAIN'),
         items: [
           {
-            label: 'Dashboard',
+            label: this.translate.instant('MENU.DASHBOARD'),
             icon: 'pi pi-home',
             routerLink: '/app/dashboard'
           },
           {
-            label: 'Mis Espacios',
+            label: this.translate.instant('MENU.MY_SPACES'),
             icon: 'pi pi-th-large',
             routerLink: '/app/espacios'
           }
@@ -39,31 +49,31 @@ export class Navbar implements OnInit {
         separator: true
       },
       {
-        label: 'Dispositivos',
+        label: this.translate.instant('MENU.DEVICES'),
         items: [
           {
-            label: 'Resumen',
+            label: this.translate.instant('MENU.SUMMARY'),
             icon: 'pi pi-list',
             routerLink: '/app/dispositivos',
             routerLinkActiveOptions: { exact: true }
           },
           {
-            label: 'Iluminación',
+            label: this.translate.instant('MENU.LIGHTING'),
             icon: 'pi pi-lightbulb',
             routerLink: '/app/dispositivos/iluminacion'
           },
           {
-            label: 'Clima',
+            label: this.translate.instant('MENU.CLIMATE'),
             icon: 'pi pi-cloud',
             routerLink: '/app/dispositivos/clima'
           },
           {
-            label: 'Seguridad',
+            label: this.translate.instant('MENU.SECURITY'),
             icon: 'pi pi-shield',
             routerLink: '/app/dispositivos/seguridad'
           },
           {
-            label: 'Energía',
+            label: this.translate.instant('MENU.ENERGY'),
             icon: 'pi pi-bolt',
             routerLink: '/app/dispositivos/energia'
           }
@@ -73,15 +83,15 @@ export class Navbar implements OnInit {
         separator: true
       },
       {
-        label: 'Gestión',
+        label: this.translate.instant('MENU.MANAGEMENT'),
         items: [
           {
-            label: 'Automatización',
+            label: this.translate.instant('MENU.AUTOMATION'),
             icon: 'pi pi-cog',
             routerLink: '/app/automatizacion'
           },
           {
-            label: 'Analítica',
+            label: this.translate.instant('MENU.ANALYTICS'),
             icon: 'pi pi-chart-bar',
             routerLink: '/app/analitica'
           }
@@ -91,10 +101,10 @@ export class Navbar implements OnInit {
         separator: true
       },
       {
-        label: 'Cuenta',
+        label: this.translate.instant('MENU.ACCOUNT'),
         items: [
           {
-            label: 'Configuración',
+            label: this.translate.instant('MENU.SETTINGS'),
             icon: 'pi pi-sliders-h',
             routerLink: '/app/configuracion'
           }

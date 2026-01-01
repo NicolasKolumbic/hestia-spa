@@ -1,0 +1,30 @@
+{
+    "MENU": {
+        "MAIN": "Main",
+        "DASHBOARD": "Dashboard",
+        "MY_SPACES": "My Spaces",
+        "DEVICES": "Devices",
+        "SUMMARY": "Summary",
+        "LIGHTING": "Lighting",
+        "CLIMATE": "Climate",
+        "SECURITY": "Security",
+        "ENERGY": "Energy",
+        "MANAGEMENT": "Management",
+        "AUTOMATION": "Automation",
+        "ANALYTICS": "Analytics",
+        "ACCOUNT": "Account",
+        "SETTINGS": "Settings"
+    },
+    "SECTIONS": {
+        "DASHBOARD": "Main Dashboard",
+        "SPACES": "My Spaces",
+        "DEVICES": "Devices Overview",
+        "LIGHTING": "Lighting Control",
+        "CLIMATE": "Climate Control",
+        "SECURITY": "Security System",
+        "ENERGY": "Energy Consumption",
+        "AUTOMATION": "Automations",
+        "ANALYTICS": "Reports & Analytics",
+        "SETTINGS": "System Settings"
+    }
+}
