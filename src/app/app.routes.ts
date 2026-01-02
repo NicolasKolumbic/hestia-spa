@@ -40,6 +40,7 @@ export const routes: Routes = [
     {
         path: 'auth',
         // canActivate: [publicGuard], // Evita que usuarios logueados entren aquí
+        loadComponent: () => import('./features/auth/auth-base/auth-base').then(m => m.AuthBase),
         children: [
             {
                 path: 'login',

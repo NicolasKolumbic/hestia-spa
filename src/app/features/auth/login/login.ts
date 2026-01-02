@@ -2,7 +2,6 @@ import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { HestiaBrand } from "@shared/components/hestia-brand/hestia-brand";
 import { ButtonModule } from 'primeng/button';
 import { CheckboxModule } from 'primeng/checkbox';
 import { InputTextModule } from 'primeng/inputtext';
@@ -18,7 +17,6 @@ import { PasswordModule } from 'primeng/password';
     PasswordModule,
     CheckboxModule,
     RouterLink,
-    HestiaBrand
   ],
   templateUrl: './login.html',
   styleUrl: './login.css',

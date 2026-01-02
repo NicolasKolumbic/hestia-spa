@@ -1,94 +1,62 @@
-<div class="min-h-screen w-full flex bg-[var(--surface-0)] dark:bg-[var(--surface-900)] transition-colors duration-300">
+<div class="text-center mb-10">
+    <h2 class="text-3xl font-bold tracking-tight text-[var(--surface-900)] dark:text-[var(--surface-0)]">
+        Bienvenido de nuevo
+    </h2>
+    <p class="mt-2 text-sm text-[var(--surface-500)] dark:text-[var(--surface-400)]">
+        Controla tu mundo inteligente desde un solo lugar.
+    </p>
+</div>
 
-    <div class="w-full lg:w-1/2 flex flex-col justify-center items-center p-8 sm:p-12 lg:p-20 relative z-10">
+<form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-6">
 
-        <div class="w-full max-w-md space-y-8 p-2">
-
-            <div class="text-center mb-10">
-                <div class="h-12 mx-auto mb-6 w-40">
-                    <hta-hestia-brand />
-                </div>
-
-                <h2 class="text-3xl font-bold tracking-tight text-[var(--surface-900)] dark:text-[var(--surface-0)]">
-                    Bienvenido de nuevo
-                </h2>
-                <p class="mt-2 text-sm text-[var(--surface-500)] dark:text-[var(--surface-400)]">
-                    Controla tu mundo inteligente desde un solo lugar.
-                </p>
-            </div>
-
-            <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-6">
-
-                <div class="space-y-2">
-                    <label for="email"
-                        class="block text-sm font-medium text-[var(--surface-700)] dark:text-[var(--surface-300)]">
-                        Correo Electrónico
-                    </label>
-                    <div class="relative">
-                        <i
-                            class="pi pi-envelope absolute left-3 top-1/2 -translate-y-1/2 text-[var(--surface-400)] z-10"></i>
-                        <input pInputText id="email" type="email" formControlName="email" placeholder="hola@ejemplo.com"
-                            class="w-full pl-10 !bg-[var(--surface-50)] dark:!bg-[var(--surface-950)]" />
-                    </div>
-                </div>
-
-                <div class="space-y-2">
-                    <div class="flex items-center justify-between">
-                        <label for="password"
-                            class="block text-sm font-medium text-[var(--surface-700)] dark:text-[var(--surface-300)]">
-                            Contraseña
-                        </label>
-                        <a href="#"
-                            class="text-sm font-medium text-orange-600 hover:text-orange-500 dark:text-orange-500 dark:hover:text-orange-400">
-                            ¿Olvidaste tu contraseña?
-                        </a>
-                    </div>
-
-                    <p-password id="password" formControlName="password" [feedback]="false" [toggleMask]="true"
-                        styleClass="w-full"
-                        inputStyleClass="w-full !bg-[var(--surface-50)] dark:!bg-[var(--surface-950)] pl-10"
-                        placeholder="••••••••" icon="pi pi-lock">
-                    </p-password>
-                </div>
-
-                <div class="flex items-center space-x-2">
-                    <p-checkbox [binary]="true" inputId="remember" formControlName="remember"></p-checkbox>
-                    <label for="remember" class="text-sm text-[var(--surface-600)] dark:text-[var(--surface-400)]">
-                        Mantener sesión iniciada
-                    </label>
-                </div>
-
-                <p-button label="Iniciar Sesión" type="submit"
-                    styleClass="w-full !bg-orange-600 !border-orange-600 hover:!bg-orange-500 hover:!border-orange-500 text-white font-bold py-3 shadow-lg shadow-orange-500/20"
-                    (onClick)="onSubmit()"></p-button>
-
-            </form>
-
-            <div class="text-center mt-6">
-                <p class="text-sm text-[var(--surface-500)] dark:text-[var(--surface-400)]">
-                    ¿No tienes una cuenta?
-                    <a routerLink="/auth/registro"
-                        class="font-medium text-orange-600 hover:text-orange-500 dark:text-orange-500 transition-colors">
-                        Solicita acceso aquí
-                    </a>
-                </p>
-            </div>
+    <div class="space-y-2">
+        <label for="email" class="block text-sm font-medium text-[var(--surface-700)] dark:text-[var(--surface-300)]">
+            Correo Electrónico
+        </label>
+        <div class="relative">
+            <i class="pi pi-envelope absolute left-3 top-1/2 -translate-y-1/2 text-[var(--surface-400)] z-10"></i>
+            <input pInputText id="email" type="email" formControlName="email" placeholder="hola@ejemplo.com"
+                class="w-full pl-10 !bg-[var(--surface-50)] dark:!bg-[var(--surface-950)]" />
         </div>
     </div>
 
-    <div class="hidden lg:block relative w-1/2 bg-[var(--surface-900)] overflow-hidden">
-        <img src="assets/images/auth/login/login-background.jpeg" alt="Smart Home"
-            class="absolute inset-0 w-full h-full object-cover opacity-60 mix-blend-overlay">
-
-        <div class="absolute inset-0 bg-gradient-to-br from-slate-900/90 via-slate-900/50 to-orange-900/40"></div>
-
-        <div class="absolute bottom-20 left-12 right-12 text-white">
-            <div class="h-1 w-12 bg-orange-500 mb-6 rounded-full"></div>
-            <blockquote class="text-3xl font-light font-sans leading-snug">
-                "La tecnología debe sentirse como magia, pero brindarte el control de la realidad."
-            </blockquote>
-            <p class="mt-4 text-slate-300 font-medium">— Manifiesto Hestia</p>
+    <div class="space-y-2">
+        <div class="flex items-center justify-between">
+            <label for="password"
+                class="block text-sm font-medium text-[var(--surface-700)] dark:text-[var(--surface-300)]">
+                Contraseña
+            </label>
+            <a href="#" routerLink="/auth/recuperar"
+                class="text-sm font-medium text-orange-600 hover:text-orange-500 dark:text-orange-500 dark:hover:text-orange-400">
+                ¿Olvidaste tu contraseña?
+            </a>
         </div>
+
+        <p-password id="password" formControlName="password" [feedback]="false" [toggleMask]="true" styleClass="w-full"
+            inputStyleClass="w-full !bg-[var(--surface-50)] dark:!bg-[var(--surface-950)] pl-10" placeholder="••••••••"
+            icon="pi pi-lock">
+        </p-password>
     </div>
 
+    <div class="flex items-center space-x-2">
+        <p-checkbox [binary]="true" inputId="remember" formControlName="remember"></p-checkbox>
+        <label for="remember" class="text-sm text-[var(--surface-600)] dark:text-[var(--surface-400)]">
+            Mantener sesión iniciada
+        </label>
+    </div>
+
+    <p-button label="Iniciar Sesión" type="submit"
+        styleClass="w-full !bg-orange-600 !border-orange-600 hover:!bg-orange-500 hover:!border-orange-500 text-white font-bold py-3 shadow-lg shadow-orange-500/20"
+        (onClick)="onSubmit()"></p-button>
+
+</form>
+
+<div class="text-center mt-6">
+    <p class="text-sm text-[var(--surface-500)] dark:text-[var(--surface-400)]">
+        ¿No tienes una cuenta?
+        <a routerLink="/auth/registro"
+            class="font-medium text-orange-600 hover:text-orange-500 dark:text-orange-500 transition-colors">
+            Solicita acceso aquí
+        </a>
+    </p>
 </div>

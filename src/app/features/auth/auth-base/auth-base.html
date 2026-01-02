@@ -1,0 +1,28 @@
+<div class="min-h-screen w-full flex bg-[var(--surface-0)] dark:bg-[var(--surface-900)] transition-colors duration-300">
+
+    <div class="w-full lg:w-1/2 flex flex-col justify-center items-center p-8 sm:p-12 lg:p-20 relative z-10">
+
+        <div class="w-full max-w-md space-y-8 p-2">
+            <div class="flex justify-center align-center">
+                <hta-hestia-brand width="150px" />
+            </div>
+            <router-outlet></router-outlet>
+        </div>
+    </div>
+
+    <div class="hidden lg:block relative w-1/2 bg-[var(--surface-900)] overflow-hidden">
+        <img src="assets/images/auth/login/login-background.jpeg" alt="Smart Home"
+            class="absolute inset-0 w-full h-full object-cover opacity-60 mix-blend-overlay">
+
+        <div class="absolute inset-0 bg-gradient-to-br from-slate-900/90 via-slate-900/50 to-orange-900/40"></div>
+
+        <div class="absolute bottom-20 left-12 right-12 text-white">
+            <div class="h-1 w-12 bg-orange-500 mb-6 rounded-full"></div>
+            <blockquote class="text-3xl font-light font-sans leading-snug">
+                "La tecnología debe sentirse como magia, pero brindarte el control de la realidad."
+            </blockquote>
+            <p class="mt-4 text-slate-300 font-medium">— Manifiesto Hestia</p>
+        </div>
+    </div>
+
+</div>

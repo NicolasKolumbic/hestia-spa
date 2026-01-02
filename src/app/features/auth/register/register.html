@@ -1,1 +1,58 @@
-<p>register works!</p>
+<div class="w-full max-w-md space-y-6 p-4">
+    <div class="text-center mb-8">
+        <h2 class="text-3xl font-bold text-[var(--surface-900)] dark:text-[var(--surface-0)]">
+            Crear Cuenta
+        </h2>
+        <p class="mt-2 text-sm text-[var(--surface-500)] dark:text-[var(--surface-400)]">
+            Únete a Hestia y toma el control.
+        </p>
+    </div>
+
+    <form class="space-y-5">
+        <div class="space-y-2">
+            <label class="block text-sm font-medium text-[var(--surface-700)] dark:text-[var(--surface-300)]">Nombre
+                Completo</label>
+            <input pInputText placeholder="Ej. Juan Pérez"
+                class="w-full pl-4 py-3 !bg-[var(--surface-50)] dark:!bg-[var(--surface-950)] !border-[var(--surface-300)] dark:!border-[var(--surface-700)]" />
+        </div>
+
+        <div class="space-y-2">
+            <label class="block text-sm font-medium text-[var(--surface-700)] dark:text-[var(--surface-300)]">Correo
+                Electrónico</label>
+            <input pInputText type="email" placeholder="usuario@hestia.com"
+                class="w-full pl-4 py-3 !bg-[var(--surface-50)] dark:!bg-[var(--surface-950)] !border-[var(--surface-300)] dark:!border-[var(--surface-700)]" />
+        </div>
+
+        <div class="space-y-2">
+            <label
+                class="block text-sm font-medium text-[var(--surface-700)] dark:text-[var(--surface-300)]">Contraseña</label>
+            <p-password [toggleMask]="true" styleClass="w-full"
+                inputStyleClass="w-full pl-4 py-3 !bg-[var(--surface-50)] dark:!bg-[var(--surface-950)] !border-[var(--surface-300)] dark:!border-[var(--surface-700)]"
+                placeholder="Mínimo 8 caracteres" promptLabel="Ingresa una contraseña" weakLabel="Débil"
+                mediumLabel="Media" strongLabel="Fuerte">
+                <ng-template pTemplate="footer">
+                    <p class="mt-2 text-xs text-[var(--surface-500)]">Sugerencia: Usa símbolos y números.</p>
+                </ng-template>
+            </p-password>
+        </div>
+
+        <div class="flex items-start gap-3">
+            <p-checkbox [binary]="true" inputId="terms" styleClass="mt-1"></p-checkbox>
+            <label for="terms" class="text-sm text-[var(--surface-600)] dark:text-[var(--surface-400)] leading-snug">
+                Acepto los <a href="#" class="text-orange-600 hover:underline">Términos de Servicio</a> y la <a href="#"
+                    class="text-orange-600 hover:underline">Política de Privacidad</a>.
+            </label>
+        </div>
+
+        <p-button label="Registrarse"
+            styleClass="w-full !bg-orange-600 !border-orange-600 hover:!bg-orange-500 text-white font-bold py-3 shadow-lg shadow-orange-500/20"></p-button>
+    </form>
+
+    <div class="text-center mt-4">
+        <p class="text-sm text-[var(--surface-500)] dark:text-[var(--surface-400)]">
+            ¿Ya tienes cuenta?
+            <a routerLink="/auth/login"
+                class="font-medium text-orange-600 hover:text-orange-500 transition-colors">Iniciar Sesión</a>
+        </p>
+    </div>
+</div>
