@@ -1,16 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap');
 @import "primeicons/primeicons.css";
 
+@import "tailwindcss";
 @layer tailwind-base, primeng, tailwind-utilities;
-
-@layer tailwind-base {
-    @tailwind base;
-}
-
-@layer tailwind-utilities {
-    @tailwind components;
-    @tailwind utilities;
-}
 
 body {
     background-color: var(--p-surface-50);
