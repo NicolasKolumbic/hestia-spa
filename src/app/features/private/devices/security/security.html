@@ -1,1 +1,84 @@
-<p>security works!</p>
+<div class="p-6 min-h-screen bg-[var(--surface-50)] dark:bg-[var(--surface-900)] transition-colors duration-300">
+
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h1 class="text-3xl font-bold text-[var(--surface-900)] dark:text-[var(--surface-0)]">
+                Centro de Seguridad
+            </h1>
+            <p class="text-[var(--surface-500)] dark:text-[var(--surface-400)]">
+                <span class="text-green-500 font-bold">●</span> Sistema Armado
+            </p>
+        </div>
+
+        <p-selectButton [options]="viewOptions" [(ngModel)]="selectedView" optionLabel="name"
+            styleClass="hidden sm:flex"></p-selectButton>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-6">
+
+        @for (cam of cameras; track cam.id) {
+        <div
+            class="relative group rounded-xl overflow-hidden shadow-lg bg-black aspect-video border border-[var(--surface-200)] dark:border-[var(--surface-700)]">
+
+            <img [src]="cam.streamUrl"
+                class="w-full h-full object-cover opacity-90 transition-opacity hover:opacity-100">
+
+            <div
+                class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/60 pointer-events-none">
+            </div>
+
+            <div class="absolute top-0 left-0 right-0 p-4 flex justify-between items-start z-10">
+                <div>
+                    <h3 class="text-white font-bold text-lg drop-shadow-md">{{ cam.name }}</h3>
+                    <p class="text-xs text-slate-300">{{ cam.location }}</p>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    @if (cam.isRecording) {
+                    <div
+                        class="px-2 py-1 rounded bg-red-600/80 backdrop-blur-sm flex items-center gap-1.5 animate-pulse">
+                        <div class="w-2 h-2 rounded-full bg-white"></div>
+                        <span class="text-[10px] font-bold text-white tracking-widest">REC</span>
+                    </div>
+                    }
+                    <div
+                        class="px-2 py-1 rounded bg-black/50 backdrop-blur-sm border border-white/10 text-[10px] font-mono text-white">
+                        {{ cam.status === 'online' ? 'EN VIVO' : 'OFFLINE' }}
+                    </div>
+                </div>
+            </div>
+
+            <div
+                class="absolute bottom-0 left-0 right-0 p-4 flex justify-between items-center z-10 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-200">
+
+                <span class="text-xs font-mono text-slate-400">{{ now | date:'HH:mm:ss' }}</span>
+
+                <div class="flex gap-2">
+                    <button pTooltip="Hablar" tooltipPosition="top"
+                        class="w-9 h-9 rounded-full bg-white/10 hover:bg-orange-600 backdrop-blur-md text-white border border-white/20 flex items-center justify-center transition-colors">
+                        <i class="pi pi-microphone"></i>
+                    </button>
+                    <button pTooltip="Captura" tooltipPosition="top"
+                        class="w-9 h-9 rounded-full bg-white/10 hover:bg-white/30 backdrop-blur-md text-white border border-white/20 flex items-center justify-center transition-colors">
+                        <i class="pi pi-camera"></i>
+                    </button>
+                    <button pTooltip="Pantalla Completa" tooltipPosition="top"
+                        class="w-9 h-9 rounded-full bg-white/10 hover:bg-white/30 backdrop-blur-md text-white border border-white/20 flex items-center justify-center transition-colors">
+                        <i class="pi pi-expand"></i>
+                    </button>
+                </div>
+            </div>
+
+            @if (cam.status === 'offline') {
+            <div class="absolute inset-0 bg-black/80 flex flex-col items-center justify-center z-20 backdrop-blur-sm">
+                <i class="pi pi-wifi-slash text-4xl text-slate-500 mb-2"></i>
+                <span class="text-slate-400 font-medium">Señal Perdida</span>
+                <button
+                    class="mt-4 px-4 py-2 text-xs rounded-full border border-slate-600 text-slate-300 hover:bg-slate-800">Reconectar</button>
+            </div>
+            }
+
+        </div>
+        }
+    </div>
+</div>
