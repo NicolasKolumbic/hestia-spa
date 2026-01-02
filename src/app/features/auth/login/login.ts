@@ -1,14 +1,16 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { CheckboxModule } from 'primeng/checkbox';
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-login',
+  standalone: true,
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -23,6 +25,11 @@ import { PasswordModule } from 'primeng/password';
 })
 export class Login {
   private readonly _formBuilder = inject(FormBuilder);
+  private readonly _authService = inject(AuthService);
+  private readonly _router = inject(Router);
+
+  protected show2fa = false;
+  protected tempToken = '';
 
   protected loginForm: FormGroup = this._formBuilder.group({
     email: ['', [Validators.required, Validators.email]],
@@ -30,12 +37,49 @@ export class Login {
     remember: [false]
   });
 
+  protected twoFactorForm: FormGroup = this._formBuilder.group({
+    code: ['', [Validators.required, Validators.minLength(6), Validators.maxLength(6)]]
+  });
+
   protected onSubmit(): void {
     if (this.loginForm.valid) {
-      console.log('Form Submitted', this.loginForm.value);
-      // TODO: Implement Auth Service integration
+      const { email, password } = this.loginForm.value;
+      this._authService.login({ email, password }).subscribe({
+        next: (res) => {
+          if (res.requires2fa && res.temp_token) {
+            this.show2fa = true;
+            this.tempToken = res.temp_token;
+          } else if (res.access_token) {
+            localStorage.setItem('token', res.access_token);
+            this._router.navigate(['/']);
+          }
+        },
+        error: (err) => {
+          console.error('Login failed', err);
+          // Ideally show a toast/message
+        }
+      });
     } else {
       this.loginForm.markAllAsTouched();
+    }
+  }
+
+  protected onVerify2fa(): void {
+    if (this.twoFactorForm.valid) {
+      const code = this.twoFactorForm.value.code;
+      this._authService.verify2fa(this.tempToken, code).subscribe({
+        next: (res) => {
+          if (res.access_token) {
+            localStorage.setItem('token', res.access_token);
+            this._router.navigate(['/']);
+          }
+        },
+        error: (err) => {
+           console.error('2FA failed', err);
+        }
+      });
+    } else {
+        this.twoFactorForm.markAllAsTouched();
     }
   }
 }
