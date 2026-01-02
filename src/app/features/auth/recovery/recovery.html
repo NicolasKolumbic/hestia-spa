@@ -1,1 +1,38 @@
-<p>recovery works!</p>
+<div class="w-full max-w-md space-y-8 p-4">
+
+    <div class="text-center">
+        <div
+            class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-orange-100 dark:bg-orange-900/20 mb-6 text-orange-600">
+            <i class="pi pi-key text-2xl"></i>
+        </div>
+
+        <h2 class="text-2xl font-bold text-[var(--surface-900)] dark:text-[var(--surface-0)]">
+            ¿Olvidaste tu contraseña?
+        </h2>
+        <p class="mt-2 text-sm text-[var(--surface-500)] dark:text-[var(--surface-400)]">
+            No te preocupes. Ingresa tu correo y te enviaremos instrucciones para restablecerla.
+        </p>
+    </div>
+
+    <form class="space-y-6">
+        <div class="space-y-2">
+            <label class="block text-sm font-medium text-[var(--surface-700)] dark:text-[var(--surface-300)]">Correo
+                Registrado</label>
+            <div class="relative">
+                <i class="pi pi-envelope absolute left-3 top-1/2 -translate-y-1/2 text-[var(--surface-400)]"></i>
+                <input pInputText type="email" placeholder="usuario@hestia.com"
+                    class="w-full pl-10 py-3 !bg-[var(--surface-50)] dark:!bg-[var(--surface-950)] !border-[var(--surface-300)] dark:!border-[var(--surface-700)]" />
+            </div>
+        </div>
+
+        <p-button label="Enviar enlace de recuperación"
+            styleClass="w-full !bg-orange-600 !border-orange-600 hover:!bg-orange-500 text-white font-bold py-3 shadow-lg shadow-orange-500/20"></p-button>
+    </form>
+
+    <div class="text-center">
+        <a routerLink="/auth/login"
+            class="inline-flex items-center gap-2 text-sm font-medium text-[var(--surface-500)] hover:text-[var(--surface-900)] dark:text-[var(--surface-400)] dark:hover:text-[var(--surface-100)] transition-colors">
+            <i class="pi pi-arrow-left"></i> Volver al Login
+        </a>
+    </div>
+</div>
