@@ -1,6 +1,6 @@
 <div class="p-6 min-h-screen bg-[var(--surface-50)] dark:bg-[var(--surface-900)] transition-colors duration-300">
 
-    <div class="flex justify-between items-center mb-6">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <div>
             <h1 class="text-3xl font-bold text-[var(--surface-900)] dark:text-[var(--surface-0)]">
                 Centro de Seguridad
@@ -10,19 +10,18 @@
             </p>
         </div>
 
-        <p-selectButton [options]="viewOptions" [(ngModel)]="selectedView" optionLabel="name"
-            styleClass="hidden sm:flex"></p-selectButton>
+        <div class="flex gap-3">
+            <p-button label="Vincular Cámara" icon="pi pi-plus" (onClick)="openNewCameraDialog()"
+                styleClass="!bg-orange-600 !border-orange-600 hover:!bg-orange-500"></p-button>
+        </div>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-6">
-
         @for (cam of cameras; track cam.id) {
         <div
             class="relative group rounded-xl overflow-hidden shadow-lg bg-black aspect-video border border-[var(--surface-200)] dark:border-[var(--surface-700)]">
 
-            <img [src]="cam.streamUrl"
-                class="w-full h-full object-cover opacity-90 transition-opacity hover:opacity-100">
-
+            <img [src]="cam.streamUrl || 'assets/placeholder-cam.jpg'" class="w-full h-full object-cover opacity-90">
             <div
                 class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/60 pointer-events-none">
             </div>
@@ -33,52 +32,59 @@
                     <p class="text-xs text-slate-300">{{ cam.location }}</p>
                 </div>
 
-                <div class="flex items-center gap-2">
-                    @if (cam.isRecording) {
-                    <div
-                        class="px-2 py-1 rounded bg-red-600/80 backdrop-blur-sm flex items-center gap-1.5 animate-pulse">
-                        <div class="w-2 h-2 rounded-full bg-white"></div>
-                        <span class="text-[10px] font-bold text-white tracking-widest">REC</span>
-                    </div>
-                    }
+                <div class="flex items-center gap-2" (click)="$event.stopPropagation()">
                     <div
                         class="px-2 py-1 rounded bg-black/50 backdrop-blur-sm border border-white/10 text-[10px] font-mono text-white">
                         {{ cam.status === 'online' ? 'EN VIVO' : 'OFFLINE' }}
                     </div>
+
+                    <button (click)="menu.toggle($event); selectedCamera = cam"
+                        class="w-8 h-8 rounded-full bg-black/40 hover:bg-black/60 text-white flex items-center justify-center transition-colors backdrop-blur-sm">
+                        <i class="pi pi-ellipsis-v text-xs"></i>
+                    </button>
+                    <p-menu #menu [model]="cameraActions" [popup]="true" appendTo="body"></p-menu>
                 </div>
             </div>
-
-            <div
-                class="absolute bottom-0 left-0 right-0 p-4 flex justify-between items-center z-10 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-200">
-
-                <span class="text-xs font-mono text-slate-400">{{ now | date:'HH:mm:ss' }}</span>
-
-                <div class="flex gap-2">
-                    <button pTooltip="Hablar" tooltipPosition="top"
-                        class="w-9 h-9 rounded-full bg-white/10 hover:bg-orange-600 backdrop-blur-md text-white border border-white/20 flex items-center justify-center transition-colors">
-                        <i class="pi pi-microphone"></i>
-                    </button>
-                    <button pTooltip="Captura" tooltipPosition="top"
-                        class="w-9 h-9 rounded-full bg-white/10 hover:bg-white/30 backdrop-blur-md text-white border border-white/20 flex items-center justify-center transition-colors">
-                        <i class="pi pi-camera"></i>
-                    </button>
-                    <button pTooltip="Pantalla Completa" tooltipPosition="top"
-                        class="w-9 h-9 rounded-full bg-white/10 hover:bg-white/30 backdrop-blur-md text-white border border-white/20 flex items-center justify-center transition-colors">
-                        <i class="pi pi-expand"></i>
-                    </button>
-                </div>
-            </div>
-
-            @if (cam.status === 'offline') {
-            <div class="absolute inset-0 bg-black/80 flex flex-col items-center justify-center z-20 backdrop-blur-sm">
-                <i class="pi pi-wifi-slash text-4xl text-slate-500 mb-2"></i>
-                <span class="text-slate-400 font-medium">Señal Perdida</span>
-                <button
-                    class="mt-4 px-4 py-2 text-xs rounded-full border border-slate-600 text-slate-300 hover:bg-slate-800">Reconectar</button>
-            </div>
-            }
 
         </div>
         }
     </div>
 </div>
+
+<p-dialog [(visible)]="cameraDialogVisible" [header]="isEditMode ? 'Configurar Cámara' : 'Vincular Nueva Cámara'"
+    [modal]="true" styleClass="w-full max-w-lg" [draggable]="false" [resizable]="false">
+
+    <div class="flex flex-col gap-4 pt-4">
+        <div class="flex flex-col gap-2">
+            <label class="text-sm font-medium">Nombre del Dispositivo</label>
+            <input pInputText [(ngModel)]="cameraForm.name" placeholder="Ej. Entrada Principal" />
+        </div>
+
+        <div class="flex flex-col gap-2">
+            <label class="text-sm font-medium">Ubicación</label>
+            <p-select [options]="locations" [(ngModel)]="cameraForm.location" placeholder="Selecciona un espacio"
+                styleClass="w-full">
+            </p-select>
+        </div>
+
+        <div class="flex flex-col gap-2">
+            <label class="text-sm font-medium">URL de Transmisión (RTSP/HLS)</label>
+            <div class="relative">
+                <i class="pi pi-link absolute left-3 top-1/2 -translate-y-1/2 text-[var(--surface-400)]"></i>
+                <input pInputText [(ngModel)]="cameraForm.streamUrl" placeholder="rtsp://192.168.1.x:554/stream"
+                    class="pl-10 w-full" />
+            </div>
+            <small class="text-[var(--surface-500)]">Consulta el manual de tu cámara IP.</small>
+        </div>
+    </div>
+
+    <ng-template pTemplate="footer">
+        <p-button label="Cancelar" (onClick)="cameraDialogVisible = false"
+            styleClass="p-button-text !text-[var(--surface-500)]"></p-button>
+        <p-button label="Guardar" (onClick)="saveCamera()" styleClass="!bg-orange-600 !border-orange-600"></p-button>
+    </ng-template>
+</p-dialog>
+
+<p-confirmDialog header="Confirmación" icon="pi pi-exclamation-triangle" acceptLabel="Sí, eliminar"
+    rejectLabel="Cancelar" acceptButtonStyleClass="!bg-red-600 !border-red-600" rejectButtonStyleClass="p-button-text">
+</p-confirmDialog>
