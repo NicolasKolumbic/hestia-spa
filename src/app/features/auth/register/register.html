@@ -1,58 +1,105 @@
-<div class="w-full max-w-md space-y-6 p-4">
-    <div class="text-center mb-8">
-        <h2 class="text-3xl font-bold text-[var(--surface-900)] dark:text-[var(--surface-0)]">
-            Crear Cuenta
+<div class="flex min-h-full flex-col justify-center px-6  lg:px-8">
+    <div class="sm:mx-auto sm:w-full sm:max-w-sm">
+        <h2
+            class="text-center text-2xl font-bold leading-9 tracking-tight text-[var(--surface-900)] dark:text-[var(--surface-0)]">
+            Crear una nueva cuenta
         </h2>
-        <p class="mt-2 text-sm text-[var(--surface-500)] dark:text-[var(--surface-400)]">
+        <p class="mt-2 text-sm text-center text-[var(--surface-500)] dark:text-[var(--surface-400)]">
             Únete a Hestia y toma el control.
         </p>
     </div>
 
-    <form class="space-y-5">
-        <div class="space-y-2">
-            <label class="block text-sm font-medium text-[var(--surface-700)] dark:text-[var(--surface-300)]">Nombre
-                Completo</label>
-            <input pInputText placeholder="Ej. Juan Pérez"
-                class="w-full pl-4 py-3 !bg-[var(--surface-50)] dark:!bg-[var(--surface-950)] !border-[var(--surface-300)] dark:!border-[var(--surface-700)]" />
-        </div>
+    <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
+        @let firstName = registerForm.controls['firstName'];
+        @let lastName = registerForm.controls['lastName'];
+        @let email = registerForm.controls['email'];
+        @let password = registerForm.controls['password'];
+        <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="space-y-6">
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <p-floatlabel variant="on">
+                        <input pInputText id="firstName" formControlName="firstName"
+                            class="w-full h-[2.2rem] rounded-md pl-5"
+                            [invalid]="firstName.invalid && firstName.touched" />
+                        <label for="firstName" class="px-2">First Name</label>
+                    </p-floatlabel>
+                    @if(firstName.invalid && firstName.touched){
+                    <div>
+                        <p-message severity="error" size="small" variant="simple">
+                            @if (firstName.hasError('required')) {
+                            First name is Required.
+                            }
+                        </p-message>
+                    </div>
+                    }
+                </div>
+                <div>
+                    <p-floatlabel variant="on">
+                        <input pInputText id="lastName" formControlName="lastName"
+                            class="w-full h-[2.2rem] rounded-md pl-5"
+                            [invalid]="lastName.invalid && lastName.touched" />
+                        <label for="lastName" class="px-2">Last Name</label>
+                    </p-floatlabel>
+                    @if(lastName.invalid && lastName.touched){
+                    <div>
+                        <p-message severity="error" size="small" variant="simple">
+                            @if (lastName.hasError('required')) {
+                            Last name is Required.
+                            }
+                        </p-message>
+                    </div>
+                    }
+                </div>
+            </div>
 
-        <div class="space-y-2">
-            <label class="block text-sm font-medium text-[var(--surface-700)] dark:text-[var(--surface-300)]">Correo
-                Electrónico</label>
-            <input pInputText type="email" placeholder="usuario@hestia.com"
-                class="w-full pl-4 py-3 !bg-[var(--surface-50)] dark:!bg-[var(--surface-950)] !border-[var(--surface-300)] dark:!border-[var(--surface-700)]" />
-        </div>
+            <div>
+                <p-floatlabel variant="on">
+                    <input pInputText id="email" formControlName="email" class="w-full h-[2.2rem] rounded-md pl-5"
+                        [invalid]="email.invalid && email.touched" />
+                    <label for="email" class="px-2">Email</label>
+                </p-floatlabel>
+                @if(email.invalid && email.touched){
+                <div>
+                    <p-message severity="error" size="small" variant="simple">
+                        @if (email.hasError('required')) {
+                        Email is Required.
+                        }
+                        @if (email.hasError('email')) {
+                        Please enter a valid email.
+                        }
+                    </p-message>
+                </div>
+                }
+            </div>
 
-        <div class="space-y-2">
-            <label
-                class="block text-sm font-medium text-[var(--surface-700)] dark:text-[var(--surface-300)]">Contraseña</label>
-            <p-password [toggleMask]="true" styleClass="w-full"
-                inputStyleClass="w-full pl-4 py-3 !bg-[var(--surface-50)] dark:!bg-[var(--surface-950)] !border-[var(--surface-300)] dark:!border-[var(--surface-700)]"
-                placeholder="Mínimo 8 caracteres" promptLabel="Ingresa una contraseña" weakLabel="Débil"
-                mediumLabel="Media" strongLabel="Fuerte">
-                <ng-template pTemplate="footer">
-                    <p class="mt-2 text-xs text-[var(--surface-500)]">Sugerencia: Usa símbolos y números.</p>
-                </ng-template>
-            </p-password>
-        </div>
+            <div>
+                <p-floatlabel variant="on">
+                    <p-password formControlName="password" [toggleMask]="true" class="w-full"
+                        inputStyleClass="w-full h-[2.2rem] rounded-md pl-5"
+                        [invalid]="password.invalid && password.touched"></p-password>
+                    <label for="password" class="px-2">Password</label>
+                </p-floatlabel>
+                @if(password.invalid && password.touched){
+                <div>
+                    <p-message severity="error" size="small" variant="simple">
+                        @if (password.hasError('required')) {
+                        Password is Required.
+                        }
+                    </p-message>
+                </div>
+                }
+            </div>
 
-        <div class="flex items-start gap-3">
-            <p-checkbox [binary]="true" inputId="terms" styleClass="mt-1"></p-checkbox>
-            <label for="terms" class="text-sm text-[var(--surface-600)] dark:text-[var(--surface-400)] leading-snug">
-                Acepto los <a href="#" class="text-orange-600 hover:underline">Términos de Servicio</a> y la <a href="#"
-                    class="text-orange-600 hover:underline">Política de Privacidad</a>.
-            </label>
-        </div>
+            <p-button label="Registrarse" [disabled]="registerForm.invalid" type="submit"
+                styleClass="w-full !bg-orange-600 !border-orange-600 hover:!bg-orange-500 text-white font-bold py-3 shadow-lg shadow-orange-500/20"></p-button>
 
-        <p-button label="Registrarse"
-            styleClass="w-full !bg-orange-600 !border-orange-600 hover:!bg-orange-500 text-white font-bold py-3 shadow-lg shadow-orange-500/20"></p-button>
-    </form>
-
-    <div class="text-center mt-4">
-        <p class="text-sm text-[var(--surface-500)] dark:text-[var(--surface-400)]">
-            ¿Ya tienes cuenta?
-            <a routerLink="/auth/login"
-                class="font-medium text-orange-600 hover:text-orange-500 transition-colors">Iniciar Sesión</a>
-        </p>
+            <div class="text-center mt-4">
+                <p class="text-sm text-[var(--surface-500)] dark:text-[var(--surface-400)]">
+                    ¿Ya tienes cuenta?
+                    <a routerLink="/auth/login"
+                        class="font-medium text-orange-600 hover:text-orange-500 transition-colors">Iniciar Sesión</a>
+                </p>
+            </div>
+        </form>
     </div>
 </div>

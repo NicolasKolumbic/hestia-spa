@@ -39,7 +39,7 @@ export const HestiaPreset = definePreset(Aura, {
         formField: {
             paddingX: '0.75rem',
             paddingY: '0.75rem',
-            borderRadius: '0.5rem', // Bordes redondeados modernos
+            borderRadius: '0.75rem', // Bordes redondeados modernos
             transitionDuration: '0.2s',
 
             // Foco específico del input
@@ -49,6 +49,7 @@ export const HestiaPreset = definePreset(Aura, {
                 offset: '0',
                 shadow: '0 0 0 1px {primary.500}' // Sombra interna naranja sutil
             },
+
 
             // Tamaños (sm y lg)
             sm: { fontSize: '0.875rem', paddingX: '0.625rem', paddingY: '0.625rem' },
@@ -236,6 +237,22 @@ export const HestiaPreset = definePreset(Aura, {
                 }
             }
 
+        },
+        floatlabel: {
+            colorScheme: {
+                dark: {
+                    on: {
+                        active: {
+                            background: '{surface.900}',
+                        },
+                    }
+                },
+                light: {
+                    on: {
+                        active: { background: '{surface.900}' },
+                    }
+                }
+            }
         }
     }
 });

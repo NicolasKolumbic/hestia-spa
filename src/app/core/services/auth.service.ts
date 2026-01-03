@@ -25,4 +25,8 @@ export class AuthService {
   verify2fa(token: string, code: string): Observable<{ access_token: string }> {
     return this.http.post<{ access_token: string }>(this.apiUrl + '/2fa/authenticate', { token, code });
   }
+
+  register(data: any): Observable<any> {
+    return this.http.post(this.apiUrl + '/register', data);
+  }
 }

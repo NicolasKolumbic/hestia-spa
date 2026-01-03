@@ -7,6 +7,8 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
 import { AuthService } from '../../../core/services/auth.service';
+import { MessageModule } from 'primeng/message';
+import { FloatLabelModule } from 'primeng/floatlabel';
 
 @Component({
   selector: 'app-login',
@@ -19,6 +21,8 @@ import { AuthService } from '../../../core/services/auth.service';
     PasswordModule,
     CheckboxModule,
     RouterLink,
+    MessageModule,
+    FloatLabelModule,
   ],
   templateUrl: './login.html',
   styleUrl: './login.css',
@@ -75,11 +79,11 @@ export class Login {
           }
         },
         error: (err) => {
-           console.error('2FA failed', err);
+          console.error('2FA failed', err);
         }
       });
     } else {
-        this.twoFactorForm.markAllAsTouched();
+      this.twoFactorForm.markAllAsTouched();
     }
   }
 }
