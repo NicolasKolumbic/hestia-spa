@@ -1,1 +1,93 @@
-<p>lighting works!</p>
+<div class="p-6 min-h-screen bg-[var(--surface-50)] dark:bg-[var(--surface-900)] transition-colors duration-300">
+
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-[var(--surface-900)] dark:text-[var(--surface-0)]">
+                Iluminación
+            </h1>
+            <p class="text-[var(--surface-500)] dark:text-[var(--surface-400)]">
+                {{ getActiveCount() }} luces encendidas
+            </p>
+        </div>
+
+        <p-button label="Apagar Todo" icon="pi pi-power-off" (onClick)="turnAllOff()"
+            styleClass="!bg-[var(--surface-200)] !text-[var(--surface-700)] !border-transparent hover:!bg-[var(--surface-300)] dark:!bg-[var(--surface-800)] dark:!text-[var(--surface-300)] dark:hover:!text-white"></p-button>
+    </div>
+
+    <div class="mb-8">
+        <h3 class="text-xs font-bold uppercase tracking-widest text-[var(--surface-500)] mb-3 pl-1">Ambientes</h3>
+        <div class="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
+            @for (scene of scenes; track scene.name) {
+            <button (click)="activateScene(scene)"
+                class="flex items-center gap-3 px-5 py-3 rounded-xl border transition-all duration-300 min-w-max group
+                 bg-[var(--surface-0)] border-[var(--surface-200)] hover:border-orange-500 hover:shadow-lg
+                 dark:bg-[var(--surface-800)] dark:border-[var(--surface-700)] dark:hover:border-orange-500 dark:hover:shadow-orange-900/20">
+                <div
+                    class="w-8 h-8 rounded-full flex items-center justify-center bg-[var(--surface-100)] dark:bg-[var(--surface-700)] group-hover:bg-orange-100 dark:group-hover:bg-orange-500/20 text-[var(--surface-600)] dark:text-[var(--surface-300)] group-hover:text-orange-600 dark:group-hover:text-orange-500 transition-colors">
+                    <i [class]="'pi ' + scene.icon"></i>
+                </div>
+                <span class="font-medium text-[var(--surface-700)] dark:text-[var(--surface-200)]">{{ scene.name
+                    }}</span>
+            </button>
+            }
+        </div>
+    </div>
+
+    <h3 class="text-xs font-bold uppercase tracking-widest text-[var(--surface-500)] mb-3 pl-1">Dispositivos</h3>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+        @for (light of lights; track light.id) {
+        <div class="relative p-5 rounded-2xl border transition-all duration-300 bg-[var(--surface-0)] dark:bg-[var(--surface-800)]"
+            [ngClass]="light.isOn ? 'border-transparent' : 'border-[var(--surface-200)] dark:border-[var(--surface-700)]'"
+            [style.boxShadow]="light.isOn ? '0 10px 30px -10px ' + light.color + '66' : 'none'"
+            [style.border-color]="light.isOn ? light.color : ''">
+
+            <div class="flex justify-between items-start mb-4">
+                <div class="flex flex-col gap-1">
+                    <i class="pi pi-lightbulb text-2xl transition-colors duration-300"
+                        [style.color]="light.isOn ? light.color : 'var(--surface-400)'"
+                        [style.text-shadow]="light.isOn ? '0 0 10px ' + light.color : 'none'">
+                    </i>
+                    <span class="text-xs font-medium text-[var(--surface-500)] mt-2">{{ light.room }}</span>
+                    <h3 class="font-bold text-lg text-[var(--surface-900)] dark:text-[var(--surface-0)] leading-tight">
+                        {{ light.name }}
+                    </h3>
+                </div>
+
+                <p-inputSwitch [(ngModel)]="light.isOn"></p-inputSwitch>
+            </div>
+
+            <div class="flex items-center gap-3 pt-2">
+
+                <div class="flex-1">
+                    <p-slider [(ngModel)]="light.brightness" [disabled]="!light.isOn" step="10" [min]="0" [max]="100"
+                        styleClass="w-full"></p-slider>
+                </div>
+
+                <!--<button (click)="op.toggle($event); selectedLight = light" [disabled]="!light.isOn"
+                    class="w-8 h-8 rounded-full border-2 border-[var(--surface-0)] dark:border-[var(--surface-600)] shadow-sm cursor-pointer transition-transform hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed"
+                    [style.background-color]="light.color">
+                </button>-->
+            </div>
+
+        </div>
+        }
+    </div>
+</div>
+
+<p-dialog #op styleClass="p-0 border-none shadow-2xl bg-[var(--surface-800)]">
+    <div class="p-4 flex flex-col gap-3 w-64">
+        <span class="text-sm font-bold text-white mb-1">Color de la Luz</span>
+
+        <p-colorPicker [(ngModel)]="selectedLight.color" [inline]="true" styleClass="w-full"></p-colorPicker>
+
+        <div class="flex justify-between gap-2 mt-2">
+            @for (color of presetColors; track color) {
+            <div (click)="selectedLight.color = color"
+                class="w-6 h-6 rounded-full cursor-pointer hover:scale-110 transition-transform border border-white/20"
+                [style.background-color]="color">
+            </div>
+            }
+        </div>
+    </div>
+</p-dialog>
