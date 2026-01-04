@@ -1,15 +1,15 @@
-<nav>
-    <p-menu [model]="items" class="flex justify-center">
+<nav class="h-[calc(100vh-2rem)]">
+    <p-menu [model]="items" class="flex justify-center h-full" styleClass="px-2">
         <ng-template #start>
             <div class="flex items-center justify-center mt-[1rem]">
                 <hta-hestia-brand width="40%"></hta-hestia-brand>
             </div>
         </ng-template>
         <ng-template #submenuheader let-item>
-            <span class="uppercase subtitle-menu">{{ item.label }}</span>
+            <span class="uppercase subtitle-menu pl-2">{{ item.label }}</span>
         </ng-template>
         <ng-template #item let-item>
-            <a pRipple class=" flex items-center p-menu-item-link" [routerLink]="item.routerLink"
+            <a pRipple class=" flex items-center p-menu-item-link pl-6 py-2" [routerLink]="item.routerLink"
                 routerLinkActive="active-item"
                 [routerLinkActiveOptions]="item.routerLinkActiveOptions || { exact: false }">
                 <span [class]="item.icon"></span>

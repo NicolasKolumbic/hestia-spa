@@ -199,6 +199,9 @@ export const HestiaPreset = definePreset(Aura, {
     },
     components: {
         menu: {
+            list: {
+                gap: '0.5rem',
+            },
             colorScheme: {
                 dark: {
                     root: {
