@@ -12,11 +12,12 @@ import { ToastModule } from 'primeng/toast';
 import { MenuModule } from 'primeng/menu';
 import { SelectModule } from 'primeng/select';
 import { TooltipModule } from 'primeng/tooltip';
+import { Button } from "@shared/components/button/button";
 
 @Component({
   selector: 'app-spaces-list',
   imports: [CommonModule, FormsModule, DialogModule, InputTextModule,
-    ButtonModule, ConfirmDialogModule, ToastModule, MenuModule, SelectModule, TooltipModule],
+    ButtonModule, ConfirmDialogModule, ToastModule, MenuModule, SelectModule, TooltipModule, Button],
   templateUrl: './spaces-list.html',
   providers: [MessageService, ConfirmationService],
   styleUrl: './spaces-list.css',
