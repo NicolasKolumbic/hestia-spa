@@ -6,10 +6,11 @@ import { ToggleSwitchModule } from 'primeng/toggleswitch'; // O p-toggleswitch e
 import { SliderModule } from 'primeng/slider';
 import { ColorPickerModule } from 'primeng/colorpicker';
 import { DialogModule } from 'primeng/dialog';
+import { Slider } from "@shared/components/slider/slider";
 
 @Component({
   selector: 'app-lighting',
-  imports: [CommonModule, FormsModule, ButtonModule, ToggleSwitchModule, SliderModule, DialogModule, ColorPickerModule],
+  imports: [CommonModule, FormsModule, ButtonModule, ToggleSwitchModule, SliderModule, DialogModule, ColorPickerModule, Slider],
   templateUrl: './lighting.html',
   styleUrl: './lighting.css',
 })

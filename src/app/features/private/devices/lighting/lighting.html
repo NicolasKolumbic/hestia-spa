@@ -60,8 +60,7 @@
             <div class="flex items-center gap-3 pt-2">
 
                 <div class="flex-1">
-                    <p-slider [(ngModel)]="light.brightness" [disabled]="!light.isOn" step="10" [min]="0" [max]="100"
-                        styleClass="w-full"></p-slider>
+                    <hta-slider />
                 </div>
 
                 <!--<button (click)="op.toggle($event); selectedLight = light" [disabled]="!light.isOn"
