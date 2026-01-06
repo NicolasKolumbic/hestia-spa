@@ -13,21 +13,19 @@
             @let password = loginForm.controls['password'];
             <div>
                 <p-floatlabel variant="on">
-                    <input pInputText id="email" formControlName="email" class="w-full h-[2.2rem] rounded-md pl-5"
+                    <input pInputText id="email" formControlName="email" class="w-full h-[2.2rem] rounded-md pl-8"
                         [invalid]="email.invalid && email.touched" />
                     <label for="email" class="px-2">Email</label>
                 </p-floatlabel>
                 @if(email.invalid && email.touched){
-                <div>
-                    <p-message severity="error" size="small" variant="simple">
-                        @if (email.hasError('required')) {
-                        Email is Required.
-                        }
-                        @if (email.hasError('email')) {
-                        Please enter a valid email.
-                        }
-                    </p-message>
-                </div>
+                <p-message severity="error" size="small" variant="simple" styleClass="flex justify-end mt-2">
+                    @if (email.hasError('required')) {
+                    Email is Required.
+                    }
+                    @if (email.hasError('email')) {
+                    Please enter a valid email.
+                    }
+                </p-message>
                 }
             </div>
 
@@ -39,13 +37,11 @@
                     <label for="password" class="px-2">Password</label>
                 </p-floatlabel>
                 @if(password.invalid && password.touched){
-                <div>
-                    <p-message severity="error" size="small" variant="simple">
-                        @if (password.hasError('required')) {
-                        Password is Required.
-                        }
-                    </p-message>
-                </div>
+                <p-message severity="error" size="small" variant="simple" styleClass="flex justify-end mt-2">
+                    @if (password.hasError('required')) {
+                    Password is Required.
+                    }
+                </p-message>
                 }
             </div>
             <a href="#" routerLink="/auth/recuperar"

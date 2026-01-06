@@ -19,26 +19,22 @@
             <label class="block text-sm font-medium text-[var(--surface-700)] dark:text-[var(--surface-300)]">Correo
                 Registrado</label>
             <div class="relative">
-                <i class="pi pi-envelope absolute left-3 top-1/2 -translate-y-1/2 text-[var(--surface-400)]"></i>
-                <div>
-                    <p-floatlabel variant="on">
-                        <input pInputText id="email" formControlName="email" placeholder="usuario@hestia.com"
-                            class="w-full h-[2.2rem] rounded-md pl-5" [invalid]="email.invalid && email.touched" />
-                        <label for="email" class="px-2">Email</label>
-                    </p-floatlabel>
-                    @if(email.invalid && email.touched){
-                    <div>
-                        <p-message severity="error" size="small" variant="simple">
-                            @if (email.hasError('required')) {
-                            Email is Required.
-                            }
-                            @if (email.hasError('email')) {
-                            Please enter a valid email.
-                            }
-                        </p-message>
-                    </div>
+                <p-floatlabel variant="on">
+                    <i class="pi pi-envelope absolute left-3 top-1/2 -translate-y-1/2 text-[var(--surface-400)]"></i>
+                    <input pInputText id="email" formControlName="email" class="w-full h-[2.2rem] rounded-md pl-8"
+                        [invalid]="email.invalid && email.touched" />
+                    <label for="email" class="px-2">Email</label>
+                </p-floatlabel>
+                @if(email.invalid && email.touched){
+                <p-message severity="error" size="small" variant="simple" styleClass="flex justify-end mt-2">
+                    @if (email.hasError('required')) {
+                    Email is Required.
                     }
-                </div>
+                    @if (email.hasError('email')) {
+                    Please enter a valid email.
+                    }
+                </p-message>
+                }
             </div>
         </div>
 

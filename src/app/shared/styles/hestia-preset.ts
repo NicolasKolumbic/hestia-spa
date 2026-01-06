@@ -252,8 +252,15 @@ export const HestiaPreset = definePreset(Aura, {
                 },
                 light: {
                     on: {
-                        active: { background: '{surface.900}' },
+                        active: { background: '{surface.0}' },
                     }
+                }
+            }
+        },
+        message: {
+            text: {
+                sm: {
+                    fontSize: '0.785rem'
                 }
             }
         }

@@ -24,13 +24,11 @@
                         <label for="firstName" class="px-2">First Name</label>
                     </p-floatlabel>
                     @if(firstName.invalid && firstName.touched){
-                    <div>
-                        <p-message severity="error" size="small" variant="simple">
-                            @if (firstName.hasError('required')) {
-                            First name is Required.
-                            }
-                        </p-message>
-                    </div>
+                    <p-message severity="error" size="small" variant="simple" styleClass="flex justify-end mt-2">
+                        @if (firstName.hasError('required')) {
+                        First name is Required.
+                        }
+                    </p-message>
                     }
                 </div>
                 <div>
@@ -42,7 +40,7 @@
                     </p-floatlabel>
                     @if(lastName.invalid && lastName.touched){
                     <div>
-                        <p-message severity="error" size="small" variant="simple">
+                        <p-message severity="error" size="small" variant="simple" styleClass="flex justify-end mt-2">
                             @if (lastName.hasError('required')) {
                             Last name is Required.
                             }
@@ -59,16 +57,14 @@
                     <label for="email" class="px-2">Email</label>
                 </p-floatlabel>
                 @if(email.invalid && email.touched){
-                <div>
-                    <p-message severity="error" size="small" variant="simple">
-                        @if (email.hasError('required')) {
-                        Email is Required.
-                        }
-                        @if (email.hasError('email')) {
-                        Please enter a valid email.
-                        }
-                    </p-message>
-                </div>
+                <p-message severity="error" size="small" variant="simple" styleClass="flex justify-end mt-2">
+                    @if (email.hasError('required')) {
+                    Email is Required.
+                    }
+                    @if (email.hasError('email')) {
+                    Please enter a valid email.
+                    }
+                </p-message>
                 }
             </div>
 
@@ -80,13 +76,11 @@
                     <label for="password" class="px-2">Password</label>
                 </p-floatlabel>
                 @if(password.invalid && password.touched){
-                <div>
-                    <p-message severity="error" size="small" variant="simple">
-                        @if (password.hasError('required')) {
-                        Password is Required.
-                        }
-                    </p-message>
-                </div>
+                <p-message severity="error" size="small" variant="simple" styleClass="flex justify-end mt-2">
+                    @if (password.hasError('required')) {
+                    Password is Required.
+                    }
+                </p-message>
                 }
             </div>
 
