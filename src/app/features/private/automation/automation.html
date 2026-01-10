@@ -1,1 +1,146 @@
-<p>automation works!</p>
+<div class="p-6 min-h-screen bg-[var(--surface-50)] dark:bg-[var(--surface-900)] transition-colors duration-300">
+
+    <div class="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+            <h1 class="text-3xl font-bold text-[var(--surface-900)] dark:text-[var(--surface-0)]">
+                Rutinas Inteligentes
+            </h1>
+            <p class="text-[var(--surface-500)] dark:text-[var(--surface-400)]">
+                Automatiza tu hogar con reglas simples.
+            </p>
+        </div>
+
+        <p-button label="Crear Rutina" icon="pi pi-plus" (onClick)="openCreator()"
+            styleClass="!bg-orange-600 !border-orange-600 hover:!bg-orange-500 shadow-lg shadow-orange-500/20"></p-button>
+    </div>
+
+    <div class="flex gap-2 mb-6 overflow-x-auto pb-2">
+        @for (filter of filters; track filter.value) {
+        <button (click)="activeFilter = filter.value" class="px-4 py-2 rounded-full text-sm font-medium transition-colors border
+               {{ activeFilter === filter.value 
+                  ? 'bg-[var(--surface-900)] text-white border-transparent dark:bg-white dark:text-black' 
+                  : 'bg-transparent border-[var(--surface-300)] text-[var(--surface-600)] dark:border-[var(--surface-700)] dark:text-[var(--surface-400)] hover:bg-[var(--surface-100)] dark:hover:bg-[var(--surface-800)]' 
+               }}">
+            {{ filter.label }}
+        </button>
+        }
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        @for (routine of routines; track routine.id) {
+        <div class="group relative rounded-2xl border transition-all duration-300 overflow-hidden
+                  bg-[var(--surface-0)] border-[var(--surface-200)] hover:shadow-lg
+                  dark:bg-[var(--surface-800)] dark:border-[var(--surface-700)]" [ngClass]="{
+             'opacity-60 grayscale': !routine.active,
+             'dark:hover:border-orange-500/50': routine.active
+           }">
+
+            <div
+                class="p-5 flex justify-between items-start border-b border-[var(--surface-100)] dark:border-[var(--surface-700)]">
+                <div>
+                    <h3 class="font-bold text-lg text-[var(--surface-900)] dark:text-[var(--surface-0)]">
+                        {{ routine.name }}
+                    </h3>
+                    <span
+                        class="text-xs font-mono text-[var(--surface-500)] bg-[var(--surface-100)] dark:bg-[var(--surface-700)] px-2 py-0.5 rounded">
+                        {{ routine.type }}
+                    </span>
+                </div>
+                <p-toggleswitch [(ngModel)]="routine.active"></p-toggleswitch>
+            </div>
+
+            <div class="p-5 flex items-center justify-between relative">
+
+                <div class="flex flex-col items-center gap-2 w-1/3 text-center">
+                    <div
+                        class="w-12 h-12 rounded-full bg-blue-50 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400 flex items-center justify-center text-xl">
+                        <i [class]="'pi ' + routine.triggerIcon"></i>
+                    </div>
+                    <span
+                        class="text-xs font-medium text-[var(--surface-600)] dark:text-[var(--surface-300)] leading-tight">
+                        {{ routine.triggerText }}
+                    </span>
+                </div>
+
+                <div class="text-[var(--surface-300)] dark:text-[var(--surface-600)]">
+                    <i class="pi pi-arrow-right text-xl"
+                        [ngClass]="routine.active ? 'animate-pulse text-orange-500' : ''"></i>
+                </div>
+
+                <div class="flex flex-col items-center gap-2 w-1/3 text-center">
+                    <div
+                        class="w-12 h-12 rounded-full bg-orange-50 text-orange-600 dark:bg-orange-500/20 dark:text-orange-500 flex items-center justify-center text-xl">
+                        <i [class]="'pi ' + routine.actionIcon"></i>
+                    </div>
+                    <span
+                        class="text-xs font-medium text-[var(--surface-600)] dark:text-[var(--surface-300)] leading-tight">
+                        {{ routine.actionText }}
+                    </span>
+                </div>
+
+            </div>
+
+            <div
+                class="px-5 py-3 bg-[var(--surface-50)] dark:bg-[var(--surface-900)]/50 flex justify-between items-center text-xs">
+                <span class="text-[var(--surface-500)] flex items-center gap-1">
+                    <i class="pi pi-history"></i> {{ routine.lastRun }}
+                </span>
+
+                <button pTooltip="Probar ahora" tooltipPosition="left"
+                    class="w-8 h-8 rounded-full hover:bg-[var(--surface-200)] dark:hover:bg-[var(--surface-700)] flex items-center justify-center text-[var(--surface-600)] dark:text-[var(--surface-400)] transition-colors">
+                    <i class="pi pi-play"></i>
+                </button>
+            </div>
+
+        </div>
+        }
+    </div>
+
+</div>
+
+<p-dialog [(visible)]="showCreator" header="Nueva Automatización" [modal]="true" [draggable]="false" [resizable]="false"
+    styleClass="w-full max-w-2xl">
+
+    <div class="pt-2 pb-6">
+        <div class="mb-6">
+            <label class="block text-sm font-bold mb-2 text-[var(--surface-700)] dark:text-[var(--surface-300)]">Nombre
+                de la Rutina</label>
+            <input pInputText placeholder="Ej. Modo Vacaciones"
+                class="w-full !bg-[var(--surface-50)] dark:!bg-[var(--surface-950)]" />
+        </div>
+
+        <div class="flex flex-col md:flex-row gap-4 items-stretch">
+
+            <div
+                class="flex-1 p-4 rounded-xl border border-dashed border-[var(--surface-300)] dark:border-[var(--surface-600)] hover:border-blue-500 bg-[var(--surface-50)] dark:bg-[var(--surface-900)] cursor-pointer transition-colors group">
+                <h4 class="text-xs font-bold uppercase tracking-wider text-blue-500 mb-4">Cuando...</h4>
+                <div
+                    class="flex flex-col items-center justify-center h-32 gap-3 text-[var(--surface-500)] group-hover:text-blue-500">
+                    <i class="pi pi-clock text-3xl"></i>
+                    <span class="text-sm font-medium">Agregar Disparador</span>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-center">
+                <i class="pi pi-arrow-right text-2xl text-[var(--surface-400)]"></i>
+            </div>
+
+            <div
+                class="flex-1 p-4 rounded-xl border border-dashed border-[var(--surface-300)] dark:border-[var(--surface-600)] hover:border-orange-500 bg-[var(--surface-50)] dark:bg-[var(--surface-900)] cursor-pointer transition-colors group">
+                <h4 class="text-xs font-bold uppercase tracking-wider text-orange-500 mb-4">Entonces...</h4>
+                <div
+                    class="flex flex-col items-center justify-center h-32 gap-3 text-[var(--surface-500)] group-hover:text-orange-500">
+                    <i class="pi pi-bolt text-3xl"></i>
+                    <span class="text-sm font-medium">Agregar Acción</span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <ng-template pTemplate="footer">
+        <p-button label="Cancelar" (onClick)="showCreator = false"
+            styleClass="p-button-text !text-[var(--surface-500)]"></p-button>
+        <p-button label="Guardar Rutina" icon="pi pi-check" styleClass="!bg-orange-600 !border-orange-600"></p-button>
+    </ng-template>
+</p-dialog>
