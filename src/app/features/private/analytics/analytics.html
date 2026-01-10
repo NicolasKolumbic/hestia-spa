@@ -1,1 +1,60 @@
-<p>analytics works!</p>
+<div class="p-6 min-h-screen bg-[var(--surface-50)] dark:bg-[var(--surface-900)] transition-colors duration-300">
+
+    <div class="flex flex-col xl:flex-row justify-between items-start xl:items-end gap-6 mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-[var(--surface-900)] dark:text-[var(--surface-0)]">
+                Análisis de Datos
+            </h1>
+            <p class="text-[var(--surface-500)] dark:text-[var(--surface-400)]">
+                Inteligencia predictiva y patrones de uso.
+            </p>
+        </div>
+
+        <div class="flex flex-col sm:flex-row gap-3 w-full xl:w-auto">
+            <p-datepicker [(ngModel)]="dateRange" selectionMode="range" [readonlyInput]="true"
+                placeholder="Seleccionar periodo" showIcon="true" styleClass="w-full sm:w-64"
+                inputStyleClass="!bg-[var(--surface-0)] dark:!bg-[var(--surface-800)]">
+            </p-datepicker>
+
+            <p-button label="Exportar CSV" icon="pi pi-download"
+                styleClass="!bg-[var(--surface-200)] !text-[var(--surface-700)] !border-transparent hover:!bg-[var(--surface-300)] dark:!bg-[var(--surface-800)] dark:!text-[var(--surface-300)] dark:hover:!text-white w-full sm:w-auto"></p-button>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+
+        <div
+            class="p-6 rounded-2xl border border-[var(--surface-200)] dark:border-[var(--surface-700)] bg-[var(--surface-0)] dark:bg-[var(--surface-800)] flex items-center justify-between">
+            <div>
+                <span class="text-xs font-bold uppercase tracking-wider text-purple-500 mb-1">Score Hestia</span>
+                <h3 class="text-3xl font-bold text-[var(--surface-900)] dark:text-[var(--surface-0)]">A+</h3>
+                <p class="text-xs text-[var(--surface-500)] mt-1">Eficiencia superior al 92% de usuarios.</p>
+            </div>
+            <div
+                class="h-16 w-16 rounded-full border-4 border-purple-500/30 border-t-purple-500 flex items-center justify-center text-purple-500 font-bold text-xl">
+                96
+            </div>
+        </div>
+
+        <div
+            class="p-6 rounded-2xl border border-[var(--surface-200)] dark:border-[var(--surface-700)] bg-[var(--surface-0)] dark:bg-[var(--surface-800)] flex items-center justify-between">
+            <div>
+                <span class="text-xs font-bold uppercase tracking-wider text-teal-500 mb-1">Estabilidad IoT</span>
+                <h3 class="text-3xl font-bold text-[var(--surface-900)] dark:text-[var(--surface-0)]">99.9%</h3>
+                <p class="text-xs text-[var(--surface-500)] mt-1">0 desconexiones críticas.</p>
+            </div>
+            <i class="pi pi-server text-4xl text-teal-500 opacity-80"></i>
+        </div>
+
+        <div
+            class="p-6 rounded-2xl border border-[var(--surface-200)] dark:border-[var(--surface-700)] bg-[var(--surface-0)] dark:bg-[var(--surface-800)] flex items-center justify-between">
+            <div>
+                <span class="text-xs font-bold uppercase tracking-wider text-blue-500 mb-1">Eventos Procesados</span>
+                <h3 class="text-3xl font-bold text-[var(--surface-900)] dark:text-[var(--surface-0)]">14.2k</h3>
+                <p class="text-xs text-[var(--surface-500)] mt-1">Promedio: 450/día.</p>
+            </div>
+            <i class="pi pi-database text-4xl text-blue-500 opacity-80"></i>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
