@@ -1,1 +1,86 @@
-<p>dashboard works!</p>
+<div class="p-6 min-h-screen bg-[var(--surface-50)] dark:bg-[var(--surface-900)] transition-colors duration-300">
+
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-[var(--surface-900)] dark:text-[var(--surface-0)]">
+            Buenas noches, Amy.
+        </h1>
+        <p class="text-[var(--surface-500)] dark:text-[var(--surface-400)]">
+            3 luces encendidas &bull; Puerta principal cerrada &bull; Alarma activada
+        </p>
+    </div>
+
+    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-8">
+
+        <button
+            class="col-span-2 p-4 rounded-2xl bg-gradient-to-br from-orange-500 to-orange-600 text-white shadow-lg hover:shadow-orange-500/40 transition-all flex flex-col items-start justify-between h-32">
+            <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-sm">
+                <i class="pi pi-home text-xl"></i>
+            </div>
+            <div class="text-left">
+                <span class="block font-bold text-lg">Llegar a Casa</span>
+                <span class="text-xs text-orange-100">Activar luces y clima</span>
+            </div>
+        </button>
+
+        <div
+            class="col-span-2 md:col-span-2 p-4 rounded-2xl border bg-[var(--surface-0)] dark:bg-[var(--surface-800)] border-[var(--surface-200)] dark:border-[var(--surface-700)] flex items-center justify-between shadow-sm">
+            <div class="flex items-center gap-4">
+                <div
+                    class="w-12 h-12 rounded-full bg-green-100 text-green-600 dark:bg-green-500/20 dark:text-green-500 flex items-center justify-center">
+                    <i class="pi pi-lock"></i>
+                </div>
+                <div>
+                    <span class="block font-bold dark:text-white">Entrada</span>
+                    <span class="text-xs text-green-600 dark:text-green-400 font-bold">CERRADA</span>
+                </div>
+            </div>
+            <p-button icon="pi pi-lock-open" styleClass="p-button-rounded p-button-text"></p-button>
+        </div>
+
+        <div
+            class="col-span-1 p-4 rounded-2xl border bg-[var(--surface-0)] dark:bg-[var(--surface-800)] border-[var(--surface-200)] dark:border-[var(--surface-700)] flex flex-col justify-center items-center text-center">
+            <span class="text-2xl font-bold dark:text-white">24°</span>
+            <span class="text-xs text-[var(--surface-500)]">Interior</span>
+        </div>
+
+        <div
+            class="col-span-1 p-4 rounded-2xl border bg-[var(--surface-0)] dark:bg-[var(--surface-800)] border-[var(--surface-200)] dark:border-[var(--surface-700)] flex flex-col justify-between items-center group cursor-pointer hover:border-orange-500 transition-colors">
+            <i class="pi pi-lightbulb text-xl text-[var(--surface-400)] group-hover:text-orange-500"></i>
+            <span class="text-xs font-bold mt-2 dark:text-[var(--surface-200)]">Sala</span>
+        </div>
+
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+        <div class="rounded-2xl overflow-hidden relative aspect-video shadow-md group">
+            <img src="assets/cam-front-door.jpg" class="w-full h-full object-cover">
+            <div
+                class="absolute top-3 left-3 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full text-xs text-white font-bold">
+                Entrada en Vivo
+            </div>
+            <div
+                class="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                <i class="pi pi-play text-4xl text-white"></i>
+            </div>
+        </div>
+
+        <div
+            class="p-6 rounded-2xl border border-[var(--surface-200)] dark:border-[var(--surface-700)] bg-[var(--surface-0)] dark:bg-[var(--surface-800)]">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-bold dark:text-white">Consumo Hoy</h3>
+                <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded font-bold">-12% vs ayer</span>
+            </div>
+            <div class="h-32 flex items-end gap-2">
+                <div class="w-1/6 bg-orange-200 h-[40%] rounded-t"></div>
+                <div class="w-1/6 bg-orange-300 h-[60%] rounded-t"></div>
+                <div class="w-1/6 bg-orange-500 h-[80%] rounded-t"></div>
+                <div class="w-1/6 bg-orange-400 h-[50%] rounded-t"></div>
+                <div class="w-1/6 bg-orange-300 h-[70%] rounded-t"></div>
+                <div class="w-1/6 bg-[var(--surface-200)] h-[30%] rounded-t"></div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
