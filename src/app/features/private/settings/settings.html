@@ -1,1 +1,312 @@
-<p>settings works!</p>
+<div class="p-6 min-h-screen bg-[var(--surface-50)] dark:bg-[var(--surface-900)] transition-colors duration-300">
+
+    <h1 class="text-3xl font-bold mb-8 text-[var(--surface-900)] dark:text-[var(--surface-0)]">
+        Configuración
+    </h1>
+
+    <div class="flex flex-col lg:flex-row gap-8">
+
+        <div class="w-full lg:w-64 flex-shrink-0">
+            <div
+                class="bg-[var(--surface-0)] dark:bg-[var(--surface-800)] rounded-2xl border border-[var(--surface-200)] dark:border-[var(--surface-700)] overflow-hidden">
+                @for (item of menuItems; track item.id) {
+                <button (click)="activeTab = item.id" class="w-full text-left px-6 py-4 flex items-center gap-3 transition-colors border-l-4
+                   {{ activeTab === item.id 
+                      ? 'bg-orange-50 dark:bg-orange-500/10 border-orange-500 text-orange-700 dark:text-orange-500 font-bold' 
+                      : 'border-transparent text-[var(--surface-600)] dark:text-[var(--surface-400)] hover:bg-[var(--surface-50)] dark:hover:bg-[var(--surface-700)]' 
+                   }}">
+                    <i [class]="'pi ' + item.icon"></i>
+                    {{ item.label }}
+                </button>
+                }
+
+                <div class="border-t border-[var(--surface-200)] dark:border-[var(--surface-700)] mt-2">
+                    <button
+                        class="w-full text-left px-6 py-4 flex items-center gap-3 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors font-medium">
+                        <i class="pi pi-sign-out"></i> Cerrar Sesión
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex-1">
+
+            @if (activeTab === 'profile') {
+            <div
+                class="bg-[var(--surface-0)] dark:bg-[var(--surface-800)] p-8 rounded-2xl border border-[var(--surface-200)] dark:border-[var(--surface-700)] animate-fade-in">
+                <h2 class="text-xl font-bold mb-6 dark:text-white">Mi Perfil</h2>
+
+                <div class="flex flex-col sm:flex-row gap-8 items-start">
+                    <div class="flex flex-col items-center gap-3">
+                        <div class="relative w-24 h-24">
+                            <img src="assets/avatar.jpg"
+                                class="w-full h-full rounded-full object-cover border-4 border-[var(--surface-100)] dark:border-[var(--surface-700)]">
+                            <button
+                                class="absolute bottom-0 right-0 p-2 rounded-full bg-orange-500 text-white shadow-md hover:bg-orange-600 transition-colors">
+                                <i class="pi pi-camera"></i>
+                            </button>
+                        </div>
+                        <span class="text-xs text-[var(--surface-500)]">Admin</span>
+                    </div>
+
+                    <div class="flex-1 w-full space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="flex flex-col gap-2">
+                                <label class="text-sm font-medium dark:text-[var(--surface-300)]">Nombre</label>
+                                <input pInputText value="Amy Elsner"
+                                    class="w-full !bg-[var(--surface-50)] dark:!bg-[var(--surface-900)]" />
+                            </div>
+                            <div class="flex flex-col gap-2">
+                                <label class="text-sm font-medium dark:text-[var(--surface-300)]">Email</label>
+                                <input pInputText value="amy@hestia.com"
+                                    class="w-full !bg-[var(--surface-50)] dark:!bg-[var(--surface-900)]" />
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col gap-2">
+                            <label class="text-sm font-medium dark:text-[var(--surface-300)]">Contraseña</label>
+                            <p-button label="Cambiar Contraseña"
+                                styleClass="p-button-outlined p-button-secondary w-full sm:w-auto"></p-button>
+                        </div>
+
+                        <div class="pt-4 flex justify-end">
+                            <p-button label="Guardar Cambios" styleClass="!bg-orange-600 !border-orange-600"></p-button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            }
+
+            @if (activeTab === 'home') {
+            <div class="space-y-6 animate-fade-in">
+
+                <div
+                    class="bg-[var(--surface-0)] dark:bg-[var(--surface-800)] p-8 rounded-2xl border border-[var(--surface-200)] dark:border-[var(--surface-700)]">
+                    <h2 class="text-xl font-bold mb-4 dark:text-white">Detalles del Hogar</h2>
+                    <div class="flex flex-col gap-2">
+                        <label class="text-sm font-medium dark:text-[var(--surface-300)]">Nombre de la Casa</label>
+                        <input pInputText value="Casa Principal"
+                            class="w-full !bg-[var(--surface-50)] dark:!bg-[var(--surface-900)]" />
+                    </div>
+                </div>
+
+                <div
+                    class="bg-[var(--surface-0)] dark:bg-[var(--surface-800)] p-8 rounded-2xl border border-[var(--surface-200)] dark:border-[var(--surface-700)]">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-xl font-bold dark:text-white">Miembros</h2>
+                        <p-button label="Invitar" icon="pi pi-user-plus"
+                            styleClass="p-button-sm !bg-orange-600 !border-orange-600"></p-button>
+                    </div>
+
+                    <div class="space-y-4">
+                        @for (member of members; track member.name) {
+                        <div
+                            class="flex items-center justify-between p-3 rounded-lg hover:bg-[var(--surface-50)] dark:hover:bg-[var(--surface-700)] transition-colors">
+                            <div class="flex items-center gap-3">
+                                <img [src]="member.avatar" class="w-10 h-10 rounded-full">
+                                <div>
+                                    <p class="font-bold text-sm dark:text-[var(--surface-100)]">{{ member.name }}</p>
+                                    <p class="text-xs text-[var(--surface-500)]">{{ member.role }}</p>
+                                </div>
+                            </div>
+                            @if (member.role !== 'Propietario') {
+                            <button
+                                class="text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 p-2 rounded-full transition-colors">
+                                <i class="pi pi-trash"></i>
+                            </button>
+                            }
+                        </div>
+                        }
+                    </div>
+                </div>
+            </div>
+            }
+
+            @if (activeTab === 'integrations') {
+            <div
+                class="bg-[var(--surface-0)] dark:bg-[var(--surface-800)] p-8 rounded-2xl border border-[var(--surface-200)] dark:border-[var(--surface-700)] animate-fade-in">
+                <h2 class="text-xl font-bold mb-6 dark:text-white">Asistentes de Voz & Hubs</h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div
+                        class="p-4 rounded-xl border border-[var(--surface-200)] dark:border-[var(--surface-700)] flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <i class="pi pi-google text-2xl"></i>
+                            <div>
+                                <h3 class="font-bold dark:text-white">Google Home</h3>
+                                <p class="text-xs text-green-500 font-bold">● Conectado</p>
+                            </div>
+                        </div>
+                        <p-button label="Configurar" styleClass="p-button-text p-button-sm"></p-button>
+                    </div>
+
+                    <div
+                        class="p-4 rounded-xl border border-[var(--surface-200)] dark:border-[var(--surface-700)] flex items-center justify-between opacity-75">
+                        <div class="flex items-center gap-3">
+                            <i class="pi pi-amazon text-2xl"></i>
+                            <div>
+                                <h3 class="font-bold dark:text-white">Amazon Alexa</h3>
+                                <p class="text-xs text-[var(--surface-500)]">No vinculado</p>
+                            </div>
+                        </div>
+                        <p-button label="Conectar" styleClass="p-button-outlined p-button-sm"></p-button>
+                    </div>
+                </div>
+            </div>
+            }
+
+            @if (activeTab === 'preferences') {
+            <div
+                class="bg-[var(--surface-0)] dark:bg-[var(--surface-800)] p-8 rounded-2xl border border-[var(--surface-200)] dark:border-[var(--surface-700)] animate-fade-in space-y-6">
+                <h2 class="text-xl font-bold mb-6 dark:text-white">Preferencias de la App</h2>
+
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="font-medium dark:text-[var(--surface-100)]">Apariencia</h3>
+                        <p class="text-sm text-[var(--surface-500)]">Elige entre modo claro, oscuro o sistema.</p>
+                    </div>
+                    <p-selectButton [options]="themeOptions" [(ngModel)]="selectedTheme"
+                        optionLabel="name"></p-selectButton>
+                </div>
+
+                <hr class="border-[var(--surface-200)] dark:border-[var(--surface-700)]">
+
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="font-medium dark:text-[var(--surface-100)]">Notificaciones Push</h3>
+                        <p class="text-sm text-[var(--surface-500)]">Alertas de seguridad y rutinas.</p>
+                    </div>
+                    <p-toggleswitch [(ngModel)]="notificationsEnabled"></p-toggleswitch>
+                </div>
+
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="font-medium dark:text-[var(--surface-100)]">Efectos de Sonido</h3>
+                        <p class="text-sm text-[var(--surface-500)]">Feedback auditivo al tocar botones.</p>
+                    </div>
+                    <p-toggleswitch [(ngModel)]="soundEnabled"></p-toggleswitch>
+                </div>
+
+            </div>
+            }
+
+            @if (activeTab === 'security') {
+            <div class="space-y-8 animate-fade-in">
+
+                <div
+                    class="bg-[var(--surface-0)] dark:bg-[var(--surface-800)] p-8 rounded-2xl border border-[var(--surface-200)] dark:border-[var(--surface-700)]">
+                    <h2 class="text-xl font-bold mb-6 dark:text-white flex items-center gap-2">
+                        <i class="pi pi-key text-orange-500"></i> Credenciales de Acceso
+                    </h2>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="flex flex-col gap-2">
+                            <label class="text-sm font-medium dark:text-[var(--surface-300)]">Contraseña Actual</label>
+                            <p-password [toggleMask]="true" [feedback]="false" styleClass="w-full"
+                                inputStyleClass="w-full !bg-[var(--surface-50)] dark:!bg-[var(--surface-900)]"></p-password>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                        <div class="flex flex-col gap-2">
+                            <label class="text-sm font-medium dark:text-[var(--surface-300)]">Nueva Contraseña</label>
+                            <p-password [toggleMask]="true" styleClass="w-full"
+                                inputStyleClass="w-full !bg-[var(--surface-50)] dark:!bg-[var(--surface-900)]"
+                                placeholder="Mínimo 8 caracteres"></p-password>
+                        </div>
+                        <div class="flex flex-col gap-2">
+                            <label class="text-sm font-medium dark:text-[var(--surface-300)]">Confirmar Nueva</label>
+                            <p-password [toggleMask]="true" [feedback]="false" styleClass="w-full"
+                                inputStyleClass="w-full !bg-[var(--surface-50)] dark:!bg-[var(--surface-900)]"></p-password>
+                        </div>
+                    </div>
+
+                    <div class="pt-6 flex justify-end">
+                        <p-button label="Actualizar Contraseña"
+                            styleClass="!bg-[var(--surface-900)] dark:!bg-[var(--surface-0)] !text-[var(--surface-0)] dark:!text-[var(--surface-900)] !border-none"></p-button>
+                    </div>
+                </div>
+
+                <div
+                    class="bg-[var(--surface-0)] dark:bg-[var(--surface-800)] p-8 rounded-2xl border border-[var(--surface-200)] dark:border-[var(--surface-700)] flex flex-col md:flex-row justify-between items-center gap-6">
+                    <div class="flex items-start gap-4">
+                        <div class="p-3 rounded-full bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400">
+                            <i class="pi pi-shield text-2xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-lg dark:text-white">Autenticación en Dos Pasos (2FA)</h3>
+                            <p class="text-sm text-[var(--surface-500)] max-w-md mt-1">
+                                Añade una capa extra de seguridad. Te pediremos un código enviado a tu celular cada vez
+                                que inicies sesión en un dispositivo nuevo.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-3">
+                        <span
+                            class="text-sm font-bold {{ twoFactorEnabled ? 'text-green-500' : 'text-[var(--surface-400)]' }}">
+                            {{ twoFactorEnabled ? 'ACTIVADO' : 'DESACTIVADO' }}
+                        </span>
+                        <p-toggleswitch [(ngModel)]="twoFactorEnabled"></p-toggleswitch>
+                    </div>
+                </div>
+
+                <div
+                    class="bg-[var(--surface-0)] dark:bg-[var(--surface-800)] p-8 rounded-2xl border border-[var(--surface-200)] dark:border-[var(--surface-700)]">
+                    <h2 class="text-xl font-bold mb-6 dark:text-white flex items-center gap-2">
+                        <i class="pi pi-desktop text-[var(--surface-500)]"></i> Dispositivos Conectados
+                    </h2>
+
+                    <div class="space-y-4">
+                        @for (session of sessions; track session.id) {
+                        <div
+                            class="flex items-center justify-between p-4 rounded-xl border border-[var(--surface-100)] dark:border-[var(--surface-700)] bg-[var(--surface-50)] dark:bg-[var(--surface-900)]/50">
+                            <div class="flex items-center gap-4">
+                                <i class="pi text-2xl text-[var(--surface-600)] dark:text-[var(--surface-400)]"
+                                    [ngClass]="session.type === 'mobile' ? 'pi-mobile' : 'pi-desktop'"></i>
+
+                                <div>
+                                    <p class="font-bold text-sm dark:text-[var(--surface-100)] flex items-center gap-2">
+                                        {{ session.name }}
+                                        @if (session.current) {
+                                        <span
+                                            class="px-2 py-0.5 rounded text-[10px] bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400 font-bold uppercase tracking-wider">
+                                            Este dispositivo
+                                        </span>
+                                        }
+                                    </p>
+                                    <p class="text-xs text-[var(--surface-500)]">
+                                        {{ session.location }} • Última vez: {{ session.lastActive }}
+                                    </p>
+                                </div>
+                            </div>
+
+                            @if (!session.current) {
+                            <p-button icon="pi pi-times" label="Revocar"
+                                styleClass="p-button-text p-button-sm p-button-danger"></p-button>
+                            }
+                        </div>
+                        }
+                    </div>
+                </div>
+
+                <div
+                    class="border border-red-200 dark:border-red-900/30 bg-red-50 dark:bg-red-900/10 p-6 rounded-2xl flex flex-col sm:flex-row justify-between items-center gap-4">
+                    <div>
+                        <h3 class="font-bold text-red-700 dark:text-red-400">Eliminar Cuenta</h3>
+                        <p class="text-sm text-red-600/80 dark:text-red-400/70">
+                            Esta acción borrará permanentemente tus datos, configuraciones y desvinculará todos los
+                            dispositivos.
+                        </p>
+                    </div>
+                    <p-button label="Eliminar Cuenta"
+                        styleClass="p-button-danger p-button-outlined whitespace-nowrap"></p-button>
+                </div>
+
+            </div>
+            }
+
+        </div>
+
+    </div>
+</div>
