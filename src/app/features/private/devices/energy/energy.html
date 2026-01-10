@@ -1,1 +1,113 @@
-<p>energy works!</p>
+<div class="p-6 min-h-screen bg-[var(--surface-50)] dark:bg-[var(--surface-900)] transition-colors duration-300">
+
+    <div class="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
+        <div>
+            <h1 class="text-3xl font-bold text-[var(--surface-900)] dark:text-[var(--surface-0)]">
+                Monitor de Energía
+            </h1>
+            <p class="text-[var(--surface-500)] dark:text-[var(--surface-400)]">
+                <span class="text-green-500 font-bold">●</span> Autosuficiencia actual: 65%
+            </p>
+        </div>
+
+        <p-selectButton [options]="ranges" [(ngModel)]="selectedRange" optionLabel="label"
+            styleClass="text-sm"></p-selectButton>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+
+        <div class="flex flex-col gap-4">
+            <div
+                class="p-4 rounded-xl border border-[var(--surface-200)] dark:border-[var(--surface-700)] bg-[var(--surface-0)] dark:bg-[var(--surface-800)] flex items-center justify-between relative overflow-hidden group">
+                <div
+                    class="absolute inset-0 bg-yellow-500/5 dark:bg-yellow-500/10 group-hover:bg-yellow-500/20 transition-colors">
+                </div>
+                <div>
+                    <p class="text-xs font-bold uppercase tracking-wider text-yellow-600 dark:text-yellow-500 mb-1">
+                        Producción Solar</p>
+                    <span class="text-2xl font-bold text-[var(--surface-900)] dark:text-[var(--surface-0)]">4.2
+                        kW</span>
+                </div>
+                <i class="pi pi-sun text-3xl text-yellow-500 animate-spin-slow"></i>
+            </div>
+
+            <div
+                class="p-4 rounded-xl border border-[var(--surface-200)] dark:border-[var(--surface-700)] bg-[var(--surface-0)] dark:bg-[var(--surface-800)] flex items-center justify-between relative overflow-hidden">
+                <div class="absolute inset-0 bg-blue-500/5 dark:bg-blue-500/10"></div>
+                <div>
+                    <p class="text-xs font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 mb-1">
+                        Importado de Red</p>
+                    <span class="text-2xl font-bold text-[var(--surface-900)] dark:text-[var(--surface-0)]">1.8
+                        kW</span>
+                </div>
+                <i class="pi pi-bolt text-3xl text-blue-500"></i>
+            </div>
+
+            <div
+                class="p-4 rounded-xl border border-[var(--surface-200)] dark:border-[var(--surface-700)] bg-[var(--surface-0)] dark:bg-[var(--surface-800)] flex items-center justify-between relative overflow-hidden">
+                <div class="absolute inset-0 bg-green-500/5 dark:bg-green-500/10"></div>
+                <div>
+                    <p class="text-xs font-bold uppercase tracking-wider text-green-600 dark:text-green-500 mb-1">
+                        Batería (Tesla Wall)</p>
+                    <span class="text-2xl font-bold text-[var(--surface-900)] dark:text-[var(--surface-0)]">82%</span>
+                    <span class="text-xs text-[var(--surface-500)] ml-2">Cargando...</span>
+                </div>
+                <i class="pi pi-battery text-3xl text-green-500"></i>
+            </div>
+        </div>
+
+        <div
+            class="col-span-1 lg:col-span-2 p-6 rounded-2xl border border-[var(--surface-200)] dark:border-[var(--surface-700)] bg-[var(--surface-0)] dark:bg-[var(--surface-800)] shadow-lg">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-bold text-lg text-[var(--surface-900)] dark:text-[var(--surface-0)]">Historial de
+                    Consumo</h3>
+                <div class="flex items-center gap-4 text-xs">
+                    <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-yellow-400"></span>
+                        Solar</span>
+                    <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-orange-500"></span>
+                        Casa</span>
+                </div>
+            </div>
+            <p-chart type="line" [data]="chartData" [options]="chartOptions" height="300px"></p-chart>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+        <div
+            class="p-6 rounded-2xl border border-[var(--surface-200)] dark:border-[var(--surface-700)] bg-[var(--surface-0)] dark:bg-[var(--surface-800)]">
+            <h3 class="font-bold text-lg mb-6 text-[var(--surface-900)] dark:text-[var(--surface-0)]">Distribución de
+                Carga</h3>
+
+            <div class="space-y-6">
+                @for (device of topDevices; track device.name) {
+                <div class="relative">
+                    <div class="flex justify-between text-sm mb-1">
+                        <span
+                            class="font-medium text-[var(--surface-700)] dark:text-[var(--surface-200)] flex items-center gap-2">
+                            <i [class]="'pi ' + device.icon"></i> {{ device.name }}
+                        </span>
+                        <span class="font-bold text-[var(--surface-900)] dark:text-[var(--surface-0)]">{{ device.value
+                            }} kW</span>
+                    </div>
+                    <div
+                        class="h-2 w-full bg-[var(--surface-100)] dark:bg-[var(--surface-700)] rounded-full overflow-hidden">
+                        <div class="h-full rounded-full transition-all duration-1000 ease-out"
+                            [style.width]="device.percentage + '%'" [style.background-color]="device.color">
+                        </div>
+                    </div>
+                </div>
+                }
+            </div>
+        </div>
+
+        <div
+            class="p-6 rounded-2xl border border-[var(--surface-200)] dark:border-[var(--surface-700)] bg-[var(--surface-0)] dark:bg-[var(--surface-800)] flex flex-col justify-between relative overflow-hidden">
+            <div
+                class="absolute right-0 top-0 w-64 h-64 bg-orange-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none">
+            </div>
+
+            <div>
+                <h3 class="font-bold text-lg mb-2 text-[var(--surface-900)] dark:text-[var(--surface-0)]">Estimación
+                    Mensual</h3>
+                <p class="text-sm text-[var(--surface-500)]">Basado en tu uso actual y tarifas
