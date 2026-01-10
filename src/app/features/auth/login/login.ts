@@ -9,6 +9,7 @@ import { PasswordModule } from 'primeng/password';
 import { AuthService } from '../../../core/services/auth.service';
 import { MessageModule } from 'primeng/message';
 import { FloatLabelModule } from 'primeng/floatlabel';
+import { FloatLabelInput } from '@shared/components/float-label-input/float-label-input';
 
 @Component({
   selector: 'app-login',
@@ -23,6 +24,7 @@ import { FloatLabelModule } from 'primeng/floatlabel';
     RouterLink,
     MessageModule,
     FloatLabelModule,
+    FloatLabelInput,
   ],
   templateUrl: './login.html',
   styleUrl: './login.css',

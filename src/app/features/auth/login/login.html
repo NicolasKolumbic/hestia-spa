@@ -9,24 +9,9 @@
     <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
         <!-- Login Form -->
         <form *ngIf="!show2fa" [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-6">
-            @let email = loginForm.controls['email'];
             @let password = loginForm.controls['password'];
             <div>
-                <p-floatlabel variant="on">
-                    <input pInputText id="email" formControlName="email" class="w-full h-[2.2rem] rounded-md pl-8"
-                        [invalid]="email.invalid && email.touched" />
-                    <label for="email" class="px-2">Email</label>
-                </p-floatlabel>
-                @if(email.invalid && email.touched){
-                <p-message severity="error" size="small" variant="simple" styleClass="flex justify-end mt-2">
-                    @if (email.hasError('required')) {
-                    Email is Required.
-                    }
-                    @if (email.hasError('email')) {
-                    Please enter a valid email.
-                    }
-                </p-message>
-                }
+                <hta-float-label-input label="Email" id="email" formControlName="email" />
             </div>
 
             <div>
