@@ -19,6 +19,10 @@ input.p-inputtext.p-invalid {
     border-color: var(--p-inputtext-invalid-border-color);
 }
 
+.p-toggleswitch-handle {
+    top: 18%;
+}
+
 @media (prefers-color-scheme: dark) {
     body {
         background-color: var(--p-surface-900);
