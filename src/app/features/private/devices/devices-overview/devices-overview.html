@@ -1,1 +1,87 @@
-<p>devices-overview works!</p>
+<div class="p-6 min-h-screen bg-[var(--surface-50)] dark:bg-[var(--surface-900)] transition-colors duration-300">
+
+    <h1 class="text-3xl font-bold mb-6 text-[var(--surface-900)] dark:text-[var(--surface-0)]">
+        Resumen del Sistema
+    </h1>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+        <div class="lg:col-span-2">
+            <div
+                class="p-6 rounded-2xl border border-[var(--surface-200)] dark:border-[var(--surface-700)] bg-[var(--surface-0)] dark:bg-[var(--surface-800)]">
+                <h3
+                    class="font-bold text-lg mb-6 flex items-center gap-2 text-[var(--surface-900)] dark:text-[var(--surface-0)]">
+                    <i class="pi pi-clock text-orange-500"></i> Actividad Reciente
+                </h3>
+
+                <p-timeline [value]="events" align="left">
+                    <ng-template pTemplate="marker" let-event>
+                        <span class="flex w-8 h-8 items-center justify-center rounded-full text-white shadow-sm"
+                            [style.backgroundColor]="event.color">
+                            <i [class]="'pi ' + event.icon"></i>
+                        </span>
+                    </ng-template>
+
+                    <ng-template pTemplate="content" let-event>
+                        <div class="mb-6">
+                            <div class="flex justify-between items-start">
+                                <span class="font-bold text-[var(--surface-800)] dark:text-[var(--surface-100)]">{{
+                                    event.status }}</span>
+                                <small class="text-[var(--surface-500)]">{{ event.date }}</small>
+                            </div>
+                            <p class="text-sm text-[var(--surface-500)] mt-1">{{ event.description }}</p>
+
+                            @if (event.image) {
+                            <img [src]="event.image"
+                                class="mt-2 rounded-lg w-24 h-16 object-cover shadow-sm border border-[var(--surface-200)] dark:border-[var(--surface-600)]">
+                            }
+                        </div>
+                    </ng-template>
+                </p-timeline>
+            </div>
+        </div>
+
+        <div class="space-y-6">
+
+            <div
+                class="p-6 rounded-2xl border border-[var(--surface-200)] dark:border-[var(--surface-700)] bg-[var(--surface-0)] dark:bg-[var(--surface-800)]">
+                <h3 class="font-bold text-lg mb-4 text-[var(--surface-900)] dark:text-[var(--surface-0)]">
+                    Niveles de Batería
+                </h3>
+                <div class="space-y-4">
+                    @for (device of batteries; track device.name) {
+                    <div>
+                        <div class="flex justify-between text-sm mb-1">
+                            <span class="text-[var(--surface-600)] dark:text-[var(--surface-300)]">{{ device.name
+                                }}</span>
+                            <span [class]="device.level < 20 ? 'text-red-500 font-bold' : 'text-[var(--surface-500)]'">
+                                {{ device.level }}%
+                            </span>
+                        </div>
+                        <p-progressBar [value]="device.level" [showValue]="false" [style]="{'height': '6px'}"
+                            [color]="device.level < 20 ? '#ef4444' : '#22c55e'">
+                        </p-progressBar>
+                    </div>
+                    }
+                </div>
+            </div>
+
+            @if (offlineDevices.length > 0) {
+            <div class="p-6 rounded-2xl border border-red-200 dark:border-red-900/30 bg-red-50 dark:bg-red-900/10">
+                <h3 class="font-bold text-lg mb-2 text-red-700 dark:text-red-400 flex items-center gap-2">
+                    <i class="pi pi-exclamation-triangle"></i> Atención Requerida
+                </h3>
+                <ul class="list-disc list-inside text-sm text-red-600 dark:text-red-300 space-y-1">
+                    @for (dev of offlineDevices; track dev) {
+                    <li>{{ dev }} no responde.</li>
+                    }
+                </ul>
+                <button class="mt-4 text-xs font-bold text-red-700 dark:text-red-400 hover:underline">
+                    Ejecutar diagnóstico de red &rarr;
+                </button>
+            </div>
+            }
+
+        </div>
+    </div>
+</div>
