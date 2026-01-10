@@ -13,6 +13,7 @@ import { ButtonModule } from 'primeng/button';
 export class Button {
   label = input.required<string>();
   icon = input.required<string>();
+  disabled = input<boolean>();
 
   click = output<void>();
 
