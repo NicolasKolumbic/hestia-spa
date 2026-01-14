@@ -10,9 +10,9 @@
             </p>
         </div>
 
-        <div class="flex gap-3">
+        <div class="flex gap-3 items-center">
             <div class="relative">
-                <i class="pi pi-search absolute left-3 top-1/2 -translate-y-1/2 text-[var(--surface-400)]"></i>
+                <i class="pi pi-search absolute left-3 top-3 -translate-y-1/2 text-[var(--surface-400)]"></i>
                 <input pInputText placeholder="Buscar espacio..."
                     class="pl-10 !bg-[var(--surface-0)] dark:!bg-[var(--surface-800)] !border-[var(--surface-300)] dark:!border-[var(--surface-700)]" />
             </div>
@@ -22,67 +22,9 @@
 
     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
 
-        @for (space of spaces; track space.id) {
-        <div
-            class="group relative overflow-hidden rounded-xl border transition-all duration-300 cursor-pointer
-                  bg-[var(--surface-0)] border-[var(--surface-200)] hover:shadow-lg hover:-translate-y-1
-                  dark:bg-[var(--surface-800)] dark:border-[var(--surface-700)] dark:hover:border-orange-500/50 dark:hover:shadow-orange-900/20">
-
-            <div class="p-6 pb-0 flex justify-between items-start">
-                <div
-                    class="w-12 h-12 rounded-full flex items-center justify-center bg-orange-50 text-orange-600 dark:bg-orange-500/10 dark:text-orange-500">
-                    <i [class]="'pi ' + space.icon + ' text-xl'"></i>
-                </div>
-
-                <div class="p-6 pb-0 flex justify-between items-start">
-                    <button (click)="menu.toggle($event); selectedSpace = space"
-                        class="text-[var(--surface-400)] hover:text-[var(--surface-600)] dark:hover:text-[var(--surface-200)] transition-colors p-1 rounded-full hover:bg-[var(--surface-100)] dark:hover:bg-[var(--surface-700)]">
-                        <i class="pi pi-ellipsis-v"></i>
-                    </button>
-
-                    <p-menu #menu [model]="menuItems" [popup]="true" appendTo="body"></p-menu>
-                </div>
-            </div>
-
-            <div class="p-6">
-                <h3 class="text-xl font-bold mb-1 text-[var(--surface-900)] dark:text-[var(--surface-0)]">
-                    {{ space.name }}
-                </h3>
-                <p class="text-sm text-[var(--surface-500)] dark:text-[var(--surface-400)] mb-6">
-                    {{ space.deviceCount }} dispositivos conectados
-                </p>
-
-                <div class="flex flex-wrap gap-2">
-                    <div
-                        class="flex items-center gap-2 px-3 py-1 rounded-md bg-[var(--surface-100)] dark:bg-[var(--surface-700)]">
-                        <i class="pi pi-thermometer text-xs text-blue-500"></i>
-                        <span class="text-xs font-semibold dark:text-[var(--surface-200)]">{{ space.temp }}°C</span>
-                    </div>
-
-                    <div class="flex items-center gap-2 px-3 py-1 rounded-md"
-                        [ngClass]="space.lightsOn > 0 
-                    ? 'bg-orange-100 text-orange-700 dark:bg-orange-500/20 dark:text-orange-400' 
-                    : 'bg-[var(--surface-100)] text-[var(--surface-500)] dark:bg-[var(--surface-700)] dark:text-[var(--surface-400)]'">
-                        <i class="pi pi-lightbulb text-xs"></i>
-                        <span class="text-xs font-semibold">{{ space.lightsOn }} ON</span>
-                    </div>
-                </div>
-            </div>
-
-            <div
-                class="px-6 py-4 border-t border-[var(--surface-100)] dark:border-[var(--surface-700)] flex justify-between items-center bg-[var(--surface-50)] dark:bg-[var(--surface-900)]/50">
-                <span class="text-xs font-medium uppercase tracking-wide text-[var(--surface-500)]">Acción Rápida</span>
-
-                <button
-                    class="p-2 rounded-full hover:bg-[var(--surface-200)] dark:hover:bg-[var(--surface-700)] transition-colors text-[var(--surface-600)] dark:text-[var(--surface-300)]"
-                    pTooltip="Apagar todo en {{space.name}}" tooltipPosition="top">
-                    <i class="pi pi-power-off"></i>
-                </button>
-            </div>
-
-        </div>
+        @for (space of spaces(); track space.zoneId) {
+        <hta-space-card [space]="space" (delete)="deleteHandler($event)" (edit)="editHandler($event)" />
         }
-
         <div (click)="openNewSpaceDialog()" class="border-2 border-dashed rounded-xl flex flex-col items-center justify-center p-8 cursor-pointer transition-all gap-4 group
                 border-[var(--surface-300)] hover:border-orange-500/50 hover:bg-orange-50/50
                 dark:border-[var(--surface-700)] dark:hover:border-orange-500 dark:hover:bg-[var(--surface-800)]">
@@ -98,70 +40,8 @@
         </div>
     </div>
 </div>
-<p-dialog [(visible)]="spaceDialogVisible" [modal]="true" styleClass="w-full max-w-lg" [draggable]="false"
-    [resizable]="false" [contentStyle]="{'overflow': 'visible'}">
-    <ng-template #header>
-        <div class="text-xl font-bold text-[var(--surface-900)] dark:text-[var(--surface-0)] px-3 pt-3">
-            {{isEditMode ? 'Configurar Espacio' : 'Nuevo Espacio'}}
-        </div>
-    </ng-template>
-    <div class="flex flex-col gap-6 pt-4 px-3">
-
-        <div class="flex flex-col gap-2">
-            <label class="text-sm font-medium text-[var(--surface-700)] dark:text-[var(--surface-300)]">
-                Nombre
-            </label>
-            <input pInputText [(ngModel)]="spaceForm.name" placeholder="Ej. Oficina, Cuarto de Juegos"
-                class="w-full !bg-[var(--surface-50)] dark:!bg-[var(--surface-950)]" autofocus />
-        </div>
-
-        <div class="flex flex-col gap-2">
-            <label class="text-sm font-medium text-[var(--surface-700)] dark:text-[var(--surface-300)]">
-                Icono Representativo
-            </label>
-
-            <div
-                class="grid grid-cols-5 gap-3 p-3 rounded-lg border border-[var(--surface-200)] dark:border-[var(--surface-700)] bg-[var(--surface-50)] dark:bg-[var(--surface-900)]">
-                @for (icon of availableIcons; track icon) {
-                <div (click)="spaceForm.icon = icon" class="h-10 w-10 rounded-md flex items-center justify-center cursor-pointer transition-all duration-200
-                   border hover:border-orange-500
-                   {{ spaceForm.icon === icon 
-                      ? 'bg-orange-100 text-orange-600 border-orange-500 ring-2 ring-orange-500/30 dark:bg-orange-500/20 dark:text-orange-500' 
-                      : 'bg-[var(--surface-0)] border-[var(--surface-300)] text-[var(--surface-600)] dark:bg-[var(--surface-800)] dark:border-[var(--surface-700)] dark:text-[var(--surface-400)]' 
-                   }}">
-                    <i [class]="'pi ' + icon + ' text-lg'"></i>
-                </div>
-                }
-            </div>
-        </div>
-
-        <div class="flex flex-col gap-2">
-            <label class="text-sm font-medium text-[var(--surface-700)] dark:text-[var(--surface-300)]">
-                Tipo de Ambiente
-            </label>
-            <p-select [options]="spaceTypes" [(ngModel)]="spaceForm.type" optionLabel="label" optionValue="value"
-                placeholder="Selecciona el tipo"
-                styleClass="w-full !bg-[var(--surface-50)] dark:!bg-[var(--surface-950)]"
-                dropdownIcon="pi pi-chevron-down">
-            </p-select>
-        </div>
-
-    </div>
-
-    <ng-template pTemplate="footer">
-        <div class="flex gap-2 p-3">
-            <p-button label="Cancelar" (onClick)="spaceDialogVisible = false"
-                styleClass="p-button-text !text-[var(--surface-500)] hover:!text-[var(--surface-900)] dark:hover:!text-[var(--surface-200)]"></p-button>
-            <hta-button label="Guardar Espacio" icon="pi-check" (click)="saveSpace()"
-                [disabled]="!spaceForm.name || !spaceForm.icon" />
-        </div>
-    </ng-template>
-
-</p-dialog>
-
-<p-confirmDialog header="Confirmar Eliminación" icon="pi pi-exclamation-triangle" acceptLabel="Eliminar"
-    acceptButtonStyleClass="!bg-red-600 !border-red-600 !text-white" rejectLabel="Cancelar"
-    rejectButtonStyleClass="p-button-text" styleClass="max-w-sm">
-</p-confirmDialog>
+<hta-dialog [show]="showDialog()" (cancel)="cancelHandler()" (confirm)="confirmHandler($event)">
+    <hta-space-detail [space]="selectedSpace()" />
+</hta-dialog>
 
 <p-toast position="bottom-right"></p-toast>

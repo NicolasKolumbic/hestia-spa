@@ -1,1 +1,41 @@
-<p>space-detail works!</p>
+<div class="flex flex-col gap-6 pt-4 px-3">
+    <form [formGroup]="spaceForm">
+        <div class="flex flex-col gap-2">
+            <label class="text-sm font-medium text-[var(--surface-700)] dark:text-[var(--surface-300)]">
+                Nombre
+            </label>
+            <input pInputText formControlName="name" placeholder="Ej. Oficina, Cuarto de Juegos"
+                class="w-full !bg-[var(--surface-50)] dark:!bg-[var(--surface-950)]" autofocus />
+        </div>
+        <div class="flex flex-col gap-2">
+            <label class="text-sm font-medium text-[var(--surface-700)] dark:text-[var(--surface-300)]">
+                Icono Representativo
+            </label>
+
+            <div
+                class="grid grid-cols-5 gap-3 p-3 rounded-lg border border-[var(--surface-200)] dark:border-[var(--surface-700)] bg-[var(--surface-50)] dark:bg-[var(--surface-900)]">
+                @let iconControl = spaceForm.get('icon');
+                @for (icon of availableIcons; track icon) {
+                <div (click)="iconControl!.setValue(icon)" class="h-10 w-10 rounded-md flex items-center justify-center cursor-pointer transition-all duration-200
+                   border hover:border-orange-500
+                   {{ iconControl!.value === icon 
+                      ? 'bg-orange-100 text-orange-600 border-orange-500 ring-2 ring-orange-500/30 dark:bg-orange-500/20 dark:text-orange-500' 
+                      : 'bg-[var(--surface-0)] border-[var(--surface-300)] text-[var(--surface-600)] dark:bg-[var(--surface-800)] dark:border-[var(--surface-700)] dark:text-[var(--surface-400)]' 
+                   }}">
+                    <i [class]="'pi ' + icon + ' text-lg'"></i>
+                </div>
+                }
+            </div>
+        </div>
+        <div class="flex flex-col gap-2">
+            <label class="text-sm font-medium text-[var(--surface-700)] dark:text-[var(--surface-300)]">
+                Tipo de Ambiente
+            </label>
+            <p-select [options]="spaceTypes" formControlName="type" optionLabel="label" optionValue="value"
+                placeholder="Selecciona el tipo"
+                styleClass="w-full !bg-[var(--surface-50)] dark:!bg-[var(--surface-950)]"
+                dropdownIcon="pi pi-chevron-down">
+            </p-select>
+        </div>
+    </form>
+</div>

@@ -1,0 +1,62 @@
+<div
+    class="group relative overflow-hidden rounded-xl border transition-all duration-300 cursor-pointer
+                  bg-[var(--surface-0)] border-[var(--surface-200)] hover:shadow-lg hover:-translate-y-1
+                  dark:bg-[var(--surface-800)] dark:border-[var(--surface-700)] dark:hover:border-orange-500/50 dark:hover:shadow-orange-900/20">
+
+    <div class="p-6 pb-0 flex justify-between items-start">
+        <div
+            class="w-12 h-12 rounded-full flex items-center justify-center bg-orange-50 text-orange-600 dark:bg-orange-500/10 dark:text-orange-500">
+            <i [class]="'pi ' + space().icon"></i>
+        </div>
+
+        <div class="p-6 pb-0 flex justify-between items-start">
+            <button (click)="menu.toggle($event); selectedSpace.set(space()!)"
+                class="text-[var(--surface-400)] hover:text-[var(--surface-600)] dark:hover:text-[var(--surface-200)] transition-colors p-1 rounded-full hover:bg-[var(--surface-100)] dark:hover:bg-[var(--surface-700)]">
+                <i class="pi pi-ellipsis-v"></i>
+            </button>
+
+            <p-menu #menu [model]="menuItems" [popup]="true" appendTo="body"></p-menu>
+        </div>
+    </div>
+
+    <div class="p-6">
+        <h3 class="text-xl font-bold mb-1 text-[var(--surface-900)] dark:text-[var(--surface-0)]">
+            {{ space().name }}
+        </h3>
+        <p class="text-sm text-[var(--surface-500)] dark:text-[var(--surface-400)] mb-6">
+            {{ space().deviceCount }} dispositivos conectados
+        </p>
+
+        <div class="flex flex-wrap gap-2">
+            <div
+                class="flex items-center gap-2 px-3 py-1 rounded-md bg-[var(--surface-100)] dark:bg-[var(--surface-700)]">
+                <i class="pi pi-thermometer text-xs text-blue-500"></i>
+                <span class="text-xs font-semibold dark:text-[var(--surface-200)]">{{ space().temp }}°C</span>
+            </div>
+
+            <div class="flex items-center gap-2 px-3 py-1 rounded-md"
+                [ngClass]="space().lightsOn > 0 
+                    ? 'bg-orange-100 text-orange-700 dark:bg-orange-500/20 dark:text-orange-400' 
+                    : 'bg-[var(--surface-100)] text-[var(--surface-500)] dark:bg-[var(--surface-700)] dark:text-[var(--surface-400)]'">
+                <i class="pi pi-lightbulb text-xs"></i>
+                <span class="text-xs font-semibold">{{ space().lightsOn }} ON</span>
+            </div>
+        </div>
+    </div>
+
+    <div
+        class="px-6 py-4 border-t border-[var(--surface-100)] dark:border-[var(--surface-700)] flex justify-between items-center bg-[var(--surface-50)] dark:bg-[var(--surface-900)]/50">
+        <span class="text-xs font-medium uppercase tracking-wide text-[var(--surface-500)]">Acción Rápida</span>
+
+        <button
+            class="p-2 rounded-full hover:bg-[var(--surface-200)] dark:hover:bg-[var(--surface-700)] transition-colors text-[var(--surface-600)] dark:text-[var(--surface-300)]"
+            pTooltip="Apagar todo en {{space().name}}" tooltipPosition="top">
+            <i class="pi pi-power-off"></i>
+        </button>
+    </div>
+</div>
+
+<p-confirmDialog header="Confirmar Eliminación" icon="pi pi-exclamation-triangle" acceptLabel="Eliminar"
+    acceptButtonStyleClass="!bg-red-600 !border-red-600 !text-white" rejectLabel="Cancelar"
+    rejectButtonStyleClass="p-button-text" styleClass="max-w-sm">
+</p-confirmDialog>

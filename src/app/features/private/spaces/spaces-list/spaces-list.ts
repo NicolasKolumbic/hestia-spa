@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject, computed, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ConfirmationService, MenuItem, MessageService } from 'primeng/api';
@@ -9,120 +9,106 @@ import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToastModule } from 'primeng/toast';
-import { MenuModule } from 'primeng/menu';
 import { SelectModule } from 'primeng/select';
-import { TooltipModule } from 'primeng/tooltip';
 import { Button } from "@shared/components/button/button";
+import { catchError, of } from 'rxjs';
+import { SpaceCard } from "../space-card/space-card";
+import { ZoneService } from 'src/app/core/services/zone.service';
+import { Zone } from "../../../../core";
+import { Dialog as HtaDialog } from 'src/app/shared/components/dialog/dialog';
+import { SpaceDetail } from "../space-detail/space-detail";
 
 @Component({
-  selector: 'app-spaces-list',
+  selector: 'hta-spaces-list',
   imports: [CommonModule, FormsModule, DialogModule, InputTextModule,
-    ButtonModule, ConfirmDialogModule, ToastModule, MenuModule, SelectModule, TooltipModule, Button],
+    ButtonModule, ConfirmDialogModule, ToastModule, SelectModule, Button, SpaceCard, HtaDialog, SpaceDetail],
   templateUrl: './spaces-list.html',
   providers: [MessageService, ConfirmationService],
   styleUrl: './spaces-list.css',
 })
-export class SpacesList {
-  // DATOS MOCK
-  spaces = [
-    { id: 1, name: 'Sala', icon: 'pi-desktop', type: 'living', deviceCount: 5, temp: 24, lightsOn: 2 },
-    // ... más espacios
-  ];
+export class SpacesList implements OnInit {
+  #zoneService = inject(ZoneService);
+  #messageService = inject(MessageService);
 
-  // ESTADO DEL MODAL
-  spaceDialogVisible = false;
-  isEditMode = false;
-  selectedSpace: any = null;
+  spaces = signal<Zone[]>([]);
+  showDialog = signal(false);
+  isEditMode = signal(false);
+  selectedSpace = signal<Zone | null>(null);
 
-  // FORMULARIO
-  spaceForm = { id: 0, name: '', icon: '', type: '' };
-
-  // DATOS AUXILIARES
-  availableIcons = [
-    'pi-home', 'pi-desktop', 'pi-wifi', 'pi-inbox',
-    'pi-briefcase', 'pi-building', 'pi-car', 'pi-shopping-cart',
-    'pi-heart', 'pi-star' // Agrega iconos relevantes de PrimeIcons
-  ];
-
-  spaceTypes = [
-    { label: 'Sala de Estar', value: 'living' },
-    { label: 'Dormitorio', value: 'bedroom' },
-    { label: 'Cocina', value: 'kitchen' },
-    { label: 'Baño', value: 'bathroom' },
-    { label: 'Oficina', value: 'office' },
-    { label: 'Exterior', value: 'outdoor' }
-  ];
-
-  // MENÚ CONTEXTUAL (Se regenera dinámicamente o usa la selección actual)
-  menuItems: MenuItem[] = [
-    {
-      label: 'Editar',
-      icon: 'pi pi-pencil',
-      command: () => this.openEditDialog(this.selectedSpace)
-    },
-    {
-      label: 'Eliminar',
-      icon: 'pi pi-trash',
-      styleClass: 'text-red-500',
-      command: () => this.deleteSpace(this.selectedSpace)
-    }
-  ];
-
-  constructor(
-    private confirmationService: ConfirmationService,
-    private messageService: MessageService
-  ) { }
-
-  // 1. ABRIR MODAL CREAR (Vinculado al tile "Agregar")
-  openNewSpaceDialog() {
-    this.isEditMode = false;
-    this.spaceForm = { id: 0, name: '', icon: this.availableIcons[0], type: 'living' };
-    this.spaceDialogVisible = true;
+  ngOnInit(): void {
+    this.#zoneService.getAllZones()
+      .pipe(
+        catchError(() => {
+          this.#messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo cargar la lista de espacios.' });
+          return of([]);
+        })
+      )
+      .subscribe(zones => {
+        this.spaces.set(zones);
+      });
   }
 
-  // 2. ABRIR MODAL EDITAR
-  openEditDialog(space: any) {
-    this.isEditMode = true;
-    this.spaceForm = { ...space }; // Copia para no mutar directo
-    this.spaceDialogVisible = true;
+  cancelHandler(): void {
+    this.showDialog.set(false);
+    this.isEditMode.set(false);
+    this.selectedSpace.set(null);
   }
 
-  // 3. GUARDAR (Create / Update)
-  saveSpace() {
-    if (this.isEditMode) {
-      // Update
-      const index = this.spaces.findIndex(s => s.id === this.spaceForm.id);
-      if (index !== -1) {
-        // Mantenemos los datos que no se editan (temp, devices, etc)
-        this.spaces[index] = { ...this.spaces[index], ...this.spaceForm };
-        this.messageService.add({ severity: 'success', summary: 'Actualizado', detail: `Espacio "${this.spaceForm.name}" modificado` });
-      }
+  confirmHandler(space: Zone): void {
+    this.isEditMode.set(false);
+    this.showDialog.set(true);
+    this.saveSpace(space);
+  }
+
+  openNewSpaceDialog(): void {
+    this.isEditMode.set(false);
+    this.showDialog.set(true);
+  }
+
+  editHandler(zone: Zone): void {
+    this.isEditMode.set(true);
+    this.showDialog.set(true);
+    this.selectedSpace.set(zone);
+  }
+
+  deleteHandler(space: Zone) {
+    this.#zoneService.deleteZone(space.zoneId)
+      .pipe(
+        catchError(() => {
+          this.#messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo eliminar el espacio.' });
+          return of(null);
+        })
+      )
+      .subscribe(() => {
+        this.#messageService.add({ severity: 'info', summary: 'Eliminado', detail: 'El espacio ha sido removido' });
+        this.ngOnInit();
+      });
+  }
+
+  saveSpace(zone: Zone): void {
+    if (this.isEditMode()) {
+      this.#zoneService.updateZone(zone).pipe(
+        catchError(() => {
+          this.#messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo actualizar el espacio.' });
+          return of(null);
+        })
+      ).subscribe(() => {
+        this.#messageService.add({ severity: 'info', summary: 'Actualizado', detail: 'El espacio ha sido actualizado' });
+        this.showDialog.set(false);
+        this.ngOnInit();
+      });
     } else {
-      // Create
-      const newId = Math.max(...this.spaces.map(s => s.id)) + 1;
-      const newSpace = {
-        ...this.spaceForm,
-        id: newId,
-        deviceCount: 0, // Default
-        temp: 22,       // Default
-        lightsOn: 0
-      };
-      this.spaces.push(newSpace);
-      this.messageService.add({ severity: 'success', summary: 'Creado', detail: 'Nuevo espacio añadido' });
+      this.#zoneService.createZone(zone).pipe(
+        catchError(() => {
+          this.#messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo crear el espacio.' });
+          return of(null);
+        })
+      ).subscribe(() => {
+        this.#messageService.add({ severity: 'info', summary: 'Creado', detail: 'El espacio ha sido creado' });
+        this.showDialog.set(false);
+        this.ngOnInit();
+      });
     }
-    this.spaceDialogVisible = false;
   }
 
-  // 4. ELIMINAR
-  deleteSpace(space: any) {
-    this.confirmationService.confirm({
-      message: `¿Estás seguro de eliminar "${space.name}"? Se desvincularán sus dispositivos.`,
-      header: 'Acción Destructiva',
-      icon: 'pi pi-info-circle',
-      accept: () => {
-        this.spaces = this.spaces.filter(s => s.id !== space.id);
-        this.messageService.add({ severity: 'info', summary: 'Eliminado', detail: 'El espacio ha sido removido' });
-      }
-    });
-  }
 }
