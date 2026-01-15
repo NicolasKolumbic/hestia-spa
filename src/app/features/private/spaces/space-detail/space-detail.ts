@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, inject, input } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { DialogContent } from '@shared/abstractions/dialog/dialog-content';
+import { Dropdown } from '@shared/components/dropdown/dropdown';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
 import { Zone } from 'src/app/core';
@@ -9,7 +10,7 @@ import { Zone } from 'src/app/core';
 
 @Component({
   selector: 'hta-space-detail',
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, InputTextModule, SelectModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, InputTextModule, Dropdown, SelectModule],
   templateUrl: './space-detail.html',
   styleUrl: './space-detail.css',
 })

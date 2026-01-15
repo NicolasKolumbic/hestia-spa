@@ -28,14 +28,7 @@
             </div>
         </div>
         <div class="flex flex-col gap-2">
-            <label class="text-sm font-medium text-[var(--surface-700)] dark:text-[var(--surface-300)]">
-                Tipo de Ambiente
-            </label>
-            <p-select [options]="spaceTypes" formControlName="type" optionLabel="label" optionValue="value"
-                placeholder="Selecciona el tipo"
-                styleClass="w-full !bg-[var(--surface-50)] dark:!bg-[var(--surface-950)]"
-                dropdownIcon="pi pi-chevron-down">
-            </p-select>
+            <hta-dropdown formControlName="type" [options]="spaceTypes" placeholder="Tipo de Ambiente" />
         </div>
     </form>
 </div>

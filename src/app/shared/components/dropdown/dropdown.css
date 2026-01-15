@@ -1,0 +1,10 @@
+::ng-deep .p-select-label {
+    padding-left: 0.5rem;
+    line-height: 2.2;
+}
+
+::ng-deep p-overlay {
+    top: 3px;
+    display: block;
+    position: absolute;
+}
