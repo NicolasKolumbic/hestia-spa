@@ -1,0 +1,18 @@
+:host button {
+    background-color: var(--p-primary-600);
+}
+
+:host button:hover {
+    background-color: var(--p-primary-500);
+}
+
+:host(.outlined) button {
+    background-color: transparent;
+    border: 1px solid var(--p-primary-100);
+    color: var(--p-primary-100);
+}
+
+:host(.outlined) button:hover {
+    background-color: var(--p-primary-200);
+    color: var(--p-primary-600);
+}

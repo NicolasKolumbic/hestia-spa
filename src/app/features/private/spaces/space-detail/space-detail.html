@@ -1,8 +1,8 @@
 <div class="flex flex-col gap-6 pt-4 px-3">
     <form [formGroup]="spaceForm">
         <div class="flex flex-col gap-2">
-            <hta-float-label-input formControlName="name" placeholder="Ej. Oficina, Cuarto de Juegos" label="Nombre"
-                id="name" />
+            <hta-float-label-input formControlName="name" class="dialog-input"
+                placeholder="Ej. Oficina, Cuarto de Juegos" label="Nombre" id="name" />
         </div>
         <div class="flex flex-col gap-2">
             <label class="text-sm font-medium text-[var(--surface-700)] dark:text-[var(--surface-300)]">
@@ -25,7 +25,7 @@
             </div>
         </div>
         <div class="flex flex-col gap-2 mt-2">
-            <hta-dropdown formControlName="type" [options]="spaceTypes" placeholder="Tipo de Ambiente" />
+            <hta-dropdown id="spaceType" formControlName="type" [options]="spaceTypes" placeholder="Tipo de Ambiente" />
         </div>
     </form>
 </div>

@@ -1,5 +1,5 @@
 <p-dialog [(visible)]="show" [modal]="true" styleClass="w-full max-w-lg" [draggable]="false" [resizable]="false"
-    [contentStyle]="{'overflow': 'visible'}">
+    [contentStyle]="{'overflow': 'visible'}" (onHide)="cancelHandler()">
     <ng-template #header>
         <div class="text-xl font-bold text-[var(--surface-900)] dark:text-[var(--surface-0)] px-3 pt-3">
             {{ title() }}
@@ -9,10 +9,9 @@
     <ng-content></ng-content>
 
     <ng-template pTemplate="footer">
-        <div class="flex gap-2 p-3">
-            <p-button [label]="labelCancel()" (onClick)="cancelHandler()"
-                styleClass="p-button-text !text-[var(--surface-500)] hover:!text-[var(--surface-900)] dark:hover:!text-[var(--surface-200)]"></p-button>
-            <hta-button [label]="labelConfirm()" icon="pi-check" (click)="confirmHandler()"
+        <div class="flex gap-2 py-3 px-3">
+            <hta-button [label]="labelCancel()" icon="pi pi-times" (click)="cancelHandler()" class="outlined" />
+            <hta-button [label]="labelConfirm()" icon="pi pi-check" (click)="confirmHandler()"
                 [disabled]="disabledConfirm()" />
         </div>
     </ng-template>

@@ -1,0 +1,19 @@
+.float-input input {
+    box-shadow: inset 0px 0px 2px 1px rgba(0, 0, 0, 0.3);
+}
+
+:host .float-input input {
+    background-color: var(--p-surface-900);
+}
+
+:host(.dialog-input) .float-input input {
+    background-color: var(--p-surface-800);
+}
+
+:host(.dialog-input) .float-input label {
+    background-color: var(--p-surface-800);
+}
+
+.float-input input.p-invalid {
+    box-shadow: 0px 0px 2px 2px rgba(239, 68, 68, 0.3);
+}

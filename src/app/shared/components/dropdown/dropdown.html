@@ -1,8 +1,11 @@
-<p-select [options]="options()" [(ngModel)]="value" [optionLabel]="labelOption()" [optionValue]="labelValue()"
-    [placeholder]="placeholder()" class="w-full h-9 rounded-md">
-    <ng-template let-option #item>
-        <div class="px-2 py-1">
-            {{ option.label}}
-        </div>
-    </ng-template>
-</p-select>
+<p-floatlabel class="w-full" variant="in">
+    <p-select [(ngModel)]="value" [id]="id()" [options]="options()" [optionLabel]="labelOption()"
+        [optionValue]="labelValue()" class="w-full rounded-md" variant="filled">
+        <ng-template let-option #item>
+            <div class="px-2 py-1">
+                {{ option.label}}
+            </div>
+        </ng-template>
+    </p-select>
+    <label [attr.for]="id()">{{ placeholder() }}</label>
+</p-floatlabel>
