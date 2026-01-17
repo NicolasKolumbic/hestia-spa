@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NavigationEnd, Router, RouterOutlet } from "@angular/router";
 import { Navbar } from '../navbar/navbar';
@@ -6,12 +6,15 @@ import { AvatarModule } from "primeng/avatar";
 import { OverlayBadgeModule } from "primeng/overlaybadge";
 import { TranslateService, TranslateModule } from '@ngx-translate/core';
 import { filter, startWith, map, switchMap } from 'rxjs';
+import { ToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'hta-dashboard-layout',
-  imports: [Navbar, RouterOutlet, AvatarModule, OverlayBadgeModule, CommonModule, TranslateModule],
+  imports: [Navbar, RouterOutlet, AvatarModule, OverlayBadgeModule, CommonModule, TranslateModule, ToastModule],
   templateUrl: './dashboard-layout.html',
   styleUrl: './dashboard-layout.css',
+  providers: [MessageService],
 })
 export class DashboardLayout implements OnInit {
   pageTitle = signal<string>('');

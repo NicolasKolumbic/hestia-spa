@@ -8,7 +8,6 @@ import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { ToastModule } from 'primeng/toast';
 import { SelectModule } from 'primeng/select';
 import { Button } from "@shared/components/button/button";
 import { catchError, of } from 'rxjs';
@@ -21,7 +20,7 @@ import { SpaceDetail } from "../space-detail/space-detail";
 @Component({
   selector: 'hta-spaces-list',
   imports: [CommonModule, FormsModule, DialogModule, InputTextModule,
-    ButtonModule, ConfirmDialogModule, ToastModule, SelectModule, Button, SpaceCard, HtaDialog, SpaceDetail],
+    ButtonModule, ConfirmDialogModule, SelectModule, Button, SpaceCard, HtaDialog, SpaceDetail],
   templateUrl: './spaces-list.html',
   providers: [MessageService, ConfirmationService],
   styleUrl: './spaces-list.css',
