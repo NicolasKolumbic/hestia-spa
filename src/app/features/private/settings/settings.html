@@ -251,6 +251,13 @@
                     </div>
                 </div>
 
+                @if (twoFactorEnabled) {
+                <div
+                    class="bg-[var(--surface-0)] dark:bg-[var(--surface-800)] p-8 rounded-2xl border border-[var(--surface-200)] dark:border-[var(--surface-700)] animate-fade-in">
+                    <app-two-factor-setup></app-two-factor-setup>
+                </div>
+                }
+
                 <div
                     class="bg-[var(--surface-0)] dark:bg-[var(--surface-800)] p-8 rounded-2xl border border-[var(--surface-200)] dark:border-[var(--surface-700)]">
                     <h2 class="text-xl font-bold mb-6 dark:text-white flex items-center gap-2">

@@ -52,12 +52,12 @@ export class Login {
       const { email, password } = this.loginForm.value;
       this._authService.login({ email, password }).subscribe({
         next: (res) => {
-          if (res.requires2fa && res.temp_token) {
+          if (res.requires2fa) {
             this.show2fa = true;
-            this.tempToken = res.temp_token;
-          } else if (res.access_token) {
-            localStorage.setItem('token', res.access_token);
-            this._router.navigate(['/']);
+            this.tempToken = res.temp_token!;
+          } else {
+            // Cookie is set by browser
+            this._router.navigate(['/app/dashboard']);
           }
         },
         error: (err) => {
@@ -75,10 +75,8 @@ export class Login {
       const code = this.twoFactorForm.value.code;
       this._authService.verify2fa(this.tempToken, code).subscribe({
         next: (res) => {
-          if (res.access_token) {
-            localStorage.setItem('token', res.access_token);
-            this._router.navigate(['/']);
-          }
+          // Cookie is set by browser
+          this._router.navigate(['/dashboard']);
         },
         error: (err) => {
           console.error('2FA failed', err);

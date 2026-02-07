@@ -7,9 +7,11 @@ import { SelectButtonModule } from 'primeng/selectbutton';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { PasswordModule } from 'primeng/password';
 
+import { TwoFactorSetupComponent } from './two-factor-setup.component';
+
 @Component({
   selector: 'app-settings',
-  imports: [CommonModule, FormsModule, ButtonModule, InputTextModule, SelectButtonModule, ToggleSwitchModule, PasswordModule],
+  imports: [CommonModule, FormsModule, ButtonModule, InputTextModule, SelectButtonModule, ToggleSwitchModule, PasswordModule, TwoFactorSetupComponent],
   templateUrl: './settings.html',
   styleUrl: './settings.css',
 })
