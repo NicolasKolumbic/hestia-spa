@@ -1,0 +1,25 @@
+<button (click)="siteMenu.toggle($event)" class="w-full flex my-2 gap-2 items-center justify-between p-3 rounded-xl transition-all duration-200 border
+               bg-[var(--surface-50)] border-[var(--surface-200)] hover:border-orange-500
+               dark:bg-[var(--surface-900)] dark:border-[var(--surface-700)] dark:hover:border-orange-500">
+
+    <div class="flex items-center gap-3 overflow-hidden">
+        <div
+            class="w-8 h-8 rounded-lg bg-orange-100 text-orange-600 dark:bg-orange-500/20 dark:text-orange-500 flex items-center justify-center flex-shrink-0">
+            <i [class]="'pi ' + currentSite.icon"></i>
+        </div>
+
+        <div class="flex flex-col items-start overflow-hidden">
+            <span class="text-xs text-[var(--surface-500)] font-medium uppercase tracking-wider">Sitio Actual</span>
+            <span
+                class="text-sm font-bold truncate w-full text-left text-[var(--surface-900)] dark:text-[var(--surface-0)]">
+                {{ currentSite.name }}
+            </span>
+        </div>
+    </div>
+    <i class="pi pi-chevron-down text-xs text-[var(--surface-400)]"></i>
+</button>
+<p-menu #siteMenu [model]="siteMenuItems" [popup]="true" appendTo="body" styleClass="w-60 px-3 py-2"></p-menu>
+
+<hta-dialog [(show)]="show" title="Mis Inmuebles">
+    <hta-site-manager />
+</hta-dialog>

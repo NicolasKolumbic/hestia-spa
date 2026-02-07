@@ -1,17 +1,7 @@
 <div class="flex min-h-screen">
     <hta-navbar class="ml-[1rem] mt-[1rem] block h-[calc(100vh-2rem)]" styleClass="padding: 1rem;"></hta-navbar>
     <main class="m-[1rem] grow">
-        <header class="w-full">
-            <div class="flex items-center justify-between mt-[1rem]">
-                <h2 class="m-[0]">
-                    {{ pageTitle() }}
-                </h2>
-                <p-overlay-badge class="inline-flex">
-                    <p-avatar icon="pi pi-user" />
-                </p-overlay-badge>
-            </div>
-            <hr>
-        </header>
+        <hta-header></hta-header>
         <div class="w-full">
             <router-outlet></router-outlet>
         </div>

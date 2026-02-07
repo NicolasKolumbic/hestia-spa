@@ -1,0 +1,68 @@
+<div class="flex flex-col gap-3 mb-6">
+    @for (site of sites; track site.id) {
+    <div
+        class="flex items-center justify-between p-3 rounded-lg border border-[var(--surface-200)] dark:border-[var(--surface-700)] hover:bg-[var(--surface-50)] dark:hover:bg-[var(--surface-800)] group transition-colors">
+
+        <div class="flex items-center gap-3" (click)="selectSite(site)" class="cursor-pointer flex-1">
+            <div
+                class="w-8 h-8 rounded bg-[var(--surface-100)] dark:bg-[var(--surface-700)] flex items-center justify-center text-[var(--surface-600)] dark:text-[var(--surface-300)]">
+                <i [class]="'pi ' + site.icon"></i>
+            </div>
+            <div>
+                <p class="text-sm font-bold dark:text-white">{{ site.name }}</p>
+                <p class="text-xs text-[var(--surface-500)]">{{ site.address || 'Sin dirección' }}</p>
+            </div>
+        </div>
+
+        <div class="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+            <button (click)="editSite(site)"
+                class="p-2 text-[var(--surface-500)] hover:text-orange-500 transition-colors"><i
+                    class="pi pi-pencil"></i></button>
+            @if (sites.length > 1) { <button (click)="deleteSite(site)"
+                class="p-2 text-[var(--surface-500)] hover:text-red-500 transition-colors"><i
+                    class="pi pi-trash"></i></button>
+            }
+        </div>
+    </div>
+    }
+</div>
+
+@if (!isFormOpen()) {
+<button (click)="isFormOpen.set(true); resetForm()"
+    class="w-full py-3 border-2 border-dashed border-[var(--surface-300)] dark:border-[var(--surface-600)] rounded-lg text-[var(--surface-500)] hover:border-orange-500 hover:text-orange-500 transition-colors flex items-center justify-center gap-2">
+    <i class="pi pi-plus"></i> Dar de alta nuevo sitio
+</button>
+}
+
+@if (isFormOpen()) {
+<div
+    class="bg-[var(--surface-50)] dark:bg-[var(--surface-900)] p-4 rounded-lg border border-[var(--surface-200)] dark:border-[var(--surface-700)] animate-fade-in">
+    <h4 class="font-bold text-sm mb-3 dark:text-white">{{ true ? 'Editar Sitio' : 'Nuevo Sitio' }}</h4>
+
+    <div class="space-y-3">
+        <span class="p-float-label">
+            <input pInputText id="siteName" [(ngModel)]="siteForm.name" class="w-full !bg-white dark:!bg-black" />
+            <label for="siteName">Nombre (ej. Casa de Playa)</label>
+        </span>
+
+        <div class="flex gap-2">
+            @for (type of siteTypes; track type.value) {
+            <button (click)="siteForm.icon = type.icon" class="flex-1 py-2 rounded border text-xs flex flex-col items-center gap-1 transition-all
+                   {{ siteForm.icon === type.icon 
+                      ? 'bg-orange-100 border-orange-500 text-orange-700 dark:bg-orange-900/20 dark:text-orange-400' 
+                      : 'border-[var(--surface-300)] dark:border-[var(--surface-600)] text-[var(--surface-500)]' }}">
+                <i [class]="'pi ' + type.icon"></i>
+                {{ type.label }}
+            </button>
+            }
+        </div>
+
+        <div class="flex gap-2 pt-2">
+            <p-button label="Cancelar" (onClick)="isFormOpen.set(false); resetForm()"
+                styleClass="p-button-text p-button-sm w-full"></p-button>
+            <p-button label="Guardar" (onClick)="saveSite()"
+                styleClass="!bg-orange-600 !border-orange-600 w-full p-button-sm"></p-button>
+        </div>
+    </div>
+</div>
+}

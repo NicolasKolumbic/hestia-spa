@@ -8,10 +8,11 @@ import { TranslateService, TranslateModule } from '@ngx-translate/core';
 import { filter, startWith, map, switchMap } from 'rxjs';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
+import { Header } from "../header/header";
 
 @Component({
   selector: 'hta-dashboard-layout',
-  imports: [Navbar, RouterOutlet, AvatarModule, OverlayBadgeModule, CommonModule, TranslateModule, ToastModule],
+  imports: [Navbar, RouterOutlet, CommonModule, TranslateModule, ToastModule, Header],
   templateUrl: './dashboard-layout.html',
   styleUrl: './dashboard-layout.css',
   providers: [MessageService],

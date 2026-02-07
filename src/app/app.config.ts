@@ -2,7 +2,7 @@ import { ApplicationConfig, importProvidersFrom, provideBrowserGlobalErrorListen
 import { provideRouter } from '@angular/router';
 import { providePrimeNG } from 'primeng/config';
 import { provideAnimations } from '@angular/platform-browser/animations';
-import { HttpClient, provideHttpClient, withFetch } from '@angular/common/http';
+import { HttpClient, provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { Observable } from 'rxjs';
 import { catchError } from 'rxjs/operators';
@@ -11,6 +11,7 @@ import { routes } from './app.routes';
 import { HestiaPreset } from '@shared/styles/hestia-preset';
 import { provideTranslateService } from "@ngx-translate/core";
 import { provideTranslateHttpLoader } from "@ngx-translate/http-loader";
+import { authInterceptor } from '@core/services/auth-interceptor';
 
 export class CustomTranslateLoader implements TranslateLoader {
   constructor(private http: HttpClient) { }
@@ -42,7 +43,7 @@ export const appConfig: ApplicationConfig = {
     provideAnimations(),
     provideBrowserGlobalErrorListeners(),
     provideZonelessChangeDetection(),
-    provideHttpClient(withFetch()),
+    provideHttpClient(withFetch(), withInterceptors([authInterceptor])),
     provideRouter(routes),
     provideTranslateService({
       fallbackLang: 'es',
