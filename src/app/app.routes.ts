@@ -70,7 +70,7 @@ export const routes: Routes = [
     // 3. ENTORNO PRIVADO (Web App / Dashboard)
     // =========================================================
     {
-        path: 'app',
+        path: 'platform',
         // canActivate: [authGuard], // Protege toda esta sección
         // Cargamos un LAYOUT que contiene el Sidebar y Header fijos
         loadComponent: () => import('./layout/dashboard-layout/dashboard-layout').then(m => m.DashboardLayout),

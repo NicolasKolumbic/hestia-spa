@@ -36,12 +36,12 @@ export class Navbar implements OnInit {
           {
             label: this.translate.instant('MENU.DASHBOARD'),
             icon: 'pi pi-home',
-            routerLink: '/app/dashboard'
+            routerLink: '/platform/dashboard'
           },
           {
             label: this.translate.instant('MENU.MY_SPACES'),
             icon: 'pi pi-th-large',
-            routerLink: '/app/espacios'
+            routerLink: '/platform/espacios'
           }
         ]
       },
@@ -54,28 +54,28 @@ export class Navbar implements OnInit {
           {
             label: this.translate.instant('MENU.SUMMARY'),
             icon: 'pi pi-list',
-            routerLink: '/app/dispositivos',
+            routerLink: '/platform/dispositivos',
             routerLinkActiveOptions: { exact: true }
           },
           {
             label: this.translate.instant('MENU.LIGHTING'),
             icon: 'pi pi-lightbulb',
-            routerLink: '/app/dispositivos/iluminacion'
+            routerLink: '/platform/dispositivos/iluminacion'
           },
           {
             label: this.translate.instant('MENU.CLIMATE'),
             icon: 'pi pi-cloud',
-            routerLink: '/app/dispositivos/clima'
+            routerLink: '/platform/dispositivos/clima'
           },
           {
             label: this.translate.instant('MENU.SECURITY'),
             icon: 'pi pi-shield',
-            routerLink: '/app/dispositivos/seguridad'
+            routerLink: '/platform/dispositivos/seguridad'
           },
           {
             label: this.translate.instant('MENU.ENERGY'),
             icon: 'pi pi-bolt',
-            routerLink: '/app/dispositivos/energia'
+            routerLink: '/platform/dispositivos/energia'
           }
         ]
       },
@@ -88,12 +88,12 @@ export class Navbar implements OnInit {
           {
             label: this.translate.instant('MENU.AUTOMATION'),
             icon: 'pi pi-cog',
-            routerLink: '/app/automatizacion'
+            routerLink: '/platform/automatizacion'
           },
           {
             label: this.translate.instant('MENU.ANALYTICS'),
             icon: 'pi pi-chart-bar',
-            routerLink: '/app/analitica'
+            routerLink: '/platform/analitica'
           }
         ]
       },
@@ -106,7 +106,7 @@ export class Navbar implements OnInit {
           {
             label: this.translate.instant('MENU.SETTINGS'),
             icon: 'pi pi-sliders-h',
-            routerLink: '/app/configuracion'
+            routerLink: '/platform/configuracion'
           }
         ]
       }
