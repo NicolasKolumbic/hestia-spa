@@ -1,1 +1,139 @@
-<p>contact works!</p>
+<section class="relative min-h-screen flex items-center py-20 bg-[var(--surface-0)] dark:bg-[#020617] overflow-hidden">
+
+    <p-toast position="bottom-center"></p-toast>
+
+    <div
+        class="absolute top-0 right-0 w-[600px] h-[600px] bg-orange-500/10 rounded-full blur-[100px] pointer-events-none">
+    </div>
+    <div
+        class="absolute bottom-0 left-0 w-[400px] h-[400px] bg-blue-500/5 rounded-full blur-[100px] pointer-events-none">
+    </div>
+
+    <div class="max-w-7xl mx-auto px-6 w-full z-10">
+
+        <div class="grid lg:grid-cols-2 gap-12 lg:gap-24 items-center">
+
+            <div class="animate-fade-in-left">
+                <div
+                    class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-100 dark:bg-orange-500/10 text-orange-600 dark:text-orange-500 text-xs font-bold uppercase tracking-wider mb-6">
+                    <span class="w-2 h-2 rounded-full bg-orange-500 animate-pulse"></span>
+                    Estamos en línea
+                </div>
+
+                <h1
+                    class="text-4xl md:text-5xl font-extrabold text-[var(--surface-900)] dark:text-white mb-6 leading-tight">
+                    Hablemos de tu próximo <br>
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-red-600">proyecto
+                        inteligente.</span>
+                </h1>
+
+                <p class="text-lg text-[var(--surface-500)] dark:text-[var(--surface-400)] mb-12 max-w-md">
+                    Ya sea que busques seguridad para tu familia o eficiencia para tu empresa, nuestro equipo de
+                    ingeniería está listo.
+                </p>
+
+                <div class="space-y-6">
+
+                    <div class="flex items-start gap-4">
+                        <div
+                            class="w-12 h-12 rounded-2xl bg-[var(--surface-100)] dark:bg-[var(--surface-800)] flex items-center justify-center text-xl text-[var(--surface-900)] dark:text-white shrink-0">
+                            <i class="pi pi-map-marker"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-lg dark:text-white">Oficinas Centrales</h3>
+                            <p class="text-[var(--surface-500)]">Av. Pellegrini 1234, Piso 5<br>Rosario, Santa Fe,
+                                Argentina</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start gap-4">
+                        <div
+                            class="w-12 h-12 rounded-2xl bg-[var(--surface-100)] dark:bg-[var(--surface-800)] flex items-center justify-center text-xl text-[var(--surface-900)] dark:text-white shrink-0">
+                            <i class="pi pi-envelope"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-lg dark:text-white">Contacto Directo</h3>
+                            <p class="text-[var(--surface-500)]">hola@hestia.com.ar<br>+54 341 555-0123</p>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div
+                    class="mt-12 h-48 w-full rounded-2xl bg-[var(--surface-900)] relative overflow-hidden group border border-[var(--surface-200)] dark:border-white/10">
+                    <div
+                        class="absolute inset-0 bg-[url('https://api.mapbox.com/styles/v1/mapbox/dark-v10/static/-60.6393, -32.9587,13,0/600x300?access_token=YOUR_TOKEN')] bg-cover bg-center opacity-60 grayscale group-hover:grayscale-0 transition-all duration-500">
+                    </div>
+                    <div
+                        class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-orange-500 text-3xl drop-shadow-lg">
+                        <i class="pi pi-map-marker animate-bounce"></i>
+                    </div>
+                    <div
+                        class="absolute bottom-4 left-4 bg-white/10 backdrop-blur-md px-3 py-1 rounded text-xs text-white font-bold">
+                        Ver en Google Maps
+                    </div>
+                </div>
+            </div>
+
+            <div class="relative">
+                <div
+                    class="absolute -inset-1 bg-gradient-to-r from-orange-500 to-red-600 rounded-[2rem] blur opacity-20 dark:opacity-40">
+                </div>
+
+                <div
+                    class="relative bg-white dark:bg-[#0f172a] p-8 md:p-10 rounded-[2rem] shadow-2xl border border-[var(--surface-200)] dark:border-white/10">
+
+                    <form [formGroup]="contactForm" (ngSubmit)="onSubmit()" class="flex flex-col gap-6">
+
+                        <h3 class="text-xl font-bold dark:text-white mb-2">Envíanos un mensaje</h3>
+
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div class="flex flex-col gap-2">
+                                <label for="name"
+                                    class="text-sm font-medium text-[var(--surface-700)] dark:text-[var(--surface-300)]">Nombre</label>
+                                <input pInputText id="name" formControlName="name" placeholder="Tu nombre"
+                                    class="!bg-[var(--surface-50)] dark:!bg-[var(--surface-900)] !border-none !p-3" />
+                            </div>
+
+                            <div class="flex flex-col gap-2">
+                                <label for="email"
+                                    class="text-sm font-medium text-[var(--surface-700)] dark:text-[var(--surface-300)]">Email</label>
+                                <input pInputText id="email" formControlName="email" placeholder="nombre@empresa.com"
+                                    class="!bg-[var(--surface-50)] dark:!bg-[var(--surface-900)] !border-none !p-3" />
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col gap-2">
+                            <label
+                                class="text-sm font-medium text-[var(--surface-700)] dark:text-[var(--surface-300)]">¿En
+                                qué podemos ayudarte?</label>
+                            <hta-dropdown [options]="subjects" formControlName="subject"
+                                placeholder="Selecciona una opción" id="options" />
+                        </div>
+
+                        <div class="flex flex-col gap-2">
+                            <label for="message"
+                                class="text-sm font-medium text-[var(--surface-700)] dark:text-[var(--surface-300)]">Detalles</label>
+                            <textarea pInputTextarea id="message" formControlName="message" rows="5"
+                                placeholder="Cuéntanos sobre tu proyecto o duda..."
+                                class="!bg-[var(--surface-50)] dark:!bg-[var(--surface-900)] !border-none !p-3 !resize-none w-full">
+              </textarea>
+                        </div>
+
+                        <p-button type="submit" label="Enviar Mensaje" [loading]="loading" icon="pi pi-send"
+                            iconPos="right"
+                            styleClass="!bg-orange-600 !border-orange-600 !w-full !py-3 !text-lg !font-bold !rounded-xl shadow-lg shadow-orange-500/20 hover:!bg-orange-700">
+                        </p-button>
+
+                        <p class="text-xs text-center text-[var(--surface-400)] mt-2">
+                            Al enviar este formulario aceptas nuestra <a href="#"
+                                class="underline hover:text-orange-500">Política de Privacidad</a>.
+                        </p>
+
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
