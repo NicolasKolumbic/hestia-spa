@@ -1,0 +1,80 @@
+<section class="py-24 bg-[var(--surface-50)] dark:bg-[#020617]">
+    <div class="max-w-7xl mx-auto px-6">
+
+        <div class="max-w-3xl mb-16">
+            <h2 class="text-sm font-bold text-orange-600 dark:text-orange-500 uppercase tracking-widest mb-3">
+                Especificaciones</h2>
+            <h1 class="text-3xl md:text-5xl font-extrabold text-[var(--surface-900)] dark:text-white mb-6">
+                Potencia bajo el capó.
+            </h1>
+            <p class="text-lg text-[var(--surface-500)] dark:text-[var(--surface-400)]">
+                Diseñamos Hestia para ser robusto, seguro y exageradamente rápido. Aquí está el desglose técnico.
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 auto-rows-[minmax(180px,auto)]">
+
+            @for (feat of features; track feat.title) {
+            <div
+                class="relative group rounded-3xl p-8 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl overflow-hidden flex flex-col justify-between
+                    {{ feat.cols }} {{ feat.rows }} {{ feat.bg }} {{ feat.text }} border border-black/5 dark:border-white/5">
+
+                <div class="absolute inset-0 bg-white/0 group-hover:bg-white/5 transition-colors pointer-events-none">
+                </div>
+
+                <div class="mb-4 text-3xl opacity-80">
+                    <i [class]="'pi ' + feat.icon"></i>
+                </div>
+
+                <div class="relative z-10">
+                    <h3 class="text-2xl font-bold mb-2 leading-tight">{{ feat.title }}</h3>
+                    <p class="text-sm opacity-80 leading-relaxed max-w-sm">
+                        {{ feat.desc }}
+                    </p>
+                </div>
+
+                @if (feat.image) {
+                <div
+                    class="absolute right-0 bottom-0 w-48 h-48 opacity-20 grayscale group-hover:grayscale-0 group-hover:opacity-40 transition-all duration-500">
+                    <i class="pi pi-microchip text-[12rem] absolute -bottom-10 -right-10 rotate-12"></i>
+                </div>
+                }
+
+                <div
+                    class="absolute top-6 right-6 opacity-0 group-hover:opacity-100 transition-opacity transform translate-x-2 group-hover:translate-x-0">
+                    <i class="pi pi-arrow-up-right text-xl"></i>
+                </div>
+            </div>
+            }
+
+        </div>
+
+        <div class="mt-24 border-t border-[var(--surface-200)] dark:border-white/10 pt-16">
+            <div class="grid md:grid-cols-2 gap-12 items-start">
+                <div>
+                    <h3 class="text-2xl font-bold dark:text-white mb-4">Requisitos del Sistema</h3>
+                    <p class="text-[var(--surface-500)] mb-6">
+                        Para garantizar la mejor experiencia, asegúrate de que tu red doméstica cumpla con estos
+                        estándares.
+                    </p>
+                    <p-button label="Descargar Manual Técnico (PDF)" icon="pi pi-file-pdf"
+                        styleClass="p-button-outlined p-button-secondary"></p-button>
+                </div>
+
+                <div
+                    class="bg-white dark:bg-white/5 rounded-2xl border border-[var(--surface-200)] dark:border-white/5 overflow-hidden">
+                    @for (spec of specs; track spec.label; let last = $last) {
+                    <div
+                        class="flex justify-between items-center p-5 {{ !last ? 'border-b border-[var(--surface-100)] dark:border-white/5' : '' }}">
+                        <span class="font-medium text-[var(--surface-500)] dark:text-[var(--surface-400)]">{{ spec.label
+                            }}</span>
+                        <span class="font-bold text-[var(--surface-900)] dark:text-white text-right">{{ spec.value
+                            }}</span>
+                    </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
