@@ -1,4 +1,4 @@
-import { Component, HostBinding, input, signal } from '@angular/core';
+import { Component, HostBinding, input } from '@angular/core';
 
 @Component({
   selector: 'hta-hestia-brand',
