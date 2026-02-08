@@ -1,10 +1,12 @@
-<div class="flex min-h-screen">
-    <hta-navbar class="ml-[1rem] mt-[1rem] block h-[calc(100vh-2rem)]" styleClass="padding: 1rem;"></hta-navbar>
-    <main class="m-[1rem] grow">
-        <hta-header></hta-header>
-        <div class="w-full">
-            <router-outlet></router-outlet>
-        </div>
-    </main>
-    <p-toast position="bottom-right"></p-toast>
+<div class="h-screen overflow-hidden">
+    <div class="flex min-h-screen">
+        <hta-navbar class="ml-[1rem] mt-[1rem] block h-[calc(100vh-2rem)]" styleClass="padding: 1rem;"></hta-navbar>
+        <main class="m-[1rem] grow">
+            <hta-header></hta-header>
+            <div class="w-full">
+                <router-outlet></router-outlet>
+            </div>
+        </main>
+        <p-toast position="bottom-right"></p-toast>
+    </div>
 </div>
