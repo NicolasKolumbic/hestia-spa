@@ -1,0 +1,141 @@
+<section id="how-it-works" class="py-24 bg-[var(--surface-50)] dark:bg-[#0f172a] relative overflow-hidden">
+
+    <div
+        class="absolute inset-0 bg-[url('https://patterns.ibrahimcesar.cloud/files/patterns/isometric/isometric.svg')] opacity-5 dark:opacity-10 pointer-events-none">
+    </div>
+
+    <div class="max-w-7xl mx-auto px-6 relative z-10">
+
+        <div class="text-center mb-16">
+            <h2 class="text-sm font-bold text-orange-600 dark:text-orange-500 uppercase tracking-widest mb-3">
+                Simplicidad Radical</h2>
+            <h1 class="text-3xl md:text-5xl font-extrabold text-[var(--surface-900)] dark:text-white mb-6">
+                De la caja a "Inteligente" <br> en 5 minutos.
+            </h1>
+        </div>
+
+        <div class="grid lg:grid-cols-2 gap-16 items-center">
+
+            <div class="space-y-6">
+                @for (step of steps; track step.id) {
+                <div (click)="manualSelect(step.id)"
+                    class="group cursor-pointer p-6 rounded-2xl border transition-all duration-300 relative overflow-hidden
+                   {{ activeStep === step.id 
+                      ? 'bg-white dark:bg-slate-800 border-orange-500 shadow-xl scale-105' 
+                      : 'bg-transparent border-transparent hover:bg-white/50 dark:hover:bg-white/5 opacity-60 hover:opacity-100' }}">
+
+                    @if (step.id !== 2) {
+                    <div
+                        class="absolute left-9 top-16 bottom-0 w-0.5 bg-[var(--surface-300)] dark:bg-white/10 -z-10 group-hover:bg-orange-200 transition-colors">
+                    </div>
+                    }
+
+                    <div class="flex gap-6">
+                        <div class="w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold transition-all duration-300 shrink-0
+                          {{ activeStep === step.id 
+                             ? 'bg-orange-500 text-white shadow-lg shadow-orange-500/40' 
+                             : 'bg-[var(--surface-200)] dark:bg-slate-700 text-[var(--surface-500)]' }}">
+                            @if (activeStep > step.id) {
+                            <i class="pi pi-check"></i> } @else {
+                            <span>{{ step.id + 1 }}</span>
+                            }
+                        </div>
+
+                        <div>
+                            <h3 class="text-xl font-bold mb-2 dark:text-white flex items-center gap-2">
+                                {{ step.title }}
+                                @if (activeStep === step.id) {
+                                <span class="text-xs text-orange-500 animate-pulse">● Ahora</span>
+                                }
+                            </h3>
+                            <p class="text-[var(--surface-600)] dark:text-[var(--surface-400)] text-sm leading-relaxed transition-all duration-300"
+                                [ngClass]="activeStep === step.id ? 'max-h-24 opacity-100' : 'max-h-0 lg:max-h-20 opacity-0 lg:opacity-100 overflow-hidden'">
+                                {{ step.desc }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                }
+            </div>
+
+            <div class="relative flex justify-center items-center h-[600px]">
+
+                <div class="absolute w-[500px] h-[500px] border border-orange-500/20 rounded-full animate-ping-slow">
+                </div>
+                <div class="absolute w-[350px] h-[350px] border border-orange-500/30 rounded-full"></div>
+
+                <div
+                    class="relative w-[300px] h-[580px] bg-[var(--surface-900)] rounded-[3rem] border-8 border-[var(--surface-800)] shadow-2xl overflow-hidden ring-1 ring-white/20 transition-transform duration-500 hover:scale-105">
+
+                    <div
+                        class="absolute top-0 left-1/2 -translate-x-1/2 w-1/3 h-6 bg-[var(--surface-800)] rounded-b-xl z-20">
+                    </div>
+
+                    <div class="w-full h-full bg-[#0f172a] text-white flex flex-col pt-12 p-6 relative">
+
+                        <div class="flex justify-between text-[10px] text-slate-400 mb-8 px-2">
+                            <span>9:41</span>
+                            <div class="flex gap-1">
+                                <i class="pi pi-wifi"></i>
+                                <i class="pi pi-battery"></i>
+                            </div>
+                        </div>
+
+                        <div class="flex-1 flex flex-col items-center justify-center text-center transition-all duration-500"
+                            [ngStyle]="{'opacity': 1, 'transform': 'scale(1)'}">
+                            <div
+                                class="w-24 h-24 rounded-full bg-slate-800 flex items-center justify-center mb-6 relative">
+                                <i
+                                    [class]="'pi text-4xl ' + steps[activeStep].screenIcon + ' ' + (activeStep === 0 ? 'text-blue-400 animate-spin' : activeStep === 1 ? 'text-green-400' : 'text-orange-500')"></i>
+
+                                @if (activeStep === 0) {
+                                <div class="absolute inset-0 border-2 border-blue-500/50 rounded-full animate-ping">
+                                </div>
+                                }
+                            </div>
+
+                            <h3 class="text-2xl font-bold mb-2">{{ steps[activeStep].screenTitle }}</h3>
+                            <p class="text-slate-400 text-sm mb-8">{{ steps[activeStep].screenStatus }}</p>
+
+                            <div
+                                class="w-full h-12 rounded-xl flex items-center justify-center font-bold text-sm transition-colors duration-300
+                          {{ activeStep === 0 ? 'bg-slate-700 text-slate-400' : 'bg-orange-600 text-white shadow-lg shadow-orange-500/40' }}">
+                                {{ activeStep === 0 ? 'Conectando...' : 'Continuar' }}
+                            </div>
+
+                        </div>
+
+                        <div class="absolute bottom-6 left-0 right-0 flex justify-around text-slate-600">
+                            <i class="pi pi-home"></i>
+                            <i class="pi pi-search"></i>
+                            <i class="pi pi-user"></i>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div
+            class="mt-20 grid md:grid-cols-3 gap-8 text-center border-t border-[var(--surface-200)] dark:border-white/10 pt-12">
+            <div>
+                <i class="pi pi-globe text-2xl text-[var(--surface-500)] mb-3"></i>
+                <h4 class="font-bold dark:text-white">¿Funciona sin Internet?</h4>
+                <p class="text-sm text-[var(--surface-500)] mt-2">Sí, el control local sigue activo aunque se caiga el
+                    Wi-Fi.</p>
+            </div>
+            <div>
+                <i class="pi pi-android text-2xl text-[var(--surface-500)] mb-3"></i>
+                <h4 class="font-bold dark:text-white">Compatible con todo</h4>
+                <p class="text-sm text-[var(--surface-500)] mt-2">Android, iOS, Alexa y Google Assistant.</p>
+            </div>
+            <div>
+                <i class="pi pi-lock text-2xl text-[var(--surface-500)] mb-3"></i>
+                <h4 class="font-bold dark:text-white">Privacidad Primero</h4>
+                <p class="text-sm text-[var(--surface-500)] mt-2">Tus videos y datos se cifran de extremo a extremo.</p>
+            </div>
+        </div>
+
+    </div>
+</section>
