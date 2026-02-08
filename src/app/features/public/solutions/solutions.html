@@ -1,1 +1,163 @@
-<p>solutions works!</p>
+<section
+    class="min-h-screen py-20 bg-[var(--surface-0)] dark:bg-[#0f172a] text-[var(--surface-900)] dark:text-[var(--surface-0)] relative overflow-hidden">
+
+    <div class="absolute top-0 right-0 w-[800px] h-[800px] bg-blue-500/5 rounded-full blur-3xl -z-10"></div>
+    <div class="absolute bottom-0 left-0 w-[600px] h-[600px] bg-orange-500/5 rounded-full blur-3xl -z-10"></div>
+
+    <div class="max-w-7xl mx-auto px-6">
+
+        <div class="text-center max-w-3xl mx-auto mb-16 animate-fade-in-up">
+            <h2 class="text-sm font-bold text-orange-600 dark:text-orange-500 uppercase tracking-widest mb-3">Soluciones
+                Hestia</h2>
+            <h1 class="text-4xl md:text-5xl font-extrabold mb-6 leading-tight">
+                Tecnología que resuelve <br>
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-red-600">problemas
+                    reales.</span>
+            </h1>
+            <p class="text-lg text-[var(--surface-500)] dark:text-[var(--surface-400)]">
+                Diseñamos ecosistemas modulares que crecen contigo. Ya sea para un monoambiente o un edificio
+                corporativo.
+            </p>
+        </div>
+
+        <div class="hidden lg:grid grid-cols-12 gap-8 items-start">
+
+            <div class="col-span-4 flex flex-col gap-4 sticky top-24">
+                @for (pillar of pillars; track pillar.id) {
+                <button (click)="activePillar = pillar.id"
+                    class="group text-left p-6 rounded-2xl border transition-all duration-300 relative overflow-hidden
+                   {{ activePillar === pillar.id 
+                      ? 'bg-white dark:bg-white/10 border-orange-500 shadow-xl scale-105 z-10' 
+                      : 'bg-transparent border-[var(--surface-200)] dark:border-white/5 hover:bg-[var(--surface-50)] dark:hover:bg-white/5 grayscale opacity-70 hover:grayscale-0 hover:opacity-100' }}">
+
+                    <div
+                        class="absolute left-0 top-0 bottom-0 w-1.5 transition-colors {{ activePillar === pillar.id ? 'bg-orange-500' : 'bg-transparent' }}">
+                    </div>
+
+                    <div class="flex items-center gap-4">
+                        <div
+                            class="w-12 h-12 rounded-full flex items-center justify-center text-xl transition-colors {{ pillar.bgColor }} {{ pillar.color }}">
+                            <i [class]="'pi ' + pillar.icon"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-lg dark:text-white">{{ pillar.label }}</h3>
+                            <p class="text-xs text-[var(--surface-500)] mt-1">Ver características &rarr;</p>
+                        </div>
+                    </div>
+                </button>
+                }
+            </div>
+
+            <div
+                class="col-span-8 bg-[var(--surface-50)] dark:bg-[#1e293b] rounded-3xl p-8 md:p-12 border border-[var(--surface-200)] dark:border-white/10 relative overflow-hidden min-h-[600px] flex items-center">
+
+                @for (pillar of pillars; track pillar.id) {
+                @if (activePillar === pillar.id) {
+                <div class="animate-fade-in w-full grid md:grid-cols-2 gap-12 items-center">
+
+                    <div class="order-2 md:order-1">
+                        <div
+                            class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold mb-6 {{ pillar.bgColor }} {{ pillar.color }}">
+                            <i [class]="'pi ' + pillar.icon"></i> {{ pillar.label }}
+                        </div>
+
+                        <h2 class="text-3xl font-bold mb-4 dark:text-white">{{ pillar.title }}</h2>
+                        <p class="text-[var(--surface-600)] dark:text-[var(--surface-300)] mb-8 leading-relaxed">
+                            {{ pillar.description }}
+                        </p>
+
+                        <ul class="space-y-4 mb-8">
+                            @for (feat of pillar.features; track feat) {
+                            <li class="flex items-start gap-3">
+                                <i class="pi pi-check-circle {{ pillar.color }} mt-1"></i>
+                                <span class="text-sm font-medium dark:text-[var(--surface-200)]">{{ feat }}</span>
+                            </li>
+                            }
+                        </ul>
+
+                        <p-button label="Ver Productos" icon="pi pi-arrow-right" iconPos="right"
+                            styleClass="p-button-outlined !border-orange-500 !text-orange-500 hover:!bg-orange-500 hover:!text-white"></p-button>
+                    </div>
+
+                    <div class="order-1 md:order-2 relative">
+                        <div
+                            class="relative bg-white dark:bg-slate-900 rounded-2xl shadow-2xl p-4 border border-[var(--surface-200)] dark:border-white/10 transform rotate-3 hover:rotate-0 transition-transform duration-500">
+                            <div
+                                class="flex justify-between items-center mb-4 border-b border-dashed pb-2 border-gray-200 dark:border-gray-700">
+                                <span class="text-xs font-bold uppercase {{ pillar.color }}">Estado Hestia</span>
+                                <div class="flex gap-1">
+                                    <div class="w-2 h-2 rounded-full bg-red-400"></div>
+                                    <div class="w-2 h-2 rounded-full bg-yellow-400"></div>
+                                    <div class="w-2 h-2 rounded-full bg-green-400"></div>
+                                </div>
+                            </div>
+
+                            <div class="h-48 flex items-center justify-center {{ pillar.bgColor }} rounded-xl">
+                                <i [class]="'pi ' + pillar.icon + ' text-6xl ' + pillar.color"></i>
+                            </div>
+
+                            <div
+                                class="absolute -bottom-4 -left-4 bg-[var(--surface-900)] text-white p-3 rounded-lg shadow-lg text-xs flex items-center gap-2 animate-bounce-slow">
+                                <i class="pi pi-bell text-orange-500"></i>
+                                <span>Optimización completada</span>
+                            </div>
+                        </div>
+
+                        <div
+                            class="absolute inset-0 bg-gradient-to-r from-orange-500 to-transparent opacity-20 blur-2xl -z-10">
+                        </div>
+                    </div>
+
+                </div>
+                }
+                }
+            </div>
+        </div>
+
+        <div class="lg:hidden">
+            <p-accordion styleClass="hestia-accordion">
+                @for (pillar of pillars; track pillar.id) {
+                <p-accordion-panel value="0">
+                    <p-accordion-header>
+                        <div class="flex items-center gap-3 w-full">
+                            <i [class]="'pi ' + pillar.icon + ' ' + pillar.color"></i>
+                            <span class="font-bold">{{ pillar.label }}</span>
+                        </div>
+                    </p-accordion-header>
+                    <p-accordion-content>
+                        <div class="py-4">
+                            <h3 class="font-bold text-xl mb-2">{{ pillar.title }}</h3>
+                            <p class="text-sm text-[var(--surface-500)] mb-4">{{ pillar.description }}</p>
+                            <ul class="space-y-2 mb-4">
+                                @for (feat of pillar.features; track feat) {
+                                <li class="flex items-center gap-2 text-sm">
+                                    <i class="pi pi-check text-green-500"></i> {{ feat }}
+                                </li>
+                                }
+                            </ul>
+                            <p-button label="Saber más"
+                                styleClass="p-button-sm !bg-orange-600 !border-orange-600 w-full"></p-button>
+                        </div>
+                    </p-accordion-content>
+                </p-accordion-panel>
+                }
+            </p-accordion>
+        </div>
+
+        <div
+            class="mt-24 p-8 md:p-16 rounded-3xl bg-gradient-to-br from-orange-600 to-red-700 text-white text-center relative overflow-hidden">
+            <div
+                class="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10">
+            </div>
+
+            <div class="relative z-10 max-w-2xl mx-auto">
+                <h2 class="text-3xl font-bold mb-4">¿No sabes por dónde empezar?</h2>
+                <p class="mb-8 opacity-90 text-lg">Usa nuestro configurador virtual para diseñar el sistema ideal para
+                    tu espacio en menos de 2 minutos.</p>
+                <p-button label="Configurar mi Kit Hestia" icon="pi pi-cog"
+                    styleClass="!bg-white !text-orange-600 !border-none !font-bold !px-8 !py-3 hover:!bg-gray-100"></p-button>
+            </div>
+        </div>
+
+    </div>
+</section>
