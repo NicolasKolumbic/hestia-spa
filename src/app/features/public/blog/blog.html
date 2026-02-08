@@ -1,1 +1,138 @@
-<p>blog works!</p>
+<section
+    class="min-h-screen bg-[var(--surface-0)] dark:bg-[#020617] text-[var(--surface-900)] dark:text-[var(--surface-0)]">
+
+    <div class="pt-24 pb-12 px-6 max-w-7xl mx-auto text-center">
+        <h2 class="text-sm font-bold text-orange-600 uppercase tracking-widest mb-3">Hestia Journal</h2>
+        <h1 class="text-4xl md:text-6xl font-extrabold mb-6">Ideas para un hogar vivo.</h1>
+        <p class="text-xl text-[var(--surface-500)] max-w-2xl mx-auto">
+            Ingeniería, diseño y consejos prácticos para sacar el máximo provecho a tu ecosistema inteligente.
+        </p>
+    </div>
+
+    <div class="px-6 mb-16 overflow-x-auto">
+        <div class="flex justify-center gap-2 min-w-max">
+            @for (cat of categories; track cat.id) {
+            <button (click)="activeCategory = cat.id"
+                class="px-5 py-2 rounded-full text-sm font-medium transition-all border
+                 {{ activeCategory === cat.id 
+                    ? 'bg-[var(--surface-900)] text-white border-transparent dark:bg-white dark:text-black' 
+                    : 'bg-transparent border-[var(--surface-200)] dark:border-white/10 text-[var(--surface-600)] hover:bg-[var(--surface-50)]' }}">
+                {{ cat.label }}
+            </button>
+            }
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-6 pb-24">
+
+        <div class="mb-16 group cursor-pointer">
+            <div
+                class="grid lg:grid-cols-2 gap-0 rounded-3xl overflow-hidden border border-[var(--surface-200)] dark:border-white/10 shadow-lg hover:shadow-2xl transition-shadow duration-300">
+
+                <div class="relative h-64 lg:h-auto overflow-hidden">
+                    <div
+                        class="absolute inset-0 bg-slate-800 flex items-center justify-center group-hover:scale-105 transition-transform duration-700">
+                        <i class="pi pi-shield text-9xl text-slate-700"></i>
+                    </div>
+                    <div class="absolute top-6 left-6">
+                        <p-tag [value]="featuredPost.category" styleClass="!bg-orange-500 !text-white"></p-tag>
+                    </div>
+                </div>
+
+                <div class="bg-white dark:bg-[#0f172a] p-8 lg:p-12 flex flex-col justify-center">
+                    <div
+                        class="flex items-center gap-2 text-xs font-bold text-[var(--surface-500)] mb-4 uppercase tracking-wider">
+                        <span>{{ featuredPost.date }}</span>
+                        <span>&bull;</span>
+                        <span class="flex items-center gap-1"><i class="pi pi-clock"></i> {{ featuredPost.readTime
+                            }}</span>
+                    </div>
+
+                    <h2
+                        class="text-3xl lg:text-4xl font-bold mb-4 group-hover:text-orange-600 transition-colors leading-tight">
+                        {{ featuredPost.title }}
+                    </h2>
+
+                    <p class="text-[var(--surface-500)] dark:text-[var(--surface-400)] text-lg mb-8 line-clamp-3">
+                        {{ featuredPost.excerpt }}
+                    </p>
+
+                    <div
+                        class="flex items-center gap-3 mt-auto pt-6 border-t border-[var(--surface-100)] dark:border-white/5">
+                        <div
+                            class="w-10 h-10 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center font-bold">
+                            {{ featuredPost.author.charAt(0) }}
+                        </div>
+                        <div>
+                            <p class="text-sm font-bold dark:text-white">{{ featuredPost.author }}</p>
+                            <p class="text-xs text-[var(--surface-500)]">{{ featuredPost.role }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            @for (post of filteredPosts; track post.id) {
+            <div
+                class="group flex flex-col h-full bg-white dark:bg-white/5 rounded-2xl border border-[var(--surface-200)] dark:border-white/5 overflow-hidden hover:border-orange-500/30 transition-all hover:-translate-y-1">
+
+                <div class="relative h-56 bg-[var(--surface-100)] dark:bg-white/5 overflow-hidden">
+                    <div
+                        class="w-full h-full flex items-center justify-center group-hover:scale-110 transition-transform duration-500">
+                        <i class="pi pi-image text-4xl text-[var(--surface-300)] dark:text-white/20"></i>
+                    </div>
+                    <div class="absolute top-4 left-4">
+                        <span
+                            class="px-2 py-1 bg-black/50 backdrop-blur text-white text-[10px] font-bold uppercase rounded">
+                            {{ post.category }}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="p-6 flex-1 flex flex-col">
+                    <div class="flex items-center gap-2 text-xs text-[var(--surface-500)] mb-3">
+                        <span>{{ post.date }}</span> &bull; <span>{{ post.readTime }} lectura</span>
+                    </div>
+
+                    <h3 class="text-xl font-bold mb-3 leading-snug group-hover:text-orange-500 transition-colors">
+                        {{ post.title }}
+                    </h3>
+
+                    <p class="text-sm text-[var(--surface-500)] mb-4 line-clamp-2">
+                        {{ post.excerpt }}
+                    </p>
+
+                    <div
+                        class="mt-auto pt-4 flex items-center gap-2 text-xs font-medium dark:text-[var(--surface-300)]">
+                        <span>Por {{ post.author }}</span>
+                    </div>
+                </div>
+            </div>
+            }
+        </div>
+
+        <div
+            class="mt-24 p-8 md:p-16 rounded-3xl bg-[var(--surface-900)] text-white text-center relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-64 h-64 bg-orange-500 rounded-full blur-[100px] opacity-20"></div>
+
+            <div class="relative z-10 max-w-xl mx-auto">
+                <i class="pi pi-send text-4xl text-orange-500 mb-6"></i>
+                <h2 class="text-3xl font-bold mb-4">La domótica avanza rápido.</h2>
+                <p class="text-slate-300 mb-8">
+                    Recibe quincenalmente guías de optimización, actualizaciones de seguridad y lanzamientos exclusivos.
+                    Sin spam, prometido.
+                </p>
+
+                <div class="flex flex-col sm:flex-row gap-2">
+                    <input pInputText placeholder="tu@email.com"
+                        class="w-full !rounded-full !border-none !py-3 !px-6 text-black" />
+                    <p-button label="Suscribirme"
+                        styleClass="!bg-orange-600 !border-none !rounded-full !px-8 !py-3 !font-bold w-full sm:w-auto hover:!bg-orange-500"></p-button>
+                </div>
+                <p class="text-xs text-slate-500 mt-4">Al suscribirte aceptas nuestra política de privacidad.</p>
+            </div>
+        </div>
+
+    </div>
+</section>
