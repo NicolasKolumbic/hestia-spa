@@ -7,12 +7,12 @@ import { Site } from '../domain/models/site';
 @Injectable({
   providedIn: 'root',
 })
-export class Space {
+export class SpaceService {
   http = inject(HttpClient);
 
   getAll(): Observable<Site[]> {
     return this.http.get<Site[]>('http://localhost:3000/api/sites').pipe(
-      map((sites: SiteDto[]) => sites.map(site => new Site(site.siteId, site.name)))
+      map((sites: SiteDto[]) => sites.map(site => new Site(site.siteId, site.name, site.icon, site.address)))
     );
   }
 }

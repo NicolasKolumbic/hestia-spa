@@ -18,7 +18,7 @@ export class SiteDropdown implements OnInit {
   isEditing = signal(false);
   isFormOpen = signal(false);
 
-  #siteService = inject(SpaceService);
+  #siteService = inject<SpaceService>(SpaceService);
 
   sites = signal<Site[]>([
     { siteId: '1', name: 'Casa Principal', icon: 'pi pi-home', address: 'Av. Libertador 1234' },
@@ -38,7 +38,7 @@ export class SiteDropdown implements OnInit {
   siteMenuItems: MenuItem[] = [];
 
   ngOnInit() {
-    this.#siteService.getAll().subscribe(sites => this.sites.set(sites));
+    this.#siteService.getAll().subscribe((sites: Site[]) => this.sites.set(sites));
     this.updateMenu();
   }
 
