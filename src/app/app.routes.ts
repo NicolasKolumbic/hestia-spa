@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
 
 // Guards (Debes crearlos luego para proteger la parte privada)
-// import { authGuard } from './core/guards/auth.guard';
+import { authGuard } from './core/guards/auth.guard';
 // import { publicGuard } from './core/guards/public.guard';
 
 export const routes: Routes = [
@@ -101,7 +101,7 @@ export const routes: Routes = [
     // =========================================================
     {
         path: 'platform',
-        // canActivate: [authGuard], // Protege toda esta sección
+        canActivate: [authGuard], // Protege toda esta sección
         // Cargamos un LAYOUT que contiene el Sidebar y Header fijos
         loadComponent: () => import('./layout/dashboard-layout/dashboard-layout').then(m => m.DashboardLayout),
         children: [

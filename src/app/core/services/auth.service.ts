@@ -43,4 +43,8 @@ export class AuthService {
   turnOn2fa(code: string): Observable<any> {
     return this.#http.post(`${this.apiUrl}/2fa/turn-on`, { twoFactorAuthenticationCode: code });
   }
+
+  getProfile(): Observable<any> {
+    return this.#http.get(`${this.apiUrl}/auth/me`);
+  }
 }
