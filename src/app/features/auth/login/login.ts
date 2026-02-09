@@ -57,7 +57,7 @@ export class Login {
             this.tempToken = res.temp_token!;
           } else {
             // Cookie is set by browser
-            this._router.navigate(['/app/dashboard']);
+            this._router.navigate(['/platform/dashboard']);
           }
         },
         error: (err) => {
