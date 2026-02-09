@@ -2,7 +2,7 @@ import { Routes } from '@angular/router';
 
 // Guards (Debes crearlos luego para proteger la parte privada)
 import { authGuard } from './core/guards/auth.guard';
-// import { publicGuard } from './core/guards/public.guard';
+import { publicGuard } from './core/guards/public.guard';
 
 export const routes: Routes = [
     // =========================================================
@@ -69,7 +69,7 @@ export const routes: Routes = [
     // =========================================================
     {
         path: 'auth',
-        // canActivate: [publicGuard], // Evita que usuarios logueados entren aquí
+        canActivate: [publicGuard], // Evita que usuarios logueados entren aquí
         loadComponent: () => import('./features/auth/auth-base/auth-base').then(m => m.AuthBase),
         children: [
             {
