@@ -14,24 +14,54 @@ export const routes: Routes = [
         title: 'Hestia - Tu mundo conectado'
     },
     {
-        path: 'soluciones',
+        path: 'solutions',
         loadComponent: () => import('./features/public/solutions/solutions').then(m => m.Solutions),
         title: 'Hestia - Soluciones'
     },
     {
-        path: 'tecnologia',
+        path: 'features',
+        loadComponent: () => import('./features/public/features/features').then(m => m.Features),
+        title: 'Hestia - Caracteristicas'
+    },
+    {
+        path: 'security',
+        loadComponent: () => import('./features/public/security/security').then(m => m.Security),
+        title: 'Hestia - Seguridad'
+    },
+    {
+        path: 'technology',
         loadComponent: () => import('./features/public/technology/technology').then(m => m.Technology),
         title: 'Hestia - Nuestra Tecnología'
     },
     {
-        path: 'recursos', // Blog
+        path: 'resources', // Blog
         loadComponent: () => import('./features/public/blog/blog').then(m => m.Blog),
         title: 'Hestia - Recursos y Novedades'
     },
     {
-        path: 'contacto',
+        path: 'contact',
         loadComponent: () => import('./features/public/contact/contact').then(m => m.Contact),
         title: 'Hestia - Contacto'
+    },
+    {
+        path: 'how-it-works',
+        loadComponent: () => import('./features/public/how-it-works/how-it-works').then(m => m.HowItWorks),
+        title: 'Hestia - Cómo funciona'
+    },
+    {
+        path: 'blog',
+        loadComponent: () => import('./features/public/blog/blog').then(m => m.Blog),
+        title: 'Hestia - Blog'
+    },
+    {
+        path: 'about-us',
+        loadComponent: () => import('./features/public/about-us/about-us').then(m => m.AboutUs),
+        title: 'Hestia - Acerca de nosotros'
+    },
+    {
+        path: 'careers',
+        loadComponent: () => import('./features/public/careers/careers').then(m => m.Careers),
+        title: 'Hestia - Carreras'
     },
 
     // =========================================================
