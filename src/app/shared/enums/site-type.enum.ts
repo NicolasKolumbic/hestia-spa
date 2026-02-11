@@ -1,0 +1,7 @@
+export enum SiteTypeIcons {
+    RESIDENTIAL = 'RESIDENTIAL',
+    COMMERCIAL = 'COMMERCIAL',
+    INDUSTRIAL = 'INDUSTRIAL',
+    INSTITUCIONAL = 'OTHER',
+    RURAL = 'RURAL'
+}

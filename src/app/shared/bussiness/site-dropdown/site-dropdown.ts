@@ -6,10 +6,15 @@ import { FormsModule } from '@angular/forms';
 import { SiteManager } from "../site-manager/site-manager";
 import { SpaceService } from "@core/services/space.service";
 import { Site } from '@core/index';
+import { map } from 'rxjs';
+import { SiteTypeIcons } from '@shared/enums/site-type.enum';
+import { Button } from "primeng/button";
+import { MatIconModule } from '@angular/material/icon';
+
 
 @Component({
   selector: 'hta-site-dropdown',
-  imports: [FormsModule, Menu, Dialog, SiteManager],
+  imports: [FormsModule, Menu, Dialog, SiteManager, Button, MatIconModule],
   templateUrl: './site-dropdown.html',
   styleUrl: './site-dropdown.css',
 })
@@ -20,12 +25,8 @@ export class SiteDropdown implements OnInit {
 
   #siteService = inject<SpaceService>(SpaceService);
 
-  sites = signal<Site[]>([
-    { siteId: '1', name: 'Casa Principal', icon: 'pi pi-home', address: 'Av. Libertador 1234' },
-    { siteId: '2', name: 'Oficina Centro', icon: 'pi pi-building', address: 'San Martín 400' }
-  ]);
-
-  currentSite = this.sites()[0];
+  sites = signal<MenuItem[]>([]);
+  currentSite = signal<MenuItem | null>(null);
 
   siteTypes = [
     { label: 'Casa', icon: 'pi pi-home', value: 'house' },
@@ -35,57 +36,44 @@ export class SiteDropdown implements OnInit {
 
   siteForm = { id: 0, name: '', icon: 'pi pi-home', address: '' };
 
-  siteMenuItems: MenuItem[] = [];
-
   ngOnInit() {
-    this.#siteService.getAll().subscribe((sites: Site[]) => this.sites.set(sites));
-    this.updateMenu();
+    this.#siteService.getAll()
+      .pipe(map((sites) => sites.map((site) => this.#buildMenuItems(site))))
+      .subscribe((sites: MenuItem[]) => {
+        this.sites.set(sites)
+        this.currentSite.set(sites[0]);
+      });
   }
 
-  updateMenu() {
-    this.siteMenuItems = [
-      {
-        label: 'MIS SITIOS',
-        items: this.sites().map(site => ({
-          label: site.name,
-          icon: site.icon,
-          styleClass: site.siteId === this.currentSite.siteId ? 'font-bold text-orange-600' : '',
-          command: () => this.selectSite(site)
-        }))
-      },
-      { separator: true },
-      {
-        label: 'Gestionar Inmuebles',
-        icon: 'pi pi-cog',
-        command: () => {
-          this.show.set(true);
-          this.isEditing.set(false);
-        }
-      }
-    ];
+  #buildMenuItems(site: Site): MenuItem {
+    const item: MenuItem = {
+      label: site.name,
+      icon: this.#getIcon(site),
+      id: site.siteId,
+      styleClass: this.currentSite() && site.siteId === this.currentSite()!.id ? 'font-bold text-orange-600' : '',
+    }
+    item.command = () => this.selectSite(item);
+    return item;
   }
 
-  selectSite(site: any) {
-    this.currentSite = site;
-    this.updateMenu(); // Para actualizar el check visual
+  #getIcon(site: Site): string {
+    if (site.icon === SiteTypeIcons.COMMERCIAL) {
+      site.icon = 'store'
+    } else if (site.icon === SiteTypeIcons.INDUSTRIAL) {
+      site.icon = 'factory'
+    } else if (site.icon === SiteTypeIcons.INSTITUCIONAL) {
+      site.icon = 'account_balance'
+    } else if (site.icon === SiteTypeIcons.RURAL) {
+      site.icon = 'agriculture'
+    } else {
+      site.icon = 'house';
+    }
+
+    return site.icon;
+  }
+
+  selectSite(item: MenuItem): void {
+    this.currentSite.set(item);
     this.show.set(false);
-
-    // AQUÍ: Disparar evento a tu SiteService para recargar la app
-    // this.siteService.setActiveSite(site.id);
-    console.log('Cambiado a:', site.name);
   }
-
-  // CRUD LÓGICA
-  resetForm() {
-    this.siteForm = { id: 0, name: '', icon: 'pi-home', address: '' };
-    this.isEditing.set(false);
-  }
-
-  editSite(site: any) {
-    this.siteForm = { ...site };
-    this.isEditing.set(true);
-    this.isFormOpen.set(true);
-  }
-
-
 }
