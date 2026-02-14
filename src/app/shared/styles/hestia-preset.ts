@@ -263,6 +263,7 @@ export const HestiaPreset = definePreset(Aura, {
                     fontSize: '0.785rem'
                 }
             }
-        }
+        },
+
     }
 });

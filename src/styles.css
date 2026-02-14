@@ -36,5 +36,31 @@ input.p-inputtext.p-invalid {
         background-color: var(--p-surface-900);
     }
 }
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+html,
+body {
+    height: 100%;
+}
+
+body {
+    margin: 0;
+    font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+p-password .p-password-toggle-mask-icon {
+    top: 26%;
+}
+
+p-password .p-password-input {
+    box-shadow: inset 0px 0px 2px 1px rgba(0, 0, 0, 0.5);
+}
+
+p-password input.p-inputtext.p-invalid {
+    box-shadow: inset 0px 0px 2px 1px rgba(248, 113, 133, 0.5);
+}
+
+@media (prefers-color-scheme: dark) {
+    p-password .p-password-input {
+        box-shadow: inset 0px 0px 2px 1px rgba(255, 255, 255, 0.5);
+    }
+}
