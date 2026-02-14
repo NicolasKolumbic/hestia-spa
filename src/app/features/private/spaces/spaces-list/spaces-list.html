@@ -41,5 +41,5 @@
     </div>
 </div>
 <hta-dialog [show]="showDialog()" (cancel)="cancelHandler()" (confirm)="confirmHandler($event)">
-    <hta-space-detail [space]="selectedSpace()" />
+    <hta-space-detail [space]="selectedSpace()" #content />
 </hta-dialog>

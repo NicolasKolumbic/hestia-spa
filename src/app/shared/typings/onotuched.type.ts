@@ -1,0 +1,1 @@
+export type OnTouched = () => void;

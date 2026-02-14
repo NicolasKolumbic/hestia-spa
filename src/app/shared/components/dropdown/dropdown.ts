@@ -1,32 +1,24 @@
-import { Component, forwardRef, inject, input, OnInit } from '@angular/core';
-import { FormsModule, NG_VALUE_ACCESSOR, NgControl, SelectControlValueAccessor } from '@angular/forms';
+import { Component, inject, input, OnInit } from '@angular/core';
+import { ReactiveFormsModule } from '@angular/forms';
 import { DropdownOption } from '@shared/abstractions/dropdown/dropdown-option';
 import { SelectModule } from 'primeng/select';
 import { FloatLabel } from "primeng/floatlabel";
+import { HostControl } from '@shared/directives/host-control';
 
 @Component({
   selector: 'hta-dropdown',
-  imports: [FormsModule, SelectModule, FloatLabel],
+  imports: [ReactiveFormsModule, SelectModule, FloatLabel],
   templateUrl: './dropdown.html',
   styleUrl: './dropdown.css',
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => Dropdown),
-      multi: true
-    }
-  ]
+  hostDirectives: [HostControl],
 })
-export class Dropdown extends SelectControlValueAccessor implements OnInit {
+export class Dropdown {
   options = input.required<DropdownOption[]>();
   placeholder = input.required<string>();
   labelOption = input<string>('label');
   labelValue = input<string>('value');
   id = input.required<string>();
 
-  //control = inject(NgControl, { optional: true, self: true });
+  control = inject(HostControl);
 
-  ngOnInit(): void {
-    //console.log(this.control);
-  }
 }
