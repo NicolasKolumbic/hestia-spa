@@ -25,5 +25,4 @@ export class Dropdown {
   hasError = computed(() => {
     return this.control.control().invalid && this.control.control().touched;
   });
-
 }

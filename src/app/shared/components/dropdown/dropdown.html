@@ -1,6 +1,8 @@
+@let formControl = control.control();
 <p-floatlabel class="w-full" variant="in">
     <p-select [formControl]="control.control()" [id]="id()" [options]="options()" [optionLabel]="labelOption()"
-        [optionValue]="labelValue()" class="w-full rounded-md" variant="filled" [invalid]="hasError()">
+        [optionValue]="labelValue()" class="w-full rounded-md" variant="filled"
+        [invalid]="formControl.invalid && (formControl.touched || formControl.dirty)">
         <ng-template let-option #item>
             <div class="px-2 py-1">
                 {{ option.label}}
@@ -10,8 +12,8 @@
     <label [attr.for]="id()">{{ placeholder() }}</label>
 </p-floatlabel>
 <p-message severity="error" size="small" variant="simple" styleClass="flex justify-end mt-2">
-    @let formControl = control.control();
-    @if (hasError() && formControl.hasError('required')) {
+
+    @if (formControl.invalid && (formControl.touched || formControl.dirty)&& formControl.hasError('required')) {
     {{ placeholder() }} is Required.
     }
 </p-message>

@@ -25,15 +25,20 @@ export class Dialog {
   content = contentChild<DialogContent>("content");
 
   confirmHandler(): void {
-    if (this.content()) {
+    if (this.content() && !this.content()!.isInvalid()) {
       const data = this.content()!.getData();
       this.confirm.emit(data);
+      this.show.set(false);
+      this.content()!.getForm().reset();
+    } else {
+      this.content()!.getForm().markAllAsTouched();
     }
-    this.show.set(false);
+
   }
 
   cancelHandler(): void {
     this.cancel.emit();
+    this.content()!.getForm().reset();
     this.show.set(false);
   }
 }

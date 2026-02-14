@@ -41,16 +41,18 @@ export class SpaceDetail implements DialogContent {
     });
   }
 
+  getForm(): FormGroup {
+    return this.spaceForm;
+  }
+  isInvalid(): boolean {
+    return this.spaceForm.invalid;
+  }
+
   getData<T>(): T {
     return this.spaceForm.value as T;
   }
 
-  // DATOS AUXILIARES
-  availableIcons = [
-    'pi-home', 'pi-desktop', 'pi-wifi', 'pi-inbox',
-    'pi-briefcase', 'pi-building', 'pi-car', 'pi-shopping-cart',
-    'pi-heart', 'pi-star'
-  ];
+
 
   spaceTypes = [
     { label: 'Sala de Estar', value: 'living' },
