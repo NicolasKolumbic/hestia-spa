@@ -60,4 +60,10 @@ export class HostControl<T> implements ControlValueAccessor, OnInit {
     this.isDisabled.set(isDisabled);
   }
 
+  setValue(value: T): void {
+    this.value.set(value);
+    this.onChange(value);
+    this.writeValue(value);
+  }
+
 }

@@ -1,0 +1,17 @@
+<div>
+    <label>{{ label() }}</label>
+    <ul class="grid grid-cols-4 gap-x-2 gap-y-4 mt-2">
+        @for (icon of icons(); track $index) {
+        <li>
+            <button type="button" (click)="selectHandler(icon)"
+                [ngClass]="icon.name === selected() ? 'text-orange-600 bg-orange-500/10' : ''"
+                class="w-full p-2 flex flex-col justify-center items-center cursor-pointer transition-all duration-200 background-color border-orange-500 color hover:text-orange-600 hover:bg-orange-500/10">
+                <div>
+                    <mat-icon>{{ icon.name }}</mat-icon>
+                </div>
+                <span class=" text-xs font-light">{{ icon.label }}</span>
+            </button>
+        </li>
+        }
+    </ul>
+</div>

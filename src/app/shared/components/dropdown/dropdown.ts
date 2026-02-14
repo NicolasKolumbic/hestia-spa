@@ -1,4 +1,4 @@
-import { Component, inject, input, OnInit } from '@angular/core';
+import { Component, computed, inject, input, OnInit } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { DropdownOption } from '@shared/abstractions/dropdown/dropdown-option';
 import { SelectModule } from 'primeng/select';
@@ -21,5 +21,9 @@ export class Dropdown {
   id = input.required<string>();
 
   control = inject(HostControl);
+
+  hasError = computed(() => {
+    return this.control.control().invalid && this.control.control().touched;
+  });
 
 }

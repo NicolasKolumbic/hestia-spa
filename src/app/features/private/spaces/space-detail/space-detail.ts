@@ -7,11 +7,13 @@ import { FloatLabelInput } from '@shared/components/float-label-input/float-labe
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
 import { Zone } from 'src/app/core';
+import { IconSelector } from "@shared/components/icon-selector/icon-selector";
+import { zoneIcons } from '@shared/bussiness/statics/zones-icons';
 
 
 @Component({
   selector: 'hta-space-detail',
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, InputTextModule, Dropdown, SelectModule, FloatLabelInput],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, InputTextModule, Dropdown, SelectModule, FloatLabelInput, IconSelector],
   templateUrl: './space-detail.html',
   styleUrl: './space-detail.css',
 })
@@ -19,6 +21,8 @@ export class SpaceDetail implements DialogContent {
   space = input.required<Zone | null>();
   spaceForm: FormGroup;
   #formBuilder = inject(FormBuilder);
+
+  icons = zoneIcons;
 
   effect() {
     if (this.space()) {
