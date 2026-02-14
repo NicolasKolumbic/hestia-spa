@@ -59,6 +59,14 @@ p-password input.p-inputtext.p-invalid {
     box-shadow: inset 0px 0px 2px 1px rgba(248, 113, 133, 0.5);
 }
 
+p-select {
+    height: 3rem;
+}
+
+.p-floatlabel-in:has(.p-inputwrapper-filled) label {
+    top: 0.5rem;
+}
+
 @media (prefers-color-scheme: dark) {
     p-password .p-password-input {
         box-shadow: inset 0px 0px 2px 1px rgba(255, 255, 255, 0.5);

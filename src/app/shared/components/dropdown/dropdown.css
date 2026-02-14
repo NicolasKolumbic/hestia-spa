@@ -1,6 +1,7 @@
 ::ng-deep .p-select-label {
-    padding-left: 0.5rem;
-    line-height: 2.2;
+    padding-left: 0.75rem;
+    line-height: 1;
+    padding-top: 1.4rem;
 }
 
 ::ng-deep p-overlay {

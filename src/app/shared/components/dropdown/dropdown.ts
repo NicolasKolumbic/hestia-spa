@@ -4,10 +4,11 @@ import { DropdownOption } from '@shared/abstractions/dropdown/dropdown-option';
 import { SelectModule } from 'primeng/select';
 import { FloatLabel } from "primeng/floatlabel";
 import { HostControl } from '@shared/directives/host-control';
+import { Message } from "primeng/message";
 
 @Component({
   selector: 'hta-dropdown',
-  imports: [ReactiveFormsModule, SelectModule, FloatLabel],
+  imports: [ReactiveFormsModule, SelectModule, FloatLabel, Message],
   templateUrl: './dropdown.html',
   styleUrl: './dropdown.css',
   hostDirectives: [HostControl],
