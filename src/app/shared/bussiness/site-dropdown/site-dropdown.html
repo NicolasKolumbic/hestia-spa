@@ -18,7 +18,7 @@
     </div>
     <i class="pi pi-chevron-down text-xs text-[var(--surface-400)]"></i>
 </button>
-<p-menu #siteMenu [model]="sites()" [popup]="true" appendTo="body" styleClass="w-60 px-3 py-2">
+<p-menu #siteMenu [model]="menuItems()" [popup]="true" appendTo="body" styleClass="w-60 px-3 py-2">
     <ng-template #item let-item>
         <p-button>
             <mat-icon>{{ item.icon }}</mat-icon>

@@ -6,7 +6,7 @@ import { FormsModule } from '@angular/forms';
 import { SiteManager } from "../site-manager/site-manager";
 import { SpaceService } from "@core/services/space.service";
 import { Site } from '@core/index';
-import { map } from 'rxjs';
+import { map, tap } from 'rxjs';
 import { SiteTypeIcons } from '@shared/enums/site-type.enum';
 import { Button } from "primeng/button";
 import { MatIconModule } from '@angular/material/icon';
@@ -25,8 +25,9 @@ export class SiteDropdown implements OnInit {
 
   #siteService = inject<SpaceService>(SpaceService);
 
-  sites = signal<MenuItem[]>([]);
+  menuItems = signal<MenuItem[]>([]);
   currentSite = signal<MenuItem | null>(null);
+  sites = signal<Site[]>([]);
 
   siteTypes = [
     { label: 'Casa', icon: 'pi pi-home', value: 'house' },
@@ -38,22 +39,26 @@ export class SiteDropdown implements OnInit {
 
   ngOnInit() {
     this.#siteService.getAll()
-      .pipe(map((sites) => sites.map((site) => this.#buildMenuItems(site))))
-      .subscribe((sites: MenuItem[]) => {
-        this.sites.set(sites)
-        this.currentSite.set(sites[0]);
+      .pipe(tap((sites) => this.#buildMenuItems(sites)))
+      .subscribe((sites: Site[]) => {
+        this.sites.set(sites);
+        this.#siteService.setSite(sites[0]);
       });
   }
 
-  #buildMenuItems(site: Site): MenuItem {
-    const item: MenuItem = {
-      label: site.name,
-      icon: this.#getIcon(site),
-      id: site.siteId,
-      styleClass: this.currentSite() && site.siteId === this.currentSite()!.id ? 'font-bold text-orange-600' : '',
-    }
-    item.command = () => this.selectSite(item);
-    return item;
+  #buildMenuItems(sites: Site[]): void {
+    const menuItems = sites.map((site: Site) => {
+      const item: MenuItem = {
+        label: site.name,
+        icon: this.#getIcon(site),
+        id: site.siteId,
+        styleClass: this.currentSite() && site.siteId === this.currentSite()!.id ? 'font-bold text-orange-600' : '',
+      }
+      item.command = () => this.selectSite(item);
+      return item;
+    });
+    this.menuItems.set(menuItems)
+    this.currentSite.set(menuItems[0]);
   }
 
   #getIcon(site: Site): string {
@@ -72,8 +77,12 @@ export class SiteDropdown implements OnInit {
     return site.icon;
   }
 
-  selectSite(item: MenuItem): void {
-    this.currentSite.set(item);
+  selectSite(menuItem: MenuItem): void {
+    this.currentSite.set(menuItem);
     this.show.set(false);
+    const selectedItem = this.sites().find(site => site.siteId === menuItem.id);
+    if (selectedItem) {
+      this.#siteService.setSite(selectedItem);
+    }
   }
 }
