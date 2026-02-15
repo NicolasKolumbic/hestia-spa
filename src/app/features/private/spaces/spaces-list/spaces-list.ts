@@ -33,6 +33,10 @@ export class SpacesList implements OnInit {
   isEditMode = signal(false);
   selectedSpace = signal<Zone | null>(null);
 
+  title = computed<string>(() => {
+    return this.isEditMode() ? 'Editar Habitación' : 'Agregar Habitación';
+  })
+
   ngOnInit(): void {
     this.#zoneService.getAllZones()
       .pipe(
@@ -53,20 +57,18 @@ export class SpacesList implements OnInit {
   }
 
   confirmHandler(space: Zone): void {
-    this.isEditMode.set(false);
     this.showDialog.set(true);
     this.saveSpace(space);
   }
 
   openNewSpaceDialog(): void {
-    this.isEditMode.set(false);
     this.showDialog.set(true);
   }
 
   editHandler(zone: Zone): void {
+    this.selectedSpace.set(zone);
     this.isEditMode.set(true);
     this.showDialog.set(true);
-    this.selectedSpace.set(zone);
   }
 
   deleteHandler(space: Zone) {

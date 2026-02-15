@@ -2,7 +2,6 @@ import { CommonModule } from '@angular/common';
 import { Component, inject, input, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { DialogContent } from '@shared/abstractions/dialog/dialog-content';
-import { Dropdown } from '@shared/components/dropdown/dropdown';
 import { FloatLabelInput } from '@shared/components/float-label-input/float-label-input';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
@@ -14,11 +13,11 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'hta-space-detail',
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, InputTextModule, Dropdown, SelectModule, FloatLabelInput, IconSelector],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, InputTextModule, SelectModule, FloatLabelInput, IconSelector],
   templateUrl: './space-detail.html',
   styleUrl: './space-detail.css',
 })
-export class SpaceDetail implements DialogContent {
+export class SpaceDetail implements DialogContent, OnInit {
   space = input.required<Zone | null>();
   spaceForm: FormGroup;
   #formBuilder = inject(FormBuilder);
@@ -26,25 +25,23 @@ export class SpaceDetail implements DialogContent {
 
   icons = zoneIcons;
 
-  effect() {
-    if (this.space()) {
-      this.spaceForm.patchValue(this.space()!);
-    } else {
-      this.spaceForm.reset();
-    }
-  }
-
   constructor() {
     this.spaceForm = this.#formBuilder.group({
       name: ['', Validators.required],
       icon: ['', Validators.required],
-      type: ['', Validators.required],
       siteId: [null, Validators.required],
+      zoneId: [null],
     });
 
     this.#spaceService.selectedSite$.pipe(takeUntilDestroyed()).subscribe(site => {
       this.spaceForm.get('siteId')?.setValue(site?.siteId);
     });
+  }
+
+  ngOnInit(): void {
+    if (this.space()) {
+      this.spaceForm.patchValue(this.space()!);
+    }
   }
 
   getForm(): FormGroup {
@@ -58,12 +55,4 @@ export class SpaceDetail implements DialogContent {
     return this.spaceForm.value as T;
   }
 
-  spaceTypes = [
-    { label: 'Sala de Estar', value: 'living' },
-    { label: 'Dormitorio', value: 'bedroom' },
-    { label: 'Cocina', value: 'kitchen' },
-    { label: 'Baño', value: 'bathroom' },
-    { label: 'Oficina', value: 'office' },
-    { label: 'Exterior', value: 'outdoor' }
-  ];
 }

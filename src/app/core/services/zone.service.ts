@@ -14,7 +14,7 @@ export class ZoneService {
   }
 
   updateZone(zone: Zone): Observable<Zone> {
-    return this.#http.put<Zone>(`http://localhost:3000/api/zones/${zone}`, zone);
+    return this.#http.put<Zone>(`http://localhost:3000/api/zones/${zone.zoneId}`, zone);
   }
 
   deleteZone(zoneId: string): Observable<void> {
