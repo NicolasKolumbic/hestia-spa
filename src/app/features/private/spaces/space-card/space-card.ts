@@ -8,11 +8,13 @@ import { MessageService } from 'primeng/api';
 import { TooltipModule } from 'primeng/tooltip';
 import { Zone } from 'src/app/core/domain/models/zone';
 import { ConfirmDialog } from "primeng/confirmdialog";
+import { MatIcon } from "@angular/material/icon";
+import { Button } from "primeng/button";
 
 
 @Component({
   selector: 'hta-space-card',
-  imports: [CommonModule, MenuModule, TooltipModule, ConfirmDialog],
+  imports: [CommonModule, MenuModule, TooltipModule, ConfirmDialog, MatIcon, Button],
   templateUrl: './space-card.html',
   styleUrl: './space-card.css',
 })
@@ -28,6 +30,7 @@ export class SpaceCard {
     {
       label: 'Editar',
       icon: 'pi pi-pencil',
+      styleClass: 'px-2 py-1',
       command: () => {
         this.edit.emit(this.selectedSpace()!);
       }
@@ -35,7 +38,7 @@ export class SpaceCard {
     {
       label: 'Eliminar',
       icon: 'pi pi-trash',
-      styleClass: 'text-red-500',
+      styleClass: 'px-2 py-1 text-red-500',
       command: () => this.deleteSpace(this.selectedSpace()!)
     }
   ];

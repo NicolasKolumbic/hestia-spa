@@ -6,7 +6,7 @@
     <div class="p-6 pb-0 flex justify-between items-start">
         <div
             class="w-12 h-12 rounded-full flex items-center justify-center bg-orange-50 text-orange-600 dark:bg-orange-500/10 dark:text-orange-500">
-            <i [class]="'pi ' + space().icon"></i>
+            <mat-icon>{{ space().icon }}</mat-icon>
         </div>
 
         <div class="p-6 pb-0 flex justify-between items-start">
@@ -15,7 +15,14 @@
                 <i class="pi pi-ellipsis-v"></i>
             </button>
 
-            <p-menu #menu [model]="menuItems" [popup]="true" appendTo="body"></p-menu>
+            <p-menu #menu [model]="menuItems" [popup]="true" appendTo="body" styleClass="p-1">
+                <ng-template #item let-item>
+                    <p-button [styleClass]="item.styleClass">
+                        <i [attr.class]="item.icon"></i>
+                        <span>{{ item.label }}</span>
+                    </p-button>
+                </ng-template>
+            </p-menu>
         </div>
     </div>
 

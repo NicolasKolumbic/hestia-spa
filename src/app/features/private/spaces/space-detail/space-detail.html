@@ -1,17 +1,13 @@
 <div class="flex flex-col gap-6 pt-4 px-3">
     <form [formGroup]="spaceForm" class="overflow-auto h-[calc(100vh-200px)]">
         <div class="p-2">
-            <div class="flex flex-col gap-2">
-                <hta-float-label-input formControlName="name" class="dialog-input"
-                    placeholder="Ej. Oficina, Cuarto de Juegos" label="Nombre" id="name" />
-            </div>
-            <div class="flex flex-col gap-2 mt-2">
-                <hta-dropdown id="spaceType" formControlName="type" [options]="spaceTypes"
-                    placeholder="Tipo de Ambiente" />
-            </div>
-            <div class="flex flex-col gap-2">
-                <hta-icon-selector formControlName="icon" label="Icono Representativo" [icons]="icons" />
-            </div>
+            <hta-float-label-input formControlName="name" class="dialog-input"
+                placeholder="Ej. Oficina, Cuarto de Juegos" label="Nombre" id="name" />
+
+            <hta-dropdown id="spaceType" class="mt-2" formControlName="type" [options]="spaceTypes"
+                placeholder="Tipo de Ambiente" />
+            <hta-icon-selector formControlName="icon" class="mt-2" label="Icono Representativo" [icons]="icons" />
+
         </div>
     </form>
 </div>
