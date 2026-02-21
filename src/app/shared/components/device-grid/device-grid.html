@@ -1,0 +1,50 @@
+<div>
+    <h4>{{ title() }}</h4>
+    <div class="mt-4 flex flex-wrap">
+        @for (device of devices(); track device.deviceId) {
+        <div
+            class="group relative overflow-hidden rounded-xl border transition-all duration-300 cursor-pointer
+                  bg-[var(--surface-0)] border-[var(--surface-200)] hover:shadow-lg hover:-translate-y-1
+                  dark:bg-[var(--surface-800)] dark:border-[var(--surface-700)] dark:hover:border-orange-500/50 dark:hover:shadow-orange-900/20">
+
+            <div class="p-6 pb-0 flex justify-between items-start">
+                <ng-container *ngTemplateOutlet="headerTemplate();context: { device: device }" />
+
+                <div class="p-6 pb-0 flex justify-between items-start">
+                    <button (click)="menu.toggle($event); selected.set(device)"
+                        class="text-[var(--surface-400)] hover:text-[var(--surface-600)] dark:hover:text-[var(--surface-200)] transition-colors p-1 rounded-full hover:bg-[var(--surface-100)] dark:hover:bg-[var(--surface-700)]">
+                        <i class="pi pi-ellipsis-v"></i>
+                    </button>
+
+                    <p-menu #menu [model]="menuItems()" [popup]="true" appendTo="body" styleClass="p-1">
+                        <ng-template #item let-item>
+                            <p-button [styleClass]="item.styleClass">
+                                <i [attr.class]="item.icon"></i>
+                                <span>{{ item.label }}</span>
+                            </p-button>
+                        </ng-template>
+                    </p-menu>
+                </div>
+            </div>
+            <div class="p-6">
+                <ng-container *ngTemplateOutlet="contentTemplate();context: { device: device }" />
+            </div>
+        </div>
+        }
+
+        <button type="button" (click)="addHandler()" class="border-2 border-dashed rounded-xl flex flex-col items-center justify-center p-8 cursor-pointer transition-all gap-4 group
+                border-[var(--surface-300)] hover:border-orange-500/50 hover:bg-orange-50/50
+                dark:border-[var(--surface-700)] dark:hover:border-orange-500 dark:hover:bg-[var(--surface-800)]">
+            <div class="w-14 text-lg font-bold h-14 rounded-full flex items-center justify-center border-2 transition-colors
+                  border-[var(--surface-300)] text-[var(--surface-400)] group-hover:border-orange-500 group-hover:text-orange-500
+                  dark:border-[var(--surface-600)]">
+                <mat-icon>add</mat-icon>
+            </div>
+            <span
+                class="font-medium text-[var(--surface-500)] group-hover:text-orange-600 dark:group-hover:text-orange-500 transition-colors">
+                {{ addLabel()}}
+            </span>
+        </button>
+
+    </div>
+</div>

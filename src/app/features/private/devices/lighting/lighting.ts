@@ -1,21 +1,61 @@
-import { Component } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { DeviceService } from '@core/services/device.service';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { ToggleSwitchModule } from 'primeng/toggleswitch'; // O p-toggleswitch en v18
 import { SliderModule } from 'primeng/slider';
 import { ColorPickerModule } from 'primeng/colorpicker';
 import { DialogModule } from 'primeng/dialog';
-import { Slider } from "@shared/components/slider/slider";
+import { InputTextModule } from 'primeng/inputtext';
+import { Dialog } from "@shared/components/dialog/dialog";
+import { LightsForm } from "./components/lights-form/lights-form";
+import { Device } from '@core/domain/models/device';
+import { DeviceGrid } from '@shared/components/device-grid/device-grid';
 
 @Component({
   selector: 'app-lighting',
-  imports: [CommonModule, FormsModule, ButtonModule, ToggleSwitchModule, SliderModule, DialogModule, ColorPickerModule, Slider],
+  imports: [CommonModule, FormsModule, ButtonModule, ToggleSwitchModule, SliderModule, DialogModule, ColorPickerModule, InputTextModule, Dialog, LightsForm, DeviceGrid],
   templateUrl: './lighting.html',
   styleUrl: './lighting.css',
 })
 export class Lighting {
-  // Luz seleccionada temporalmente para el overlay de color
+  #deviceService = inject(DeviceService);
+
+  // Expose devices signal from service
+  devices = this.#deviceService.devices;
+  showDialog = signal(false);
+  isEditMode = signal(false);
+  selectedDevice = signal<Device | null>(null);
+
+  title = computed<string>(() => {
+    return this.isEditMode() ? 'Editar Dispositivo' : 'Agregar Dispositivo';
+  })
+
+
+  // Computed property or method to flatten channels for the view if needed, 
+  // or update the view to iterate over devices -> channels.
+  // For now, let's flatten it to match the existing 'lights' structure for easier migration, 
+  // or better, update the template to support the new structure.
+  // Given the existing template likely expects a flat list, let's create a computed signal or just use the service's signal directly if template changes.
+  // Let's assume we want to adapt the view to the new model.
+
+  // Actually, the previous 'lights' array had: { id, name, room, isOn, brightness, color }
+  // Our new structure is Device -> Channels. 
+  // A device usually is in a room (Zone). The current Device model in frontend doesn't have Zone yet (it was optional in backend).
+  // Let's update the template to iterate devices and their channels.
+
+  // For this step, I will expose the service and methods.
+
+  constructor() {
+    this.#deviceService.getAllDevices().subscribe(() => {
+      console.log(this.#deviceService.devices);
+    });
+  }
+
+  displayColorPicker = false;
+  displayAddDeviceDialog = false;
+
   selectedLight: any = {};
 
   // Colores rápidos (Blanco cálido, Frío, RGBs)
@@ -28,29 +68,57 @@ export class Lighting {
     { name: 'Romántico', icon: 'pi-heart', color: '#ff0044', brightness: 40 },
   ];
 
-  lights = [
-    { id: 1, name: 'Lámpara de Pie', room: 'Sala', isOn: true, brightness: 75, color: '#ffaa00' }, // Naranja cálido
-    { id: 2, name: 'Techo Principal', room: 'Sala', isOn: false, brightness: 100, color: '#ffffff' },
-    { id: 3, name: 'Tira LED TV', room: 'Sala', isOn: true, brightness: 50, color: '#8a2be2' }, // Violeta
-    { id: 4, name: 'Velador Izq', room: 'Dormitorio', isOn: true, brightness: 20, color: '#ff4500' }, // Rojo suave
-    { id: 5, name: 'Velador Der', room: 'Dormitorio', isOn: false, brightness: 20, color: '#ff4500' },
-    { id: 6, name: 'Mesada', room: 'Cocina', isOn: true, brightness: 100, color: '#ffffff' },
-  ];
-
-  getActiveCount() {
-    return this.lights.filter(l => l.isOn).length;
+  addHandler(): void {
+    this.showDialog.set(true);
   }
 
+  cancelHandler(): void {
+    this.showDialog.set(false);
+    this.isEditMode.set(false);
+    this.selectedDevice.set(null);
+  }
+
+  confirmHandler(device: Device): void {
+    this.showDialog.set(true);
+    this.saveNewDevice(device);
+  }
+
+  saveNewDevice(device: Device): void {
+    this.#deviceService.createDevice(device).subscribe(() => {
+      this.displayAddDeviceDialog = false;
+      this.#deviceService.getAllDevices().subscribe();
+    });
+  }
+
+  /*getActiveCount() {
+    return this.devices().filter(l => l.channels.some(c => c.isOn)).length;
+  }*/
+
   turnAllOff() {
-    this.lights.forEach(l => l.isOn = false);
+    this.devices().forEach(l => {
+      if (l.channels.some(c => c.isOn)) this.toggleLight(l);
+    });
   }
 
   activateScene(scene: any) {
-    // Simulación: Aplica la escena a todas las luces activas o de un grupo
-    this.lights.forEach(l => {
-      l.isOn = true;
-      l.color = scene.color;
-      l.brightness = scene.brightness;
+    this.devices().forEach(l => {
+      this.#deviceService.updateChannelState(l.channels[0].channelId, {
+        isOn: true,
+        brightness: scene.brightness,
+        color: scene.color
+      }).subscribe();
     });
+  }
+
+  toggleLight(light: any) {
+    this.#deviceService.updateChannelState(light.channelId, { isOn: !light.isOn }).subscribe();
+  }
+
+  updateBrightness(light: any, value?: number) {
+    this.#deviceService.updateChannelState(light.channelId, { brightness: value }).subscribe();
+  }
+
+  updateColor(light: any, color: string) {
+    this.#deviceService.updateChannelState(light.channelId, { color: color }).subscribe();
   }
 }

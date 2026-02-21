@@ -1,0 +1,14 @@
+<div class="p-4">
+    <form [formGroup]="lightForm">
+        <fieldset>
+            <hta-float-label-input formControlName="name" class="dialog-input mb-2" placeholder="Ej: Luz de techo"
+                label="Nombre" id="name" />
+            <hta-float-label-input formControlName="manufacturer" class="dialog-input mb-2" placeholder="Ej: Philips"
+                label="Fabricante" id="manufacturer" />
+            <hta-float-label-input formControlName="model" class="dialog-input mb-2" placeholder="Ej: Hue White"
+                label="Modelo" id="model" />
+            <hta-zone-dropdown formControlName="zoneId" class="dialog-input mb-2" />
+            <hta-device-type-dropdown formControlName="deviceTypeId" class="dialog-input mb-2" />
+        </fieldset>
+    </form>
+</div>
