@@ -11,6 +11,7 @@ import {
     LIGHTING_CHANNEL_TYPES,
     SECURITY_CHANNEL_TYPES,
 } from '@core/domain/models/device-channel-type';
+import { Environment } from './environment';
 
 @Injectable({
     providedIn: 'root'
@@ -18,6 +19,9 @@ import {
 export class DeviceService {
     #http = inject(HttpClient);
     #ws = inject(WebSocketService);
+    #environment = inject(Environment);
+
+    #apiUrl = `${this.#environment.apiUrl}/devices`;
 
     readonly devices = signal<Device[]>([]);
 
@@ -54,7 +58,7 @@ export class DeviceService {
     }
 
     createDevice(device: Partial<DeviceDto>): Observable<Device> {
-        return this.#http.post<DeviceDto>('http://localhost:3000/api/devices', device).pipe(
+        return this.#http.post<DeviceDto>(`${this.#apiUrl}`, device).pipe(
             map(deviceDto => new Device(deviceDto)),
             tap(newDevice => {
                 this.devices.update(devices => [...devices, newDevice]);
@@ -63,14 +67,14 @@ export class DeviceService {
     }
 
     getAllDevices(): Observable<Device[]> {
-        return this.#http.get<DeviceDto[]>('http://localhost:3000/api/devices').pipe(
+        return this.#http.get<DeviceDto[]>(`${this.#apiUrl}`).pipe(
             map(devices => devices.map(device => new Device(device))),
             tap(devices => this.devices.set(devices))
         );
     }
 
     updateChannelState(channelId: string, state: Partial<DeviceChannelDto>): Observable<DeviceChannelDto> {
-        return this.#http.put<DeviceChannelDto>(`http://localhost:3000/api/device-channels/${channelId}`, state).pipe(
+        return this.#http.put<DeviceChannelDto>(`${this.#apiUrl}/${channelId}`, state).pipe(
             tap(updatedChannel => {
                 this.updateLocalDeviceChannel(updatedChannel);
             })

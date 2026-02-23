@@ -2,13 +2,17 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { DeviceType } from '../domain/models/device-type';
+import { environment } from 'src/environments/environment';
+import { Environment } from './environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class DeviceTypeService {
   #http = inject(HttpClient);
-  private readonly apiUrl = 'http://localhost:3000/api/device-types';
+  #environment = inject(Environment);
+
+  private readonly apiUrl = `${this.#environment.apiUrl}/device-types`;
 
   findAll(): Observable<DeviceType[]> {
     return this.#http.get<DeviceType[]>(this.apiUrl);
