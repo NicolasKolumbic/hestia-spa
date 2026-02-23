@@ -6,7 +6,7 @@
                 Iluminación
             </h1>
             <p class="text-[var(--surface-500)] dark:text-[var(--surface-400)]">
-                0 luces encendidas
+                {{ devices().length }} dispositivos
             </p>
         </div>
         <p-button label="Apagar Todo" icon="pi pi-power-off" (onClick)="turnAllOff()"
@@ -37,26 +37,20 @@
     <hta-device-grid title="Iluminación" addLabel="Agregar Luz" [devices]="devices()" (add)="addHandler()">
         <ng-template #header let-device>
             <i class="pi pi-lightbulb text-2xl transition-colors duration-300"
-                [style.color]="device.isOn ? device.color : 'var(--surface-400)'"
-                [style.text-shadow]="device.isOn ? '0 0 10px ' + device.color : 'none'">
+                [style.color]="device.channels[0]?.isOn ? device.channels[0]?.color : 'var(--surface-400)'"
+                [style.text-shadow]="device.channels[0]?.isOn ? '0 0 10px ' + device.channels[0]?.color : 'none'">
             </i>
-            <span class="text-xs font-medium text-[var(--surface-500)] mt-2">{{ device.room }}</span>
             <h3 class="font-bold text-lg text-[var(--surface-900)] dark:text-[var(--surface-0)] leading-tight">
                 {{ device.name }}
             </h3>
         </ng-template>
         <ng-template #content let-device>
-            <p-inputSwitch [ngModel]="device.isOn" (onChange)="toggleLight(device)"></p-inputSwitch>
-            <div class="flex items-center gap-3 pt-2">
-                <div class="flex-1">
-                    <p-slider [ngModel]="device?.brightness ?? 0" (onChange)="updateBrightness(device, $event.value)"
-                        [style]="{'width': '100%'}" [min]="0" [max]="100"></p-slider>
-                </div>
-                <button (click)="displayColorPicker = true; selectedLight = device" [disabled]="!device.isOn"
-                    class="w-8 h-8 rounded-full border-2 border-[var(--surface-0)] dark:border-[var(--surface-600)] shadow-sm cursor-pointer transition-transform hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed"
-                    [style.background-color]="device.color">
-                </button>
-            </div>
+            @for (channel of device.channels; track channel.channelId) {
+            <hta-device-channel-control [channel]="channel" (toggleChanged)="toggleLight(channel)"
+                (brightnessChanged)="updateBrightness(channel, $event)"
+                (colorPickerRequested)="openColorPicker($event)">
+            </hta-device-channel-control>
+            }
         </ng-template>
     </hta-device-grid>
 </div>
@@ -65,12 +59,13 @@
     <div class="p-4 flex flex-col gap-3 w-64">
         <span class="text-sm font-bold text-white mb-1">Color de la Luz</span>
 
-        <p-colorPicker [ngModel]="selectedLight.color" (onChange)="updateColor(selectedLight, $event.value.toString())"
-            [inline]="true" styleClass="w-full"></p-colorPicker>
+        <p-colorPicker [(ngModel)]="selectedLightColor"
+            (onChange)="selectedLight && updateColor(selectedLight, $event.value.toString())" [inline]="true"
+            styleClass="w-full"></p-colorPicker>
 
         <div class="flex justify-between gap-2 mt-2">
             @for (color of presetColors; track color) {
-            <div (click)="updateColor(selectedLight, color)"
+            <div (click)="selectedLight && updateColor(selectedLight, color)"
                 class="w-6 h-6 rounded-full cursor-pointer hover:scale-110 transition-transform border border-white/20"
                 [style.background-color]="color">
             </div>

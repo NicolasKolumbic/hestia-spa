@@ -1,8 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, computed, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { KnobModule } from 'primeng/knob';
-import { ToggleSwitchModule } from 'primeng/toggleswitch'
+import { ToggleSwitchModule } from 'primeng/toggleswitch';
+import { DeviceService } from '@core/services/device.service';
 
 @Component({
   selector: 'app-climate',
@@ -11,22 +12,37 @@ import { ToggleSwitchModule } from 'primeng/toggleswitch'
   templateUrl: './climate.html',
   styleUrl: './climate.css',
 })
-export class Climate {
-  zones = [
-    { id: 1, name: 'Living', currentTemp: 23, targetTemp: 24, humidity: 45, isOn: true, mode: 'heat' }, // Calefacción
-    { id: 2, name: 'Dormitorio Principal', currentTemp: 26, targetTemp: 21, humidity: 50, isOn: true, mode: 'cool' }, // Aire Acondicionado
-    { id: 3, name: 'Oficina', currentTemp: 22, targetTemp: 22, humidity: 40, isOn: false, mode: 'cool' }, // Apagado
-    { id: 4, name: 'Cuarto de Invitados', currentTemp: 20, targetTemp: 24, humidity: 55, isOn: true, mode: 'fan' } // Ventilación
-  ];
+export class Climate implements OnInit {
+  #deviceService = inject(DeviceService);
 
-  // Función para determinar el color del arco del termostato dinámicamente
-  getKnobColor(zone: any): string {
-    if (!zone.isOn) return '#64748b'; // Slate-500 (Apagado)
+  /**
+   * Map climateDevices into the zone shape expected by the HTML template.
+   * Each thermostat/sensor channel becomes a "zone".
+   */
+  zones = computed(() =>
+    this.#deviceService.climateDevices().flatMap(device =>
+      device.channels.map(ch => ({
+        id: ch.channelId,
+        name: device.name,
+        isOn: ch.isOn,
+        mode: (ch.payload['mode'] as string) ?? 'cool',
+        currentTemp: (ch.payload['currentTemp'] as number) ?? 0,
+        targetTemp: (ch.payload['targetTemp'] as number) ?? 22,
+        humidity: (ch.payload['humidity'] as number) ?? 0,
+      }))
+    )
+  );
 
+  ngOnInit() {
+    this.#deviceService.getAllDevices().subscribe();
+  }
+
+  getKnobColor(zone: { mode: string; isOn: boolean }): string {
+    if (!zone.isOn) return '#64748b';
     switch (zone.mode) {
-      case 'heat': return '#F06428'; // Naranja Hestia
-      case 'cool': return '#3B82F6'; // Azul
-      case 'fan': return '#22c55e';  // Verde
+      case 'heat': return '#F06428';
+      case 'cool': return '#3B82F6';
+      case 'fan': return '#22c55e';
       default: return '#F06428';
     }
   }

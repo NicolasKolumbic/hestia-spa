@@ -3,9 +3,11 @@ export interface DeviceChannelDto {
     deviceId: string;
     channelIndex: number;
     name: string;
-    type: 'SWITCH' | 'DIMMER' | 'SENSOR';
+    type: string;
     isPrimary: boolean;
     isOn: boolean;
+    payload?: Record<string, any>;
+    // Legacy fields - kept for backwards compatibility
     brightness: number;
     color: string;
 }

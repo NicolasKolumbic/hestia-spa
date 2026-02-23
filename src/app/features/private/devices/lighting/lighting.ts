@@ -3,27 +3,26 @@ import { CommonModule } from '@angular/common';
 import { DeviceService } from '@core/services/device.service';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
-import { ToggleSwitchModule } from 'primeng/toggleswitch'; // O p-toggleswitch en v18
-import { SliderModule } from 'primeng/slider';
-import { ColorPickerModule } from 'primeng/colorpicker';
 import { DialogModule } from 'primeng/dialog';
-import { InputTextModule } from 'primeng/inputtext';
+import { ColorPickerModule } from 'primeng/colorpicker';
 import { Dialog } from "@shared/components/dialog/dialog";
 import { LightsForm } from "./components/lights-form/lights-form";
 import { Device } from '@core/domain/models/device';
 import { DeviceGrid } from '@shared/components/device-grid/device-grid';
+import { DeviceChannelControl } from '@shared/components/device-channel-control/device-channel-control';
+import { DeviceChannel } from '@core/domain/models/device-channel';
 
 @Component({
   selector: 'app-lighting',
-  imports: [CommonModule, FormsModule, ButtonModule, ToggleSwitchModule, SliderModule, DialogModule, ColorPickerModule, InputTextModule, Dialog, LightsForm, DeviceGrid],
+  imports: [CommonModule, FormsModule, ButtonModule, DialogModule, ColorPickerModule, Dialog, LightsForm, DeviceGrid, DeviceChannelControl],
   templateUrl: './lighting.html',
   styleUrl: './lighting.css',
 })
 export class Lighting {
   #deviceService = inject(DeviceService);
 
-  // Expose devices signal from service
-  devices = this.#deviceService.devices;
+  // Use the category-filtered computed signal
+  devices = this.#deviceService.lightingDevices;
   showDialog = signal(false);
   isEditMode = signal(false);
   selectedDevice = signal<Device | null>(null);
@@ -56,7 +55,8 @@ export class Lighting {
   displayColorPicker = false;
   displayAddDeviceDialog = false;
 
-  selectedLight: any = {};
+  selectedLight: DeviceChannel | null = null;
+  selectedLightColor = '#ffffff';
 
   // Colores rápidos (Blanco cálido, Frío, RGBs)
   presetColors = ['#ffffff', '#ffaa00', '#ff0000', '#00ff00', '#0000ff'];
@@ -95,30 +95,43 @@ export class Lighting {
   }*/
 
   turnAllOff() {
-    this.devices().forEach(l => {
-      if (l.channels.some(c => c.isOn)) this.toggleLight(l);
+    this.devices().forEach(device => {
+      device.channels.forEach(ch => {
+        if (ch.isOn) this.toggleLight(ch);
+      });
     });
   }
 
   activateScene(scene: any) {
-    this.devices().forEach(l => {
-      this.#deviceService.updateChannelState(l.channels[0].channelId, {
-        isOn: true,
-        brightness: scene.brightness,
-        color: scene.color
-      }).subscribe();
+    this.devices().forEach(device => {
+      const ch = device.channels[0];
+      if (ch) {
+        this.#deviceService.updateChannelState(ch.channelId, {
+          isOn: true,
+          payload: { ...ch.payload, brightness: scene.brightness, color: scene.color }
+        }).subscribe();
+      }
     });
   }
 
-  toggleLight(light: any) {
-    this.#deviceService.updateChannelState(light.channelId, { isOn: !light.isOn }).subscribe();
+  toggleLight(channel: DeviceChannel) {
+    this.#deviceService.updateChannelState(channel.channelId, { isOn: !channel.isOn }).subscribe();
   }
 
-  updateBrightness(light: any, value?: number) {
-    this.#deviceService.updateChannelState(light.channelId, { brightness: value }).subscribe();
+  updateBrightness(channel: DeviceChannel, value?: number) {
+    this.#deviceService.updateChannelState(channel.channelId, { payload: { ...channel.payload, brightness: value } }).subscribe();
   }
 
-  updateColor(light: any, color: string) {
-    this.#deviceService.updateChannelState(light.channelId, { color: color }).subscribe();
+  updateColor(channel: DeviceChannel, color: string) {
+    this.#deviceService.updateChannelState(channel.channelId, { payload: { ...channel.payload, color } }).subscribe();
+    if (this.selectedLight) {
+      this.selectedLight.payload = { ...this.selectedLight.payload, color };
+    }
+  }
+
+  openColorPicker(channel: DeviceChannel) {
+    this.selectedLight = channel;
+    this.selectedLightColor = channel.color;
+    this.displayColorPicker = true;
   }
 }
