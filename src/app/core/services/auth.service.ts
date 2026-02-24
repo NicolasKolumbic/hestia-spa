@@ -45,6 +45,6 @@ export class AuthService {
   }
 
   getProfile(): Observable<any> {
-    return this.#http.get(`${this.#environment.apiUrl}/auth/me`);
+    return this.#http.get(`${this.#environment.apiUrl}/auth/me`, { withCredentials: true });
   }
 }
