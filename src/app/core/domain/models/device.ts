@@ -14,7 +14,7 @@ export class Device {
         this.deviceId = deviceId;
         this.name = name;
         this.status = status;
-        this.channels = channels.map(channel => new DeviceChannel(channel));
+        this.channels = channels ? channels.map(channel => new DeviceChannel(channel)) : [];
         this.manufacturer = manufacturer;
         this.model = model;
         this.serialNumber = serialNumber;

@@ -1,41 +1,43 @@
 <div class="p-6 min-h-screen bg-[var(--surface-50)] dark:bg-[var(--surface-900)] transition-colors duration-300">
+    <div class="flex flex-col">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+            <div>
+                <h1 class="text-3xl font-bold text-[var(--surface-900)] dark:text-[var(--surface-0)]">
+                    Mis Espacios
+                </h1>
+                <p class="text-[var(--surface-500)] dark:text-[var(--surface-400)]">
+                    Gestiona y monitorea tus habitaciones.
+                </p>
+            </div>
 
-    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-        <div>
-            <h1 class="text-3xl font-bold text-[var(--surface-900)] dark:text-[var(--surface-0)]">
-                Mis Espacios
-            </h1>
-            <p class="text-[var(--surface-500)] dark:text-[var(--surface-400)]">
-                Gestiona y monitorea tus habitaciones.
-            </p>
-        </div>
-
-        <div class="flex gap-3 items-center">
-            <div class="relative">
-                <i class="pi pi-search absolute left-3 top-3 -translate-y-1/2 text-[var(--surface-400)]"></i>
-                <input pInputText placeholder="Buscar espacio..."
-                    class="pl-10 !bg-[var(--surface-0)] dark:!bg-[var(--surface-800)] !border-[var(--surface-300)] dark:!border-[var(--surface-700)]" />
+            <div class="flex gap-3 items-center">
+                <div class="relative">
+                    <i class="pi pi-search absolute left-3 top-3 -translate-y-1/2 text-[var(--surface-400)]"></i>
+                    <input pInputText placeholder="Buscar espacio..."
+                        class="pl-10 !bg-[var(--surface-0)] dark:!bg-[var(--surface-800)] !border-[var(--surface-300)] dark:!border-[var(--surface-700)]" />
+                </div>
             </div>
         </div>
-    </div>
+        <div class="py-3">
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
 
-    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-
-        @for (space of spaces(); track space.zoneId) {
-        <hta-space-card [space]="space" (delete)="deleteHandler($event)" (edit)="editHandler($event)" />
-        }
-        <div (click)="openNewSpaceDialog()" class="border-2 border-dashed rounded-xl flex flex-col items-center justify-center p-8 cursor-pointer transition-all gap-4 group
+                @for (space of spaces(); track space.zoneId) {
+                <hta-space-card [space]="space" (delete)="deleteHandler($event)" (edit)="editHandler($event)" />
+                }
+                <div (click)="openNewSpaceDialog()" class="border-2 border-dashed rounded-xl flex flex-col items-center justify-center p-8 cursor-pointer transition-all gap-4 group
                 border-[var(--surface-300)] hover:border-orange-500/50 hover:bg-orange-50/50
                 dark:border-[var(--surface-700)] dark:hover:border-orange-500 dark:hover:bg-[var(--surface-800)]">
-            <div class="w-14 h-14 rounded-full flex items-center justify-center border-2 transition-colors
+                    <div class="w-14 h-14 rounded-full flex items-center justify-center border-2 transition-colors
                   border-[var(--surface-300)] text-[var(--surface-400)] group-hover:border-orange-500 group-hover:text-orange-500
                   dark:border-[var(--surface-600)]">
-                <i class="pi pi-plus text-xl"></i>
+                        <i class="pi pi-plus text-xl"></i>
+                    </div>
+                    <span
+                        class="font-medium text-[var(--surface-500)] group-hover:text-orange-600 dark:group-hover:text-orange-500 transition-colors">
+                        Añadir Habitación
+                    </span>
+                </div>
             </div>
-            <span
-                class="font-medium text-[var(--surface-500)] group-hover:text-orange-600 dark:group-hover:text-orange-500 transition-colors">
-                Añadir Habitación
-            </span>
         </div>
     </div>
 </div>

@@ -48,7 +48,7 @@ export class Lighting {
 
   constructor() {
     this.#deviceService.getAllDevices().subscribe(() => {
-      console.log(this.#deviceService.devices);
+      console.log(this.#deviceService.devices());
     });
   }
 
