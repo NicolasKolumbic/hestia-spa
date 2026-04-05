@@ -1,0 +1,17 @@
+@let formControl = control.control();
+<div class="flex gap-2 items-center">
+    <label [attr.for]="id()" class="text-nowrap">{{ placeholder() }}</label>
+    <p-multiSelect [options]="options()" [showToggleAll]="showToggleAll()" [filter]="filter()" optionLabel="label"
+        optionValue="value" [showClear]="true" class="w-full py-1 px-1" [formControl]="formControl">
+        <ng-template let-option #item>
+            <div class="py-1 my-1">
+                <span>{{option.label}}</span>
+            </div>
+        </ng-template>
+    </p-multiSelect>
+</div>
+<p-message severity="error" size="small" variant="simple" styleClass="flex justify-end mt-2">
+    @if (formControl.invalid && (formControl.touched || formControl.dirty)&& formControl.hasError('required')) {
+    {{ placeholder() }} is Required.
+    }
+</p-message>
