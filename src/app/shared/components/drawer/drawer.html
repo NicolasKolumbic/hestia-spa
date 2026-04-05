@@ -1,0 +1,14 @@
+<p-drawer #drawer [(visible)]="isVisible" position="right" appendTo="body"
+    [style]="{ width: '44rem', maxWidth: '100vw' }">
+    <ng-template #header>
+        <h2 class="text-2xl font-bold">{{ title() }}</h2>
+    </ng-template>
+    <ng-container htaViewContainer></ng-container>
+    <ng-template #footer>
+        <div class="flex items-center gap-2 justify-end">
+            <hta-button label="Cancelar" icon="pi-times" severity="secondary" [outlined]="true"
+                (click)="confirmHandler()" />
+            <hta-button label="Guardar" icon="pi-check" (click)="closeHandler()" />
+        </div>
+    </ng-template>
+</p-drawer>
