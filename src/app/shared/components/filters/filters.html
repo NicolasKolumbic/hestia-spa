@@ -1,0 +1,18 @@
+<h4 class="text-sm font-semibold uppercase tracking-wide text-[var(--surface-500)] dark:text-[var(--surface-400)]">
+    Filtros
+</h4>
+<p class="mt-1 text-sm text-[var(--surface-500)] dark:text-[var(--surface-400)]">
+    {{ description() }}
+</p>
+<div class="flex gap-2 items-center mt-2">
+    @for (item of filters(); track $index) {
+    @let options = item.source | async;
+    @if(options) {
+    <hta-multi-select id="item.label" [placeholder]="item.label" [options]="options" />
+    }
+    }
+</div>
+<div class="flex justify-end">
+    <button pButton type="button" label="Limpiar filtros" icon="pi pi-filter-slash" severity="secondary"
+        [outlined]="true" class="mt-2" (click)="clearFilters()"></button>
+</div>
