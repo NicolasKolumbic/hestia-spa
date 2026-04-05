@@ -4,11 +4,10 @@ import { DropdownOption } from '@shared/abstractions/dropdown/dropdown-option';
 import { SelectModule } from 'primeng/select';
 import { FloatLabel } from "primeng/floatlabel";
 import { HostControl } from '@shared/directives/host-control';
-import { Message } from "primeng/message";
 
 @Component({
   selector: 'hta-dropdown',
-  imports: [ReactiveFormsModule, SelectModule, FloatLabel, Message],
+  imports: [ReactiveFormsModule, SelectModule, FloatLabel],
   templateUrl: './dropdown.html',
   styleUrl: './dropdown.css',
   hostDirectives: [HostControl],
@@ -20,9 +19,10 @@ export class Dropdown {
   labelValue = input<string>('value');
   id = input.required<string>();
 
-  control = inject(HostControl);
+  #hostControl = inject(HostControl);
+  control = this.#hostControl.control();
 
   hasError = computed(() => {
-    return this.control.control().invalid && this.control.control().touched;
+    return this.#hostControl.hasErrors();
   });
 }

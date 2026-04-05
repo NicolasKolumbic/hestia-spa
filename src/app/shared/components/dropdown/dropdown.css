@@ -1,15 +1,3 @@
 :host {
     display: block;
 }
-
-::ng-deep .p-select-label {
-    padding-left: 0.75rem;
-    line-height: 1;
-    padding-top: 1.4rem;
-}
-
-::ng-deep p-overlay {
-    top: 3px;
-    display: block;
-    position: absolute;
-}
