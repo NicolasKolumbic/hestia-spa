@@ -17,7 +17,7 @@ import { InputTextModule } from 'primeng/inputtext';
   templateUrl: './float-label-input.html',
   styleUrl: './float-label-input.css'
 })
-export class FloatLabelInput extends BaseInput implements OnInit {
+export class FloatLabelInput extends BaseInput {
   label = input.required<string>();
   id = input.required<string>();
   errorMessages = input<Record<string, string>>({});
@@ -27,9 +27,6 @@ export class FloatLabelInput extends BaseInput implements OnInit {
     if (this.ngControl) {
       this.ngControl.valueAccessor = this;
     }
-  }
-  ngOnInit(): void {
-    console.log(this.errorMessages());
   }
 
   get control() {
