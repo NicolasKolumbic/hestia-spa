@@ -1,11 +1,17 @@
 <header class="w-full">
     <div class="flex items-center justify-between mt-[1rem]">
-        <hta-site-dropdown></hta-site-dropdown>
-        <button pButton type="button" label="Check" icon="pi pi-check">
-            <p-overlay-badge class="inline-flex">
-                <p-avatar icon="pi pi-user" />
-            </p-overlay-badge>
-        </button>
+        <hta-site-dropdown />
+        <div>
+            <button pButton type="button" label="Check" icon="pi pi-check" (click)="menu.toggle($event)">
+                <p-overlay-badge>
+                    <div class="inline-flex items-center gap-3">
+                        <span>{{ user()?.fullName}}</span>
+                        <p-avatar icon="pi pi-user" />
+                    </div>
+                </p-overlay-badge>
+            </button>
+            <p-menu #menu [model]="items" [popup]="true" />
+        </div>
 
     </div>
     <hr>

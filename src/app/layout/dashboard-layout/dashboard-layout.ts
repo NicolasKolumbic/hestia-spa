@@ -9,10 +9,10 @@ import { filter, startWith, map, switchMap } from 'rxjs';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { Header } from "../header/header";
+import { Drawer } from "@shared/components/drawer/drawer";
 
 @Component({
-  selector: 'hta-dashboard-layout',
-  imports: [Navbar, RouterOutlet, CommonModule, TranslateModule, ToastModule, Header],
+  imports: [Navbar, RouterOutlet, CommonModule, TranslateModule, ToastModule, Header, Drawer],
   templateUrl: './dashboard-layout.html',
   styleUrl: './dashboard-layout.css',
   providers: [MessageService],

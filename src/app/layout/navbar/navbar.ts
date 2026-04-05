@@ -109,7 +109,26 @@ export class Navbar implements OnInit {
             routerLink: '/platform/configuracion'
           }
         ]
-      }
+      },
+      {
+        separator: true
+      },
+      {
+        label: this.translate.instant('SECTIONS.ADMIN'),
+        items: [
+          {
+            label: this.translate.instant('MENU.ACCESS_MANAGEMENT'),
+            icon: 'pi-users',
+            routerLink: '/platform/access-managment'
+          },
+          {
+            label: this.translate.instant('MENU.CLIENTS_MANAGEMENT'),
+            icon: 'pi-users',
+            routerLink: '/platform/clients-managment'
+          }
+        ]
+
+      },
     ];
   }
 }
