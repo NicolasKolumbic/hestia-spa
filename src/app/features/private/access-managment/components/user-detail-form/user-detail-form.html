@@ -1,0 +1,60 @@
+<div class="flex p-4 items-center gap-4 bg-slate-50 dark:bg-black/20 rounded-xl">
+    <p-avatar label="NK" size="xlarge" shape="circle" styleClass="bg-slate-700 text-white font-bold"></p-avatar>
+    <div class="flex-1">
+        <div class="flex items-center gap-2">
+            <h3 class="text-xl font-semibold">Nicolás Kolumbic</h3>
+            <p-tag value="Activo" severity="success" [rounded]="true"></p-tag>
+            <p-tag value="Owner" variant="outline" [rounded]="true"></p-tag>
+        </div>
+        <p class="text-primary-400 text-sm">nicolas@example.com</p>
+    </div>
+</div>
+<div class="space-y-6">
+    <div class="p-3 bg-slate-50 dark:bg-black/20 rounded-xl mt-3">
+        <label class="text-xs text-slate-400 uppercase tracking-wider font-semibold">Membresía / Cliente</label>
+        <div class="flex gap-2 items-center mt-3">
+            <hta-dropdown [options]="[{label: 'Familia Pérez - Activo', value: 'aaa'}]" placeholder="Seleccionar"
+                id="select-client" class="w-[14rem]" />
+            <hta-button label="Guardar cambios" icon="pi-save" />
+        </div>
+    </div>
+
+    <p-tabs value="0">
+        <p-tablist>
+            <p-tab value="0">Resumen</p-tab>
+            <p-tab value="1">Membresías</p-tab>
+            <p-tab value="2">Roles y scope</p-tab>
+            <p-tab value="3">Permisos efectivos</p-tab>
+        </p-tablist>
+        <p-tabpanels>
+            <p-tabpanel value="0">
+                <hta-user-detail-summary />
+            </p-tabpanel>
+            <p-tabpanel value="1">
+                <div class="mt-4 p-5 bg-[#0F172A] dark:bg-black/20 rounded-2xl relative">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h4 class="text-lg font-bold text-white">Familia Pérez</h4>
+                            <p class="text-slate-400 text-sm mt-1">Estado: Activo • Alta: 2026-02-01</p>
+                        </div>
+                        <p-tag value="Activo" severity="success" [rounded]="true" class="opacity-80"></p-tag>
+                    </div>
+
+                    <div class="mt-4">
+                        <span class="inline-block px-3 py-1 bg-white text-[#0F172A] text-xs font-bold rounded-md">
+                            Owner • Cliente completo • Familia Pérez
+                        </span>
+                    </div>
+                </div>
+            </p-tabpanel>
+            <p-tabpanel value="2">
+                <hta-invite-user-role-and-scope />
+            </p-tabpanel>
+            <p-tabpanel value="3">
+                <hta-invite-user-permission />
+            </p-tabpanel>
+        </p-tabpanels>
+
+    </p-tabs>
+
+</div>
