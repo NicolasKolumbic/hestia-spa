@@ -1,27 +1,41 @@
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { from, Observable, switchMap, tap } from 'rxjs';
+import { from, Observable, Subject, switchMap, tap } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { Environment } from './environment';
-
-export interface LoginResponse {
-  access_token?: string;
-  requires2fa?: boolean;
-  temp_token?: string;
-}
+import { LoggedResponseDto } from '@core/domain/dtos/logged-user-response.dto';
+import { User } from '@core/domain/models/user';
+import { SessionStorageService } from './session-storage.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
 
-  #http = inject(HttpClient);
-  #environment = inject(Environment);
-  #router = inject(Router);
+  readonly #http = inject(HttpClient);
+  readonly #environment = inject(Environment);
+  readonly #session = inject(SessionStorageService);
 
-  login(credentials: { email: string; password: string }): Observable<LoginResponse> {
-    return this.#http.post<LoginResponse>(`${this.#environment.apiUrl}/auth/login`, credentials);
+  #user$ = new Subject<User>();
+  #user!: User;
+
+  get user$(): Observable<User> {
+    return this.#user$.asObservable();
+  }
+
+  get user(): User {
+    return this.#user;
+  }
+
+  constructor() {
+    if (this.#session.has('user')) {
+      this.#user = new User(this.#session.get('user')!);
+    }
+  }
+
+  login(credentials: { email: string; password: string }): Observable<LoggedResponseDto> {
+    return this.#http.post<LoggedResponseDto>(`${this.#environment.apiUrl}/auth/login`, credentials);
   }
 
   verify2fa(token: string, code: string): Observable<any> {
@@ -33,7 +47,9 @@ export class AuthService {
   }
 
   logout(): Observable<any> {
-    return this.#http.post(`${this.#environment.apiUrl}/auth/logout`, {});
+    return this.#http.post(`${this.#environment.apiUrl}/auth/logout`, {}).pipe(tap(() => {
+      this.#session.remove('user');
+    }));
   }
 
   generate2faSecret(): Observable<{ secret: string; otpauthUrl: string; qrCode: string }> {
@@ -46,5 +62,11 @@ export class AuthService {
 
   getProfile(): Observable<any> {
     return this.#http.get(`${this.#environment.apiUrl}/auth/me`, { withCredentials: true });
+  }
+
+  setUser(user: LoggedResponseDto): void {
+    this.#session.set('user', user);
+    this.#user = new User(user);
+    this.#user$.next(this.#user);
   }
 }
