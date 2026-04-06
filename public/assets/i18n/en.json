@@ -13,7 +13,9 @@
         "AUTOMATION": "Automation",
         "ANALYTICS": "Analytics",
         "ACCOUNT": "Account",
-        "SETTINGS": "Settings"
+        "SETTINGS": "Settings",
+        "ACCESS_MANAGEMENT": "Access Management",
+        "CLIENTS_MANAGEMENT": "Clients Management"
     },
     "SECTIONS": {
         "DASHBOARD": "Main Dashboard",
@@ -25,6 +27,7 @@
         "ENERGY": "Energy Consumption",
         "AUTOMATION": "Automations",
         "ANALYTICS": "Reports & Analytics",
-        "SETTINGS": "System Settings"
+        "SETTINGS": "System Settings",
+        "ADMIN": "Admin"
     }
 }

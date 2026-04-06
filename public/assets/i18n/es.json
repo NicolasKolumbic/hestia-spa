@@ -13,7 +13,9 @@
         "AUTOMATION": "Automatización",
         "ANALYTICS": "Analítica",
         "ACCOUNT": "Cuenta",
-        "SETTINGS": "Configuración"
+        "SETTINGS": "Configuración",
+        "ACCESS_MANAGEMENT": "Gestión de Accesos",
+        "CLIENTS_MANAGEMENT": "Gestión de Clientes"
     },
     "SECTIONS": {
         "DASHBOARD": "Tablero Principal",
@@ -25,6 +27,7 @@
         "ENERGY": "Consumo Energético",
         "AUTOMATION": "Automatizaciones",
         "ANALYTICS": "Reportes y Analítica",
-        "SETTINGS": "Configuración del Sistema"
+        "SETTINGS": "Configuración del Sistema",
+        "ADMIN": "Administración"
     }
 }
