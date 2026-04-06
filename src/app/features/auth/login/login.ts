@@ -10,6 +10,7 @@ import { AuthService } from '../../../core/services/auth.service';
 import { MessageModule } from 'primeng/message';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { FloatLabelInput } from '@shared/components/float-label-input/float-label-input';
+import { LoggedResponseDto } from '@core/domain/dtos/logged-user-response.dto';
 
 @Component({
   selector: 'app-login',
@@ -30,34 +31,35 @@ import { FloatLabelInput } from '@shared/components/float-label-input/float-labe
   styleUrl: './login.css',
 })
 export class Login {
-  private readonly _formBuilder = inject(FormBuilder);
-  private readonly _authService = inject(AuthService);
-  private readonly _router = inject(Router);
+  readonly #formBuilder = inject(FormBuilder);
+  readonly #authService = inject(AuthService);
+  readonly #router = inject(Router);
 
   protected show2fa = false;
   protected tempToken = '';
 
-  protected loginForm: FormGroup = this._formBuilder.group({
+  protected loginForm: FormGroup = this.#formBuilder.group({
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required]],
     remember: [false]
   });
 
-  protected twoFactorForm: FormGroup = this._formBuilder.group({
+  protected twoFactorForm: FormGroup = this.#formBuilder.group({
     code: ['', [Validators.required, Validators.minLength(6), Validators.maxLength(6)]]
   });
 
   protected onSubmit(): void {
     if (this.loginForm.valid) {
       const { email, password } = this.loginForm.value;
-      this._authService.login({ email, password }).subscribe({
-        next: (res) => {
+      this.#authService.login({ email, password }).subscribe({
+        next: (res: LoggedResponseDto) => {
           if (res.requires2fa) {
             this.show2fa = true;
             this.tempToken = res.temp_token!;
           } else {
+            this.#authService.setUser(res);
             // Cookie is set by browser
-            this._router.navigate(['/platform/dashboard']);
+            this.#router.navigate(['/platform/dashboard']);
           }
         },
         error: (err) => {
@@ -73,10 +75,10 @@ export class Login {
   protected onVerify2fa(): void {
     if (this.twoFactorForm.valid) {
       const code = this.twoFactorForm.value.code;
-      this._authService.verify2fa(this.tempToken, code).subscribe({
+      this.#authService.verify2fa(this.tempToken, code).subscribe({
         next: (res) => {
           // Cookie is set by browser
-          this._router.navigate(['/dashboard']);
+          this.#router.navigate(['/dashboard']);
         },
         error: (err) => {
           console.error('2FA failed', err);
