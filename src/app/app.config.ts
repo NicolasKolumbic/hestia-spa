@@ -12,6 +12,7 @@ import { HestiaPreset } from '@shared/styles/hestia-preset';
 import { provideTranslateService } from "@ngx-translate/core";
 import { provideTranslateHttpLoader } from "@ngx-translate/http-loader";
 import { authInterceptor } from '@core/services/auth-interceptor';
+import { clientContextInterceptor } from '@core/services/client-context.interceptor';
 
 export class CustomTranslateLoader implements TranslateLoader {
   constructor(private http: HttpClient) { }
@@ -43,7 +44,7 @@ export const appConfig: ApplicationConfig = {
     provideAnimations(),
     provideBrowserGlobalErrorListeners(),
     provideZonelessChangeDetection(),
-    provideHttpClient(withFetch(), withInterceptors([authInterceptor])),
+    provideHttpClient(withFetch(), withInterceptors([authInterceptor, clientContextInterceptor])),
     provideRouter(routes),
     provideTranslateService({
       fallbackLang: 'es',

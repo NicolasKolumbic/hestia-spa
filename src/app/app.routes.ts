@@ -154,9 +154,19 @@ export const routes: Routes = [
                 loadComponent: () => import('./features/private/settings/settings').then(m => m.Settings),
                 title: 'Configuración del Sistema'
             },
+            {
+                path: 'access-managment',
+                loadComponent: () => import('./features/private/access-managment/access-managment').then(m => m.AccessManagment),
+                title: 'Gestión de accesos'
+            },
+            {
+                path: 'clients-managment',
+                loadComponent: () => import('./features/private/client-managment/client-managment').then(m => m.ClientManagment),
+                title: 'Gestión de clientes'
+            },
 
             // Redirección por defecto dentro de la app
-            { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
+            { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
         ]
     },
 
