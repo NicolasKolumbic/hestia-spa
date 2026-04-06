@@ -11,11 +11,8 @@
             </div>
 
             <div class="flex gap-3 items-center">
-                <div class="relative">
-                    <i class="pi pi-search absolute left-3 top-3 -translate-y-1/2 text-[var(--surface-400)]"></i>
-                    <input pInputText placeholder="Buscar espacio..."
-                        class="pl-10 !bg-[var(--surface-0)] dark:!bg-[var(--surface-800)] !border-[var(--surface-300)] dark:!border-[var(--surface-700)]" />
-                </div>
+                <hta-search-field placeholder="Buscar sitios por nombre" (search)="searchHandler($event)"
+                    class="w-[15rem]" />
             </div>
         </div>
         <div class="py-3">

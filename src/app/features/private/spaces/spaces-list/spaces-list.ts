@@ -15,11 +15,12 @@ import { ZoneService } from 'src/app/core/services/zone.service';
 import { Zone } from "../../../../core";
 import { Dialog as HtaDialog } from 'src/app/shared/components/dialog/dialog';
 import { SpaceDetail } from "../space-detail/space-detail";
+import { SearchField } from "@shared/components/search-field/search-field";
 
 @Component({
   selector: 'hta-spaces-list',
   imports: [CommonModule, FormsModule, DialogModule, InputTextModule,
-    ButtonModule, ConfirmDialogModule, SelectModule, SpaceCard, HtaDialog, SpaceDetail],
+    ButtonModule, ConfirmDialogModule, SelectModule, SpaceCard, HtaDialog, SpaceDetail, SearchField],
   templateUrl: './spaces-list.html',
   providers: [MessageService, ConfirmationService],
   styleUrl: './spaces-list.css',
@@ -109,6 +110,10 @@ export class SpacesList implements OnInit {
         this.ngOnInit();
       });
     }
+  }
+
+  searchHandler(search: string): void {
+
   }
 
 }
