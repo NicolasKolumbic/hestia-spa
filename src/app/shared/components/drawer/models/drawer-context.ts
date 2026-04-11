@@ -11,6 +11,7 @@ export class DrawerContext<TResult> implements InternalDrawer<TResult> {
     #confirmButton = new ButtonState();
     #cancelButton = new ButtonState();
     #beforeClose = new LinkToObserver<boolean>();
+    #getData: () => TResult = () => undefined as TResult;
 
     get title(): string {
         return this.#settings.title;
@@ -48,7 +49,8 @@ export class DrawerContext<TResult> implements InternalDrawer<TResult> {
         this.#settings = settings;
     }
 
-    emit(data: TResult): void {
+    emit(): void {
+        const data = this.#getData();
         this.#confirm.next(data);
     }
 
@@ -58,6 +60,10 @@ export class DrawerContext<TResult> implements InternalDrawer<TResult> {
 
     confirmed(): Observable<TResult> {
         return this.#confirm;
+    }
+
+    getData(fn: () => TResult): void {
+        this.#getData = fn;
     }
 
 }

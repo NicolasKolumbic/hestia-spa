@@ -31,7 +31,7 @@ export class Drawer {
   }
 
   confirmHandler(): void {
-    this.drawerRef()?.emit({});
+    this.drawerRef()?.emit();
     this.#close();
   }
 

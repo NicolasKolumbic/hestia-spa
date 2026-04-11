@@ -7,8 +7,8 @@
     <ng-template #footer>
         <div class="flex items-center gap-2 justify-end">
             <hta-button label="Cancelar" icon="pi-times" severity="secondary" [outlined]="true"
-                (click)="confirmHandler()" />
-            <hta-button label="Guardar" icon="pi-check" (click)="closeHandler()" />
+                (click)="closeHandler()" />
+            <hta-button label="Guardar" icon="pi-check" (click)="confirmHandler()" />
         </div>
     </ng-template>
 </p-drawer>

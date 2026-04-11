@@ -8,5 +8,5 @@ export interface InternalDrawer<TResult> extends DrawerRef<TResult> {
     hideFooterButtons: boolean;
     component: Type<DrawerBody>;
     inputs: [string, unknown][];
-    emit(data: TResult): void;
+    emit(): void;
 }
