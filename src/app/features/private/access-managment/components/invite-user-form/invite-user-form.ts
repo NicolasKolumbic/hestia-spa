@@ -1,4 +1,4 @@
-import { Component, inject, input, InputSignal } from '@angular/core';
+import { Component, inject, input, InputSignal, OnInit } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { DrawerBody } from '@shared/components/drawer/interfaces/drawer-body';
 import { DrawerRef } from '@shared/components/drawer/interfaces/drawer-ref';
@@ -7,6 +7,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { ScopeTree } from "@shared/components/scope-tree/scope-tree";
 import { RolesDropdown } from '@core/components/roles-dropdown/roles-dropdown';
 import { ScopeDropdown } from '@core/components/scope-dropdown/scope-dropdown';
+import { UserRoles } from '@core/enums/user-roles.enum';
 
 @Component({
   selector: 'hta-invite-user-form',
@@ -15,7 +16,8 @@ import { ScopeDropdown } from '@core/components/scope-dropdown/scope-dropdown';
   styleUrl: './invite-user-form.css',
 })
 export class InviteUserForm implements DrawerBody {
-  drawerRef = input.required<DrawerRef<unknown>>();
+  drawerRef = input.required<DrawerRef>();
+  isDefaultUser = input<boolean>(false);
 
   #formBuilder = inject(FormBuilder);
 
@@ -92,7 +94,4 @@ export class InviteUserForm implements DrawerBody {
       ]
     }
   ];
-
-
-
 }

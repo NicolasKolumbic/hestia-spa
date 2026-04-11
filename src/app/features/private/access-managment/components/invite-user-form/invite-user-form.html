@@ -11,11 +11,11 @@
         <div class="grid grid-cols-2 gap-4">
             <div class="flex flex-col gap-2">
                 <label class="text-sm font-medium text-slate-700 dark:text-slate-300">Rol inicial</label>
-                <hta-roles-dropdown formControlName="role" id="role" />
+                <hta-roles-dropdown formControlName="role" [setByName]="isDefaultUser() ? 'Owner' : ''" id="role" />
             </div>
             <div class="flex flex-col gap-2">
                 <label class="text-sm font-medium text-slate-700 dark:text-slate-300">Tipo de scope</label>
-                <hta-scope-dropdown formControlName="scope" id="scope" />
+                <hta-scope-dropdown formControlName="scope" id="scope" [setByName]="isDefaultUser() ? 'Cliente' : ''" />
             </div>
         </div>
         <div class="flex flex-col gap-2 relative">
