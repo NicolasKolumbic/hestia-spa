@@ -1,0 +1,7 @@
+<div class="bg-slate-50 dark:bg-[#0F172A] transition-colors duration-300">
+    <form [formGroup]="clientForm" class="p-6 space-y-6">
+        <hta-float-label-input formControlName="name" id="clientFullName" label="Nombre del cliente" />
+        <hta-float-label-input formControlName="cuit" id="cuit" label="CUIT" />
+        <hta-client-type-dropdown formControlName="type" id="clientType" label="Tipo de Cliente" />
+    </form>
+</div>
