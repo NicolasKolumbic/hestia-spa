@@ -1,5 +1,5 @@
-import { Client } from "../dtos/client.dto";
 import { LoggedResponseDto } from "../dtos/logged-user-response.dto";
+import { Client } from "./client";
 
 export class User {
     userId!: string;
@@ -18,7 +18,7 @@ export class User {
         this.lastName = lastName;
         this.email = email;
         this.picture = picture;
-        this.clients = clients;
+        this.clients = clients.map((client) => new Client(client));
         this.userId = id;
     }
 }

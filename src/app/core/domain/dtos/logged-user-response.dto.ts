@@ -1,4 +1,4 @@
-import { Client } from "./client.dto";
+import { ClientDto } from "./client.dto";
 
 export interface LoggedResponseDto {
     access_token?: string;
@@ -11,5 +11,5 @@ export interface LoggedResponseDto {
     picture?: string;
     googleId?: string;
     accessToken?: string;
-    clients: Client[];
+    clients: ClientDto[];
 }
