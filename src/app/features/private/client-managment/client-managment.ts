@@ -14,7 +14,6 @@ import { Client } from '@core/domain/models/client';
 import { ExtendedClient } from '@core/domain/models/extended-client';
 import { QueryResponse } from '@shared/abstractions/grid-response.dto';
 import { GridCardsPaginator } from '@shared/abstractions/grid-cards/grid-cards-paginator';
-import { Status } from '@core/enums/status.enum';
 
 @Component({
   selector: 'hta-client-managment',

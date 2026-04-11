@@ -1,5 +1,5 @@
 import { NgTemplateOutlet } from '@angular/common';
-import { Component, input, TemplateRef, contentChild, computed } from '@angular/core';
+import { Component, input, TemplateRef, contentChild } from '@angular/core';
 import { PaginatorModule, PaginatorState } from 'primeng/paginator';
 import { Divider } from "primeng/divider";
 import { GridCardsPaginator } from '@shared/abstractions/grid-cards/grid-cards-paginator';

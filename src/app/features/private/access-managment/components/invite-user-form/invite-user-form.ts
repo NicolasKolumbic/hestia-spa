@@ -15,7 +15,7 @@ import { UserRoles } from '@core/enums/user-roles.enum';
   templateUrl: './invite-user-form.html',
   styleUrl: './invite-user-form.css',
 })
-export class InviteUserForm implements DrawerBody {
+export class InviteUserForm implements DrawerBody, OnInit {
   drawerRef = input.required<DrawerRef>();
   isDefaultUser = input<boolean>(false);
 
@@ -27,6 +27,13 @@ export class InviteUserForm implements DrawerBody {
     role: ['', Validators.required],
     scope: ['', Validators.required],
   })
+
+  ngOnInit(): void {
+    if (this.isDefaultUser()) {
+      this.invitationForm.get('role')?.setValue(UserRoles.Viewer);
+      this.invitationForm.get('scope')?.setValue('cliente');
+    }
+  }
 
   nodes = [
     {
