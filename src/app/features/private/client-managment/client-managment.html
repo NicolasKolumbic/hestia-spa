@@ -1,61 +1,56 @@
 <hta-section-wrapper title="Gestión de Clientes"
     description="Administra el ciclo de vida de los clientes y sus accesos maestros.">
-    <ng-template header-tools>
-        <hta-button label="Nuevo Cliente" icon="pi pi-plus" />
-    </ng-template>
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        @for (cliente of clients; track cliente.id) {
-        <hta-card>
-            <ng-container header>
-                <div class="flex justify-end w-full">
-                    <p-tag [value]="cliente.activo ? 'Activo' : 'Inactivo'"
-                        [severity]="cliente.activo ? 'success' : 'danger'" [rounded]="true"></p-tag>
+    <ng-container header-tools>
+        <hta-button label="Nuevo Cliente" icon="pi pi-plus" (click)="newClient()" />
+    </ng-container>
+    <hta-cards-grid [items]="clients()" emptyMessage="No hay clientes registrados." [paginator]="paginator()!">
+        <ng-template #content let-client>
+            <hta-card>
+                <ng-container header>
+                    <div class="flex justify-end w-full">
+                        <p-tag [value]="client.isActive ? 'Activo' : 'Inactivo'"
+                            [severity]="client.isActive ? 'success' : 'danger'" [rounded]="true"></p-tag>
+                    </div>
+                </ng-container>
+                <div class="mb-6 w-full">
+                    <div class="w-12 h-12 bg-primary-500/10 rounded-xl flex items-center justify-center mb-4">
+                        <i class="pi pi-building text-primary-500 text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-900 dark:text-white">{{client.name}}</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400">{{client.cuit}}</p>
                 </div>
-            </ng-container>
-            <div class="mb-6 w-full">
-                <div class="w-12 h-12 bg-primary-500/10 rounded-xl flex items-center justify-center mb-4">
-                    <i class="pi pi-building text-primary-500 text-xl"></i>
-                </div>
-                <h3 class="text-xl font-bold text-slate-900 dark:text-white">{{cliente.nombre}}</h3>
-                <p class="text-sm text-slate-500 dark:text-slate-400">{{cliente.cuit}}</p>
-            </div>
 
-            <div class="grid grid-cols-2 gap-4 py-4 border-t border-slate-100 dark:border-slate-700/50 mb-6 w-full">
-                <div>
-                    <span class="block text-[10px] font-black text-slate-400 uppercase">Usuarios</span>
-                    <span class="text-lg font-bold dark:text-slate-200">{{cliente.totalUsuarios}}</span>
+                <div class="grid grid-cols-2 gap-4 py-4 border-t border-slate-100 dark:border-slate-700/50 mb-6 w-full">
+                    <div>
+                        <span class="block text-[10px] font-black text-slate-400 uppercase">Usuarios</span>
+                        <span class="text-lg font-bold dark:text-slate-200">{{client.usersCount}}</span>
+                    </div>
+                    <div>
+                        <span class="block text-[10px] font-black text-slate-400 uppercase">Dispositivos</span>
+                        <span class="text-lg font-bold dark:text-slate-200">{{client.devicesCount}}</span>
+                    </div>
                 </div>
-                <div>
-                    <span class="block text-[10px] font-black text-slate-400 uppercase">Dispositivos</span>
-                    <span class="text-lg font-bold dark:text-slate-200">{{cliente.totalDispositivos}}</span>
-                </div>
-            </div>
-            <ng-container footer>
-                <div class="mt-auto flex flex-wrap gap-2 w-full">
-                    <button (click)="abrirModalOwner(cliente)" class="flex-1 bg-slate-900 dark:bg-slate-700 text-white text-xs font-bold py-2.5 rounded-lg
+                <ng-container footer>
+                    <div class="mt-auto flex flex-wrap gap-2 w-full">
+                        <button (click)="setOwner(client)" class="flex-1 bg-slate-900 dark:bg-slate-700 text-white text-xs font-bold py-2.5 rounded-lg
                            hover:bg-primary-500 transition-colors flex items-center justify-center gap-2">
-                        <i class="pi pi-user-plus"></i> Crear Owner
-                    </button>
+                            <i class="pi pi-user-plus"></i> Crear Owner
+                        </button>
 
-                    <button [pTooltip]="cliente.activo ? 'Inactivar Cliente' : 'Activar Cliente'"
-                        (click)="toggleEstado(cliente)" class="p-2.5 rounded-lg border transition-all" [class]="cliente.activo 
+                        <button [pTooltip]="client.isActive ? 'Inactivar Cliente' : 'Activar Cliente'"
+                            (click)="toggleStatus(client)" class="p-2.5 rounded-lg border transition-all" [class]="client.isActive 
                              ? 'border-red-200 text-red-500 hover:bg-red-50' 
                              : 'border-emerald-200 text-emerald-500 hover:bg-emerald-50'">
-                        <i [class]="cliente.activo ? 'pi pi-power-off' : 'pi pi-play'"></i>
-                    </button>
+                            <i [class]="client.isActive ? 'pi pi-power-off' : 'pi pi-play'"></i>
+                        </button>
 
-                    <button
-                        class="p-2.5 rounded-lg border border-slate-200 dark:border-slate-600 text-slate-400 hover:text-primary-500">
-                        <i class="pi pi-pencil"></i>
-                    </button>
-                </div>
-            </ng-container>
-        </hta-card>
-        } @empty {
-        <div
-            class="col-span-full text-center py-20 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-3xl">
-            <p class="text-slate-400">No hay clientes registrados.</p>
-        </div>
-        }
-    </div>
+                        <button (click)="editClientHandler(client)"
+                            class="p-2.5 rounded-lg border border-slate-200 dark:border-slate-600 text-slate-400 hover:text-primary-500">
+                            <i class="pi pi-pencil"></i>
+                        </button>
+                    </div>
+                </ng-container>
+            </hta-card>
+        </ng-template>
+    </hta-cards-grid>
 </hta-section-wrapper>
