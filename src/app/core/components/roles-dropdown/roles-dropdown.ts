@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, input, OnInit, signal } from '@angular/core';
 import { Dropdown } from "@shared/components/dropdown/dropdown";
 import { ReactiveFormsModule } from "@angular/forms";
 import { HostControl } from '@shared/directives/host-control';
@@ -14,10 +14,12 @@ import { DropdownOption } from '@shared/abstractions/dropdown/dropdown-option';
   hostDirectives: [HostControl]
 })
 export class RolesDropdown implements OnInit {
+  setByName = input<string>('');
+
   #hostControl = inject<ControlAccessor<string>>(HostControl);
   #roleService = inject(RolesService);
 
-  control = computed(() => this.#hostControl.control());
+  control = this.#hostControl.control;
   options = signal<DropdownOption[]>([])
 
   ngOnInit(): void {
@@ -26,6 +28,13 @@ export class RolesDropdown implements OnInit {
         value: role.id,
         label: role.name
       })))
+
+      if (this.setByName()) {
+        const role = this.options().find((role) => role.label === this.setByName());
+        if (role) {
+          this.#hostControl.setValue(role.value);
+        }
+      }
     });
   }
 }
