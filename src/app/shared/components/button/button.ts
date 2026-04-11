@@ -23,9 +23,4 @@ export class Button {
 
   isDisabled = computed(() => this.state() && this.state()?.isDisabled || this.disabled())
 
-  click = output<void>();
-
-  onClickHandler(): void {
-    this.click.emit();
-  }
 }
