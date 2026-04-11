@@ -1,7 +1,7 @@
 import { Component, computed, inject, input, OnInit } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { DropdownOption } from '@shared/abstractions/dropdown/dropdown-option';
-import { SelectModule } from 'primeng/select';
+import { SelectChangeEvent, SelectModule } from 'primeng/select';
 import { FloatLabel } from "primeng/floatlabel";
 import { HostControl } from '@shared/directives/host-control';
 
@@ -20,9 +20,13 @@ export class Dropdown {
   id = input.required<string>();
 
   #hostControl = inject(HostControl);
-  control = this.#hostControl.control();
+  control = this.#hostControl.control;
 
   hasError = computed(() => {
     return this.#hostControl.hasErrors();
   });
+
+  updateHandler({ value }: SelectChangeEvent): void {
+    this.#hostControl.setValue(value);
+  }
 }
