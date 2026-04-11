@@ -1,0 +1,15 @@
+<div class="card flex justify-center">
+    <p-paginator (onPageChange)="onPageChange($event)" [first]="0" [rows]="paginator()?.rowsByPage ?? 10"
+        [totalRecords]="paginator()?.totalCount ?? 0" [rowsPerPageOptions]="[10, 20, 30]" />
+</div>
+<p-divider />
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    @for (item of items(); track $index) {
+    <ng-container *ngTemplateOutlet="contentTemplate();context: { $implicit: item }" />
+    } @empty {
+    <div
+        class="col-span-full text-center py-20 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-3xl">
+        <p class="text-slate-400">{{ emptyMessage() }}</p>
+    </div>
+    }
+</div>
