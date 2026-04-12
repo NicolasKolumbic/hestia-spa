@@ -9,6 +9,8 @@ import { SpaceService, Zone } from 'src/app/core';
 import { IconSelector } from "@shared/components/icon-selector/icon-selector";
 import { zoneIcons } from '@shared/bussiness/statics/zones-icons';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { DrawerBody } from '@shared/components/drawer/interfaces/drawer-body';
+import { DrawerRef } from '@shared/components/drawer/interfaces/drawer-ref';
 
 
 @Component({
@@ -17,8 +19,9 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
   templateUrl: './space-detail.html',
   styleUrl: './space-detail.css',
 })
-export class SpaceDetail implements DialogContent, OnInit {
-  space = input.required<Zone | null>();
+export class SpaceDetail implements DrawerBody, OnInit {
+  drawerRef = input.required<DrawerRef>();
+  space = input<Zone | null>();
   spaceForm: FormGroup;
   #formBuilder = inject(FormBuilder);
   #spaceService = inject(SpaceService);

@@ -13,14 +13,17 @@ import { catchError, of } from 'rxjs';
 import { SpaceCard } from "../space-card/space-card";
 import { ZoneService } from 'src/app/core/services/zone.service';
 import { Zone } from "../../../../core";
-import { Dialog as HtaDialog } from 'src/app/shared/components/dialog/dialog';
 import { SpaceDetail } from "../space-detail/space-detail";
 import { SearchField } from "@shared/components/search-field/search-field";
+import { SectionWrapper } from "@shared/components/section-wrapper/section-wrapper";
+import { CardsGrid } from "@shared/components/cards-grid/cards-grid";
+import { Button } from "@shared/components/button/button";
+import { DrawerManagerService } from '@shared/components/drawer/services/drawer-manager.service';
 
 @Component({
   selector: 'hta-spaces-list',
   imports: [CommonModule, FormsModule, DialogModule, InputTextModule,
-    ButtonModule, ConfirmDialogModule, SelectModule, SpaceCard, HtaDialog, SpaceDetail, SearchField],
+    ButtonModule, ConfirmDialogModule, SelectModule, SpaceCard, SearchField, SectionWrapper, CardsGrid, Button],
   templateUrl: './spaces-list.html',
   providers: [MessageService, ConfirmationService],
   styleUrl: './spaces-list.css',
@@ -28,6 +31,8 @@ import { SearchField } from "@shared/components/search-field/search-field";
 export class SpacesList implements OnInit {
   #zoneService = inject(ZoneService);
   #messageService = inject(MessageService);
+  #drawerManagerService = inject(DrawerManagerService);
+
 
   spaces = signal<Zone[]>([]);
   showDialog = signal(false);
@@ -62,8 +67,15 @@ export class SpacesList implements OnInit {
     this.saveSpace(space);
   }
 
-  openNewSpaceDialog(): void {
-    this.showDialog.set(true);
+  newSpace(): void {
+    const drawerRef = this.#drawerManagerService.open<Zone>({
+      component: SpaceDetail,
+      title: 'Nueva Habitación',
+    });
+
+    drawerRef.confirmed().subscribe((space: Zone) => {
+
+    });
   }
 
   editHandler(zone: Zone): void {
