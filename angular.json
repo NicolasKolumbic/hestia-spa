@@ -19,9 +19,15 @@
               {
                 "glob": "**/*",
                 "input": "public"
+              },
+              {
+                "glob": "**/*",
+                "input": "./node_modules/leaflet/dist/images",
+                "output": "assets/"
               }
             ],
             "styles": [
+              "./node_modules/leaflet/dist/leaflet.css",
               "src/custom-theme.scss",
               "src/styles.css"
             ]
