@@ -38,12 +38,12 @@ export class SiteDropdown implements OnInit {
   siteForm = { id: 0, name: '', icon: 'pi pi-home', address: '' };
 
   ngOnInit() {
-    this.#siteService.getAll()
+    /*this.#siteService.getAll()
       .pipe(tap((sites) => this.#buildMenuItems(sites)))
       .subscribe((sites: Site[]) => {
         this.sites.set(sites);
         this.#siteService.setSite(sites[0]);
-      });
+      });*/
   }
 
   #buildMenuItems(sites: Site[]): void {
@@ -62,11 +62,11 @@ export class SiteDropdown implements OnInit {
   }
 
   #getIcon(site: Site): string {
-    if (site.icon === SiteTypeIcons.COMMERCIAL) {
+    /*if (site.type === SiteTypeIcons.COMMERCIAL) {
       site.icon = 'store'
-    } else if (site.icon === SiteTypeIcons.INDUSTRIAL) {
+    } else if (site.type === SiteTypeIcons.INDUSTRIAL) {
       site.icon = 'factory'
-    } else if (site.icon === SiteTypeIcons.INSTITUCIONAL) {
+    } else if (site.type === SiteTypeIcons.INSTITUCIONAL) {
       site.icon = 'account_balance'
     } else if (site.icon === SiteTypeIcons.RURAL) {
       site.icon = 'agriculture'
@@ -74,7 +74,8 @@ export class SiteDropdown implements OnInit {
       site.icon = 'house';
     }
 
-    return site.icon;
+    return site.icon;*/
+    return '';
   }
 
   selectSite(menuItem: MenuItem): void {
