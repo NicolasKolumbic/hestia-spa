@@ -15,7 +15,8 @@
         "ACCOUNT": "Cuenta",
         "SETTINGS": "Configuración",
         "ACCESS_MANAGEMENT": "Gestión de Accesos",
-        "CLIENTS_MANAGEMENT": "Gestión de Clientes"
+        "CLIENTS_MANAGEMENT": "Gestión de Clientes",
+        "CLIENTS_LOCATIONS": "Gestión de Ubicaciones"
     },
     "SECTIONS": {
         "DASHBOARD": "Tablero Principal",

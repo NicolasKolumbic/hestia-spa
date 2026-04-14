@@ -164,6 +164,11 @@ export const routes: Routes = [
                 loadComponent: () => import('./features/private/client-managment/client-managment').then(m => m.ClientManagment),
                 title: 'Gestión de clientes'
             },
+            {
+                path: 'client-locations',
+                loadComponent: () => import('./features/private/client-locations/client-locations').then(m => m.ClientLocations),
+                title: 'Gestión de sitios'
+            },
 
             // Redirección por defecto dentro de la app
             { path: '', redirectTo: 'dashboard', pathMatch: 'full' },

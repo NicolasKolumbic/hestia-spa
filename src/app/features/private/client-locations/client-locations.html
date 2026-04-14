@@ -1,0 +1,20 @@
+<hta-section-wrapper title="Mis Sitios" description="Ubicaciones geográficas y nodos IoT desplegados.">
+    <ng-template header-tools>
+        <div class="flex gap-3">
+            <p-button label="Mapa Global" icon="pi pi-map"
+                styleClass="p-button-outlined border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-300 rounded-xl"></p-button>
+            <p-button label="Nuevo Sitio" icon="pi pi-plus"
+                styleClass="bg-primary-500 border-none rounded-xl font-bold px-6 shadow-lg shadow-primary-500/20"></p-button>
+        </div>
+    </ng-template>
+    <div>
+        <div htaRenderMap class="w-full" [lat]="selectedSite()?.latitude" [lng]="selectedSite()?.longitude"
+            style="height: 300px;"></div>
+        <hta-cards-grid [items]="sites()" emptyMessage="No se encontraron sitios">
+            <ng-template #content let-site>
+                <hta-client-location-card [site]="site" />
+            </ng-template>
+        </hta-cards-grid>
+    </div>
+
+</hta-section-wrapper>

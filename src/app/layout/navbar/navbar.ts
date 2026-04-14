@@ -125,6 +125,11 @@ export class Navbar implements OnInit {
             label: this.translate.instant('MENU.CLIENTS_MANAGEMENT'),
             icon: 'pi-users',
             routerLink: '/platform/clients-managment'
+          },
+          {
+            label: this.translate.instant('MENU.CLIENTS_LOCATIONS'),
+            icon: 'pi-users',
+            routerLink: '/platform/clients-locations'
           }
         ]
 

@@ -15,7 +15,8 @@
         "ACCOUNT": "Account",
         "SETTINGS": "Settings",
         "ACCESS_MANAGEMENT": "Access Management",
-        "CLIENTS_MANAGEMENT": "Clients Management"
+        "CLIENTS_MANAGEMENT": "Clients Management",
+        "CLIENTS_LOCATIONS": "Clients Locations"
     },
     "SECTIONS": {
         "DASHBOARD": "Main Dashboard",
