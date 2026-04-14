@@ -1,16 +1,15 @@
-import { ApplicationConfig, importProvidersFrom, provideBrowserGlobalErrorListeners, provideZonelessChangeDetection } from '@angular/core';
+import { ApplicationConfig, importProvidersFrom, inject, provideAppInitializer, provideBrowserGlobalErrorListeners, provideZonelessChangeDetection } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { providePrimeNG } from 'primeng/config';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { HttpClient, provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
-import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
-import { Observable } from 'rxjs';
+import { TranslateLoader, TranslateService } from '@ngx-translate/core';
+import { firstValueFrom, Observable } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { SocketIoConfig, SocketIoModule } from 'ngx-socket-io';
 import { routes } from './app.routes';
 import { HestiaPreset } from '@shared/styles/hestia-preset';
 import { provideTranslateService } from "@ngx-translate/core";
-import { provideTranslateHttpLoader } from "@ngx-translate/http-loader";
 import { authInterceptor } from '@core/services/auth-interceptor';
 import { clientContextInterceptor } from '@core/services/client-context.interceptor';
 
@@ -47,12 +46,17 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(withFetch(), withInterceptors([authInterceptor, clientContextInterceptor])),
     provideRouter(routes),
     provideTranslateService({
-      fallbackLang: 'es',
-      lang: 'es',
-      loader: provideTranslateHttpLoader({
-        prefix: '/assets/i18n/',
-        suffix: '.json'
-      }),
+      defaultLanguage: 'es',
+      loader: {
+        provide: TranslateLoader,
+        useFactory: HttpLoaderFactory,
+        deps: [HttpClient]
+      }
+    }),
+    provideAppInitializer(() => {
+      const translate = inject(TranslateService);
+      translate.setFallbackLang('es');
+      return firstValueFrom(translate.use('es'));
     }),
     importProvidersFrom(SocketIoModule.forRoot(socketConfig)),
     providePrimeNG({
