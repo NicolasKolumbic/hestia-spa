@@ -165,7 +165,7 @@ export const routes: Routes = [
                 title: 'Gestión de clientes'
             },
             {
-                path: 'client-locations',
+                path: 'clients-locations',
                 loadComponent: () => import('./features/private/client-locations/client-locations').then(m => m.ClientLocations),
                 title: 'Gestión de sitios'
             },
