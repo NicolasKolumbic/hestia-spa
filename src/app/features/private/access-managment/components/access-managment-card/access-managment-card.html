@@ -1,0 +1,54 @@
+<hta-card>
+    <ng-container header>
+        <div class="w-full">
+            <div class="flex justify-end">
+                <hta-user-access-status-tag [status]="user().status" />
+            </div>
+            <div class="flex items-center gap-3">
+                <hta-user-info [user]="user()" />
+            </div>
+        </div>
+    </ng-container>
+    <ng-container>
+        <h4 class="small-caps">accesos asignados</h4>
+        <div class="flex gap-2 justify-between">
+            <div class="flex items-center gap-2 justify-center">
+                <span class="icon-marker-and-map-alternative text-3xl"></span>
+                <div class="text-center">
+                    <div class="text-xs small-caps">sitios</div>
+                    <span class="font-bold text-2xl"> {{ user().sitiesCounter }}</span>
+                </div>
+            </div>
+            <div class="flex items-center gap-2 justify-center">
+                <span class="icon-zones text-3xl"></span>
+                <div class="text-center">
+                    <div class="text-xs small-caps">zonas</div>
+                    <span class="font-bold text-2xl">{{ user().zonesCounter }}</span>
+                </div>
+            </div>
+            <div class="flex items-center gap-2 justify-center">
+                <span class="icon-devices text-3xl"></span>
+                <div class="text-center">
+                    <div class="text-xs small-caps">dispositivos</div>
+                    <span class="font-bold text-2xl">{{ user().devicesCounter }}</span>
+                </div>
+            </div>
+        </div>
+    </ng-container>
+    <ng-container footer>
+        <div class="flex flex-col text-[10px] text-slate-400">
+            <span class="uppercase font-bold text-slate-500/50 dark:text-slate-600">Último acceso</span>
+            <span class="font-medium tracking-tighter">{{user().lastLoginAt}}</span>
+        </div>
+        <div class="flex gap-1">
+            <button (click)="openUserDrawer()"
+                class="p-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-primary-500 transition-all">
+                <i class="pi pi-eye text-sm"></i>
+            </button>
+            <button (click)="openUserDrawer()"
+                class="p-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-orange-500 transition-all">
+                <i class="pi pi-pencil text-sm"></i>
+            </button>
+        </div>
+    </ng-container>
+</hta-card>

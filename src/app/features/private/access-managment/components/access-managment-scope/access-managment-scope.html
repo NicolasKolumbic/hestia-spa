@@ -1,0 +1,39 @@
+@if(readonly()) {
+<p-table [value]="nodes()" [tableStyle]="{ 'min-width': '50rem' }">
+    <ng-template #header>
+        <tr>
+            <th>Espacio / Dispositivo</th>
+            <th class="w-48">Nivel de Permiso</th>
+        </tr>
+    </ng-template>
+    <ng-template #body let-rowNode>
+        <tr>
+            <td>{{ rowNode.node.label }}</td>
+            <td>{{ rowNode.node.label }}</td>
+        </tr>
+    </ng-template>
+</p-table>
+} @else {
+<p-treeTable [value]="nodes()" [scrollable]="true" scrollHeight="400px" selectionMode="multiple"
+    [(selection)]="selectedNodes">
+    <ng-template pTemplate="header">
+        <tr>
+            <th>Espacio / Dispositivo</th>
+            <th class="w-48">Nivel de Permiso</th>
+        </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-rowNode let-rowData="rowData">
+        <tr [ttRow]="rowNode" [class.p-treetable-row-selected]="rowNode.node.data.roleId">
+            <td>
+                <p-treeTableToggler [rowNode]="rowNode"></p-treeTableToggler>
+                <i [class]="rowNode.node.icon" class="mr-2 text-surface-500"></i>
+                <span class="font-medium text-surface-900">{{ rowNode.node.label }}</span>
+            </td>
+            <td>
+                <hta-roles-dropdown [ngModel]="rowData.roleId" (ngModelChange)="updateRole($event, rowNode.node)" />
+            </td>
+        </tr>
+    </ng-template>
+</p-treeTable>
+}
