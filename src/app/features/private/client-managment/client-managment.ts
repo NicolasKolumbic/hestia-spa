@@ -8,12 +8,12 @@ import { ClientsService } from '@core/services/clients-service';
 import { DrawerManagerService } from '@shared/components/drawer/services/drawer-manager.service';
 import { ClientForm } from './components/client-form/client-form';
 import { CardsGrid } from "@shared/components/cards-grid/cards-grid";
-import { InviteUserForm } from '../access-managment/components/invite-user-form/invite-user-form';
 import { iif } from 'rxjs';
 import { Client } from '@core/domain/models/client';
 import { ExtendedClient } from '@core/domain/models/extended-client';
 import { QueryResponse } from '@shared/abstractions/grid-response.dto';
 import { GridCardsPaginator } from '@shared/abstractions/grid-cards/grid-cards-paginator';
+import { UserDetailForm } from '../access-managment/components/user-detail-form/user-detail-form';
 
 @Component({
   selector: 'hta-client-managment',
@@ -65,11 +65,8 @@ export class ClientManagment implements OnInit {
 
   setOwner(client: ExtendedClient) {
     const drawerRef = this.#drawerManagerService.open<ExtendedClient>({
-      component: InviteUserForm,
+      component: UserDetailForm,
       title: 'Establecer usuario por defecto',
-      inputs: {
-        isDefaultUser: true,
-      }
     });
 
     drawerRef.confirmed().subscribe((client) => {

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AvatarModule } from 'primeng/avatar';
 import { ButtonModule } from 'primeng/button';
@@ -20,23 +20,25 @@ import { USER_STATUS_LABELS } from './static/user-status.labels';
 import { SCOPE_TYPE_LABELS } from './static/scope-type.labels';
 import { ROLE_LABELS } from './static/role.labels';
 import { ScopeType } from './typings/scope.type';
-import { AccessUser } from './interfaces/access-user.interface';
-import { ROLE_PERMISSION_MAP } from './static/role-permission.map';
 import { ScopeNodeData } from './interfaces/scope-node-data.interface';
-import { Membership } from './interfaces/membership.interface';
 import { InviteForm } from './interfaces/invite-form.interface';
-import { MOCK_SCOPE_TREE, MOCK_USERS } from './static/test';
 import { SearchField } from "@shared/components/search-field/search-field";
 import { Button } from "@shared/components/button/button";
 import { DrawerManagerService } from '@shared/components/drawer/services/drawer-manager.service';
-import { UserDetailForm } from './components/user-detail-form/user-detail-form';
-import { InviteUserForm } from './components/invite-user-form/invite-user-form';
 import { SectionWrapper } from "@shared/components/section-wrapper/section-wrapper";
-import { Card } from "@shared/components/card/card";
 import { Filters } from "@shared/components/filters/filters";
 import { Filter } from '@shared/components/filters/interfaces/filter.interface';
 import { of } from 'rxjs';
 import { DropdownOption } from '@shared/abstractions/dropdown/dropdown-option';
+import { AccessManagmentService } from './services/access-managment.service';
+import { GridResponse } from '@core/domain/interfaces/grid-response.interface';
+import { UserAccess } from './interfaces/user-access.interface';
+import { UserManagment } from './models/user-managment';
+import { AccessManagmentCard } from "./components/access-managment-card/access-managment-card";
+import { CardsGrid } from "@shared/components/cards-grid/cards-grid";
+import { SpaceService } from '@core/index';
+import { TopologyNodeDto } from '@core/domain/dtos/topology-node.dto';
+import { UserDetailForm } from './components/user-detail-form/user-detail-form';
 
 @Component({
   selector: 'hta-access-managment',
@@ -58,19 +60,18 @@ import { DropdownOption } from '@shared/abstractions/dropdown/dropdown-option';
     SearchField,
     Button,
     SectionWrapper,
-    Card,
-    Filters
+    Filters,
+    AccessManagmentCard,
+    CardsGrid
   ],
   templateUrl: './access-managment.html',
   styleUrl: './access-managment.css',
 })
 export class AccessManagment {
-  users: AccessUser[] = structuredClone(MOCK_USERS);
+  users = signal<UserManagment[]>([]);
+  permissions = signal<TopologyNodeDto[]>([]);
 
-  drawerVisible = false;
-  inviteDialogVisible = false;
-
-  selectedUserDraft: AccessUser | null = null;
+  selectedUserDraft: UserAccess | null = null;
   selectedMembershipId: string | null = null;
 
   searchTerm = '';
@@ -78,8 +79,6 @@ export class AccessManagment {
   selectedRoles: RoleCode[] = [];
   selectedScopeTypes: ScopeType[] = [];
 
-  draftRole: RoleCode = 'viewer';
-  draftScopeType: ScopeType = 'CLIENT';
   selectedScopeNode: TreeNode<ScopeNodeData> | null = null;
 
   inviteScopeNode: TreeNode<ScopeNodeData> | null = null;
@@ -90,9 +89,9 @@ export class AccessManagment {
     scopeType: 'CLIENT',
   };
 
-  readonly scopeTree: TreeNode<ScopeNodeData>[] = structuredClone(MOCK_SCOPE_TREE);
-
   #drawerManager = inject(DrawerManagerService);
+  #accessManagmentService = inject(AccessManagmentService);
+  #siteService = inject(SpaceService);
 
   statusOptions = [
     { label: 'Activo', value: 'active' },
@@ -135,45 +134,6 @@ export class AccessManagment {
     },
   ];
 
-  get filteredUsers(): AccessUser[] {
-    const term = this.searchTerm.trim().toLowerCase();
-
-    return this.users.filter((user) => {
-      const matchesSearch = !term
-        || user.fullName.toLowerCase().includes(term)
-        || user.email.toLowerCase().includes(term);
-
-      const primaryRole = this.primaryRole(user);
-      const primaryScopeType = this.primaryScopeType(user);
-
-      const matchesStatus = this.selectedStatuses.length === 0 || this.selectedStatuses.includes(user.status);
-      const matchesRole = this.selectedRoles.length === 0 || this.selectedRoles.includes(primaryRole);
-      const matchesScope = this.selectedScopeTypes.length === 0 || this.selectedScopeTypes.includes(primaryScopeType);
-
-      return matchesSearch && matchesStatus && matchesRole && matchesScope;
-    });
-  }
-
-  get activeUsersCount(): number {
-    return this.users.filter((user) => user.status === 'active').length;
-  }
-
-  get pendingUsersCount(): number {
-    return this.users.filter((user) => user.status === 'pending').length;
-  }
-
-  get ownerUsersCount(): number {
-    return this.users.filter((user) => this.primaryRole(user) === 'owner').length;
-  }
-
-  get operatorUsersCount(): number {
-    return this.users.filter((user) => this.primaryRole(user) === 'operator').length;
-  }
-
-  get viewerUsersCount(): number {
-    return this.users.filter((user) => this.primaryRole(user) === 'viewer').length;
-  }
-
   clearFilters(): void {
     this.searchTerm = '';
     this.selectedStatuses = [];
@@ -181,74 +141,21 @@ export class AccessManagment {
     this.selectedScopeTypes = [];
   }
 
-  openUserDrawer(user: AccessUser): void {
-    this.selectedUserDraft = structuredClone(user);
-    this.selectedMembershipId = this.selectedUserDraft.memberships[0]?.id ?? null;
-    this.resetAssignmentDraft();
-    this.#drawerManager.open({
-      component: UserDetailForm,
-      title: 'Detalle de acceso',
-    });
-    //this.drawerVisible = true;
-
-  }
-
   saveAccessChanges(): void {
     if (!this.selectedUserDraft) return;
-
-    this.users = this.users.map((user) =>
-      user.id === this.selectedUserDraft?.id ? structuredClone(this.selectedUserDraft) : user,
-    );
   }
 
   openInviteDialog(): void {
-    //this.inviteDialogVisible = true;
-    this.inviteForm = {
-      fullName: '',
-      email: '',
-      role: 'viewer',
-      scopeType: 'CLIENT',
-    };
-    //this.inviteScopeNode = null;
-    this.#drawerManager.open({
-      component: InviteUserForm,
+    const newUser = this.#drawerManager.open({
+      component: UserDetailForm,
       title: 'Invitar usuario',
+    });
+
+    newUser.confirmed().subscribe((user) => {
+
     });
   }
 
-  inviteUser(): void {
-    const selectedNode = this.inviteScopeNode?.data;
-    const newUser: AccessUser = {
-      id: crypto.randomUUID(),
-      fullName: this.inviteForm.fullName || 'Nuevo usuario',
-      email: this.inviteForm.email || 'nuevo@example.com',
-      initials: this.buildInitials(this.inviteForm.fullName || 'Nuevo usuario'),
-      status: 'pending',
-      lastLoginAt: null,
-      memberships: [
-        {
-          id: crypto.randomUUID(),
-          clientId: 'client-familia-perez',
-          clientName: 'Familia Pérez',
-          status: 'pending',
-          invitedBy: 'Nicolás Kolumbic',
-          joinedAt: new Date().toISOString().slice(0, 10),
-          assignments: [
-            {
-              id: crypto.randomUUID(),
-              role: this.inviteForm.role,
-              scopeType: selectedNode?.type ?? this.inviteForm.scopeType,
-              scopeId: selectedNode?.id ?? 'client-familia-perez',
-              scopeLabel: selectedNode?.label ?? 'Cliente completo · Familia Pérez',
-            },
-          ],
-        },
-      ],
-    };
-
-    this.users = [newUser, ...this.users];
-    this.inviteDialogVisible = false;
-  }
 
   inviteSummary(): string {
     const selectedNode = this.inviteScopeNode?.data;
@@ -259,21 +166,21 @@ export class AccessManagment {
     return `${userName} tendrá acceso como ${role} sobre ${scope}.`;
   }
 
-  membershipOptions(user: AccessUser): Array<{ label: string; value: string }> {
+  /*membershipOptions(user: UserAccess): Array<{ label: string; value: string }> {
     return user.memberships.map((membership) => ({
       label: `${membership.clientName} · ${this.statusLabel(membership.status)}`,
       value: membership.id,
     }));
   }
 
-  currentMembership(user: AccessUser): Membership | undefined {
+  currentMembership(user: UserAccess): Membership | undefined {
     return user.memberships.find((membership) => membership.id === this.selectedMembershipId) ?? user.memberships[0];
-  }
+  }*/
 
   addAssignmentToCurrentMembership(): void {
     if (!this.selectedUserDraft || !this.selectedMembershipId || !this.selectedScopeNode?.data) return;
 
-    const membership = this.currentMembership(this.selectedUserDraft);
+    /*const membership = this.currentMembership(this.selectedUserDraft);
     if (!membership) return;
 
     const scopeData = this.selectedScopeNode.data;
@@ -292,25 +199,20 @@ export class AccessManagment {
       scopeType: this.draftScopeType,
       scopeId: scopeData.id,
       scopeLabel: scopeData.label,
-    });
-
-    this.resetAssignmentDraft();
+    });*/
   }
 
   removeAssignment(assignmentId: string): void {
     if (!this.selectedUserDraft) return;
 
-    const membership: Membership | undefined = this.currentMembership(this.selectedUserDraft);
-    if (!membership) return;
+    /* const membership: Membership | undefined = this.currentMembership(this.selectedUserDraft);
+     if (!membership) return;*/
 
-    membership.assignments = membership.assignments.filter((assignment) => assignment.id !== assignmentId);
+    //membership.assignments = membership.assignments.filter((assignment) => assignment.id !== assignmentId);
   }
 
   onScopeNodeSelected(event: { node: TreeNode<ScopeNodeData> }): void {
     const data = event.node.data;
-    if (data) {
-      this.draftScopeType = data.type;
-    }
   }
 
   onInviteScopeSelected(event: { node: TreeNode<ScopeNodeData> }): void {
@@ -320,10 +222,10 @@ export class AccessManagment {
     }
   }
 
-  effectivePermissionsByModule(user: AccessUser): Record<string, string[]> {
+  effectivePermissionsByModule(user: UserAccess): Record<string, string[]> {
     const modules: Record<string, Set<string>> = {};
 
-    for (const membership of user.memberships) {
+    /*for (const membership of user.memberships) {
       for (const assignment of membership.assignments) {
         const permissions = ROLE_PERMISSION_MAP[assignment.role] ?? [];
 
@@ -335,7 +237,7 @@ export class AccessManagment {
           modules[moduleName].add(permission);
         }
       }
-    }
+    }*/
 
     return Object.entries(modules).reduce<Record<string, string[]>>((acc, [moduleName, permissions]) => {
       acc[moduleName] = Array.from(permissions);
@@ -347,17 +249,7 @@ export class AccessManagment {
     return Object.keys(permissionsByModule);
   }
 
-  primaryRole(user: AccessUser): RoleCode {
-    return user.memberships[0]?.assignments[0]?.role ?? 'viewer';
-  }
 
-  primaryScopeType(user: AccessUser): ScopeType {
-    return user.memberships[0]?.assignments[0]?.scopeType ?? 'CLIENT';
-  }
-
-  primaryScopeLabel(user: AccessUser): string {
-    return user.memberships[0]?.assignments[0]?.scopeLabel ?? 'Sin scope';
-  }
 
   roleLabel(role: RoleCode): string {
     return ROLE_LABELS[role];
@@ -371,52 +263,12 @@ export class AccessManagment {
     return USER_STATUS_LABELS[status];
   }
 
-  roleSeverity(role: RoleCode): 'success' | 'info' | 'warn' | 'contrast' | 'secondary' {
-    switch (role) {
-      case 'owner':
-        return 'contrast';
-      case 'admin':
-        return 'warn';
-      case 'operator':
-        return 'success';
-      case 'viewer':
-        return 'info';
-      case 'technician':
-        return 'secondary';
-      case 'security_monitor':
-        return 'warn';
-      default:
-        return 'info';
-    }
+
+
+  ngOnInit(): void {
+    this.#accessManagmentService.listUsers({}).subscribe((response: GridResponse<UserManagment>) => {
+      this.users.set(response.items);
+    });
   }
 
-  statusSeverity(status: UserStatus): 'success' | 'warn' | 'danger' | 'secondary' {
-    switch (status) {
-      case 'active':
-        return 'success';
-      case 'pending':
-        return 'warn';
-      case 'inactive':
-        return 'secondary';
-      case 'revoked':
-        return 'danger';
-      default:
-        return 'secondary';
-    }
-  }
-
-  private resetAssignmentDraft(): void {
-    this.draftRole = 'viewer';
-    this.draftScopeType = 'CLIENT';
-    this.selectedScopeNode = null;
-  }
-
-  private buildInitials(fullName: string): string {
-    return fullName
-      .split(' ')
-      .filter(Boolean)
-      .slice(0, 2)
-      .map((chunk) => chunk[0]?.toUpperCase() ?? '')
-      .join('');
-  }
 }
