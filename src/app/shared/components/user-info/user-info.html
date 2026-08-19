@@ -1,0 +1,8 @@
+<div class="flex items-center gap-3">
+    <p-avatar [label]="user().initials" size="large" shape="circle" [style]="customStyle"
+        class="bg-slate-100 dark:bg-[#0F172A] text-slate-700 dark:text-slate-300 font-bold border border-slate-200 dark:border-slate-700"></p-avatar>
+    <div class="overflow-hidden">
+        <h3 class="font-bold text-slate-900 dark:text-white truncate">{{user().firstName}} {{user().lastName}}</h3>
+        <p class="text-xs text-slate-500 dark:text-slate-400 truncate">{{user().email}}</p>
+    </div>
+</div>
