@@ -7,9 +7,13 @@
     @for (item of items(); track $index) {
     <ng-container *ngTemplateOutlet="contentTemplate();context: { $implicit: item }" />
     } @empty {
+    @if(emptyTemplate()) {
+    <ng-container *ngTemplateOutlet="emptyTemplate();" />
+    } @else {
     <div
         class="col-span-full text-center py-20 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-3xl">
         <p class="text-slate-400">{{ emptyMessage() }}</p>
     </div>
+    }
     }
 </div>

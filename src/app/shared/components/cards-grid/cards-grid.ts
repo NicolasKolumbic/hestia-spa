@@ -12,10 +12,11 @@ import { GridCardsPaginator } from '@shared/abstractions/grid-cards/grid-cards-p
 })
 export class CardsGrid<T> {
   items = input.required<T[]>();
-  emptyMessage = input.required<string>();
+  emptyMessage = input<string>('');
   paginator = input<GridCardsPaginator>();
 
   contentTemplate = contentChild.required<TemplateRef<any>>('content');
+  emptyTemplate = contentChild<TemplateRef<any>>('emptyContent');
 
   rows: number = 10;
 
