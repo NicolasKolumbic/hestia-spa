@@ -1,8 +1,8 @@
 @let formControl = control();
 <p-floatlabel class="w-full" variant="in">
-    <p-select [formControl]="formControl" [id]="id()" [options]="options()" [optionLabel]="labelOption()"
-        (onChange)="updateHandler($event)" [optionValue]="labelValue()" class="w-full rounded-md" variant="filled"
-        styleClass="w-full rounded-xl border-slate-300 dark:border-slate-600 
+    <p-select [formControl]="formControl" appendTo="body" [id]="id()" [options]="options()"
+        [optionLabel]="labelOption()" (onChange)="updateHandler($event)" [optionValue]="labelValue()"
+        class="w-full rounded-md" variant="filled" styleClass="w-full rounded-xl border-slate-300 dark:border-slate-600 
                                dark:bg-[#0F172A]"
         [invalid]="formControl.invalid && (formControl.touched || formControl.dirty)">
         <ng-template let-option #item>
