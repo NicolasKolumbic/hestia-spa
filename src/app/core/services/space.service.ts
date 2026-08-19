@@ -7,6 +7,8 @@ import { toObservable } from "@angular/core/rxjs-interop";
 import { Environment } from './environment';
 import { ClientLocationManagmentDto } from '@core/domain/dtos/client-location-managment.dto';
 import { QueryResponse } from '@shared/abstractions/grid-response.dto';
+import { TopologyNodeDto } from '@core/domain/dtos/topology-node.dto';
+import { PermissionScope } from '@core/domain/models/permission-scope';
 
 @Injectable({
   providedIn: 'root',
@@ -58,4 +60,11 @@ export class SpaceService {
   delete(siteId: string): Observable<void> {
     return this.#http.delete<void>(`${this.#apiUrl}/${siteId}`);
   }
+
+  getTopology(): Observable<PermissionScope[]> {
+    return this.#http.get<TopologyNodeDto[]>(`${this.#apiUrl}/topology`, {
+      withCredentials: true,
+    }).pipe(map((topogyNodes: TopologyNodeDto[]) => topogyNodes.map(node => new PermissionScope(node))));
+  }
+
 }
