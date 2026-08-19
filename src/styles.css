@@ -1,5 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300..800&display=swap');
 @import "primeicons/primeicons.css";
+@import './icons.css';
+
 
 @layer tailwind-base, primeng, tailwind-utilities;
 
@@ -76,4 +78,8 @@ body {
 
 ::-webkit-scrollbar-corner {
     background: transparent;
+}
+
+.small-caps {
+    font-variant: small-caps;
 }
