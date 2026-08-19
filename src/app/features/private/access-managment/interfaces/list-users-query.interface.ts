@@ -1,5 +1,4 @@
 export interface ListUsersQuery {
-  clientId: string;
   search?: string;
   status?: string;
   roleCode?: string;

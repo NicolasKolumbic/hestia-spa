@@ -1,10 +1,11 @@
-import { MembershipStatus, ScopeType } from './user-access.interface';
+import { Status } from "@core/enums/status.enum";
+import { ScopeType } from "../typings/scope.type";
 
 export interface AccessMembershipView {
     id: string;
     clientId: string;
     clientName: string;
-    status: MembershipStatus;
+    status: Status;
     joinedAt: string | null;
     invitedBy: string | null;
 }

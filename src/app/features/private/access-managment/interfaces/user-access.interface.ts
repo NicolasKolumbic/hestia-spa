@@ -1,18 +1,18 @@
-export type UserStatus = 'active' | 'inactive' | 'blocked';
-export type MembershipStatus = 'active' | 'pending' | 'revoked';
-export type ScopeType = 'CLIENT' | 'SITE' | 'ZONE' | 'DEVICE';
+import { RoleCode } from "../typings/role-code.type";
+import { ScopeType } from "../typings/scope.type";
+import { UserStatus } from "../typings/user-status.type";
 
 export interface UserAccess {
-    id: string;
-    clientId: string;
+    id: GUID;
+    clientId: GUID;
     fullName: string;
     email: string;
     userStatus: UserStatus;
-    membershipStatus: MembershipStatus;
-    primaryRoleCode: string;
-    primaryRoleName: string;
+    membershipStatus: UserStatus;
+    primaryRoleCode: RoleCode;
+    primaryRoleName: RoleCode;
     primaryScopeType: ScopeType;
-    primaryScopeLabel: string;
+    primaryScopeLabel: ScopeType;
     lastLoginAt: string | null;
     assignmentsCount: number;
 }
