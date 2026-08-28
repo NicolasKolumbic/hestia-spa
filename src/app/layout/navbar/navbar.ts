@@ -118,17 +118,17 @@ export class Navbar implements OnInit {
         items: [
           {
             label: this.translate.instant('MENU.ACCESS_MANAGEMENT'),
-            icon: 'pi-users',
+            icon: 'pi pi-users',
             routerLink: '/platform/access-managment'
           },
           {
             label: this.translate.instant('MENU.CLIENTS_MANAGEMENT'),
-            icon: 'pi-users',
+            icon: 'pi pi-building',
             routerLink: '/platform/clients-managment'
           },
           {
             label: this.translate.instant('MENU.CLIENTS_LOCATIONS'),
-            icon: 'pi-users',
+            icon: 'pi pi-map',
             routerLink: '/platform/clients-locations'
           }
         ]
