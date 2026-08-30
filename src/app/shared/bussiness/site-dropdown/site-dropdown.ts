@@ -10,6 +10,8 @@ import { map, tap } from 'rxjs';
 import { SiteTypeIcons } from '@shared/enums/site-type.enum';
 import { Button } from "primeng/button";
 import { MatIconModule } from '@angular/material/icon';
+import { QueryResponse } from '@shared/abstractions/grid-response.dto';
+import { SiteType } from '@core/enums/site-type.enum';
 
 
 @Component({
@@ -38,12 +40,12 @@ export class SiteDropdown implements OnInit {
   siteForm = { id: 0, name: '', icon: 'pi pi-home', address: '' };
 
   ngOnInit() {
-    /*this.#siteService.getAll()
-      .pipe(tap((sites) => this.#buildMenuItems(sites)))
-      .subscribe((sites: Site[]) => {
-        this.sites.set(sites);
-        this.#siteService.setSite(sites[0]);
-      });*/
+    this.#siteService.getAll()
+      .pipe(tap((response: QueryResponse<Site>) => this.#buildMenuItems(response.items)))
+      .subscribe((response: QueryResponse<Site>) => {
+        this.sites.set(response.items);
+        this.#siteService.setSite(response.items[0]);
+      });
   }
 
   #buildMenuItems(sites: Site[]): void {
@@ -62,20 +64,17 @@ export class SiteDropdown implements OnInit {
   }
 
   #getIcon(site: Site): string {
-    /*if (site.type === SiteTypeIcons.COMMERCIAL) {
-      site.icon = 'store'
-    } else if (site.type === SiteTypeIcons.INDUSTRIAL) {
-      site.icon = 'factory'
-    } else if (site.type === SiteTypeIcons.INSTITUCIONAL) {
-      site.icon = 'account_balance'
-    } else if (site.icon === SiteTypeIcons.RURAL) {
-      site.icon = 'agriculture'
+    if (site.type === SiteType.COMMERCIAL) {
+      return 'icon-building-office'
+    } else if (site.type === SiteType.INDUSTRIAL) {
+      return 'factory'
+    } else if (site.type === SiteType.INSTITUTIONAL) {
+      return 'account_balance'
+    } else if (site.type === SiteType.RURAL) {
+      return 'agriculture'
     } else {
-      site.icon = 'house';
+      return 'house';
     }
-
-    return site.icon;*/
-    return '';
   }
 
   selectSite(menuItem: MenuItem): void {
