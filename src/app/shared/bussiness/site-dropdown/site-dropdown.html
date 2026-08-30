@@ -20,9 +20,11 @@
 </button>
 <p-menu #siteMenu [model]="menuItems()" [popup]="true" appendTo="body" styleClass="w-60 px-3 py-2">
     <ng-template #item let-item>
-        <div class="flex items-center gap-2 p-2 cursor-pointer hover:bg-[var(--surface-200)]">
+        <div (click)="selectSite(item); siteMenu.hide()"
+            class="flex items-center gap-2 p-2 cursor-pointer hover:bg-[var(--surface-200)] rounded-lg w-full">
             <mat-icon>{{ item.icon }}</mat-icon>
-            <span>{{ item.label }}</span>
+            <span [class.font-bold]="currentSite()?.id === item.id"
+                [class.text-orange-600]="currentSite()?.id === item.id">{{ item.label }}</span>
         </div>
     </ng-template>
 </p-menu>

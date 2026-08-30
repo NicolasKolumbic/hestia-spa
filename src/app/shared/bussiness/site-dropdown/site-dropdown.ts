@@ -14,6 +14,8 @@ import { QueryResponse } from '@shared/abstractions/grid-response.dto';
 import { SiteType } from '@core/enums/site-type.enum';
 
 
+const LAST_SITE_KEY = 'hestia_last_site_id';
+
 @Component({
   selector: 'hta-site-dropdown',
   imports: [FormsModule, Menu, Dialog, SiteManager, Button, MatIconModule],
@@ -43,8 +45,21 @@ export class SiteDropdown implements OnInit {
     this.#siteService.getAll()
       .pipe(tap((response: QueryResponse<Site>) => this.#buildMenuItems(response.items)))
       .subscribe((response: QueryResponse<Site>) => {
-        this.sites.set(response.items);
-        this.#siteService.setSite(response.items[0]);
+        const sites = response.items;
+        this.sites.set(sites);
+
+        if (sites.length === 0) return;
+
+        // 1. Recuperar el último sitio navegado desde localStorage
+        const savedSiteId = localStorage.getItem(LAST_SITE_KEY);
+        const matchedSite = sites.find((s) => s.siteId === savedSiteId);
+
+        // 2. Si existe y el usuario tiene acceso, seleccionarlo; de lo contrario, el primero
+        const initialSite = matchedSite ?? sites[0];
+        const matchedMenuItem = this.menuItems().find((item) => item.id === initialSite.siteId) ?? this.menuItems()[0];
+
+        this.currentSite.set(matchedMenuItem);
+        this.#siteService.setSite(initialSite);
       });
   }
 
@@ -59,8 +74,7 @@ export class SiteDropdown implements OnInit {
       item.command = () => this.selectSite(item);
       return item;
     });
-    this.menuItems.set(menuItems)
-    this.currentSite.set(menuItems[0]);
+    this.menuItems.set(menuItems);
   }
 
   #getIcon(site: Site): string {
@@ -82,6 +96,7 @@ export class SiteDropdown implements OnInit {
     this.show.set(false);
     const selectedItem = this.sites().find(site => site.siteId === menuItem.id);
     if (selectedItem) {
+      localStorage.setItem(LAST_SITE_KEY, selectedItem.siteId);
       this.#siteService.setSite(selectedItem);
     }
   }
