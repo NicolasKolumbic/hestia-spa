@@ -1,5 +1,4 @@
 export interface InviteUserPayload {
-  clientId: string;
   firstName: string;
   lastName: string;
   email: string;

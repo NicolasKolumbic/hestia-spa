@@ -6,9 +6,7 @@ import { FormsModule } from '@angular/forms';
 import { SiteManager } from "../site-manager/site-manager";
 import { SpaceService } from "@core/services/space.service";
 import { Site } from '@core/index';
-import { map, tap } from 'rxjs';
-import { SiteTypeIcons } from '@shared/enums/site-type.enum';
-import { Button } from "primeng/button";
+import { tap } from 'rxjs';
 import { MatIconModule } from '@angular/material/icon';
 import { QueryResponse } from '@shared/abstractions/grid-response.dto';
 import { SiteType } from '@core/enums/site-type.enum';
@@ -18,7 +16,7 @@ const LAST_SITE_KEY = 'hestia_last_site_id';
 
 @Component({
   selector: 'hta-site-dropdown',
-  imports: [FormsModule, Menu, Dialog, SiteManager, Button, MatIconModule],
+  imports: [FormsModule, Menu, Dialog, SiteManager, MatIconModule],
   templateUrl: './site-dropdown.html',
   styleUrl: './site-dropdown.css',
 })

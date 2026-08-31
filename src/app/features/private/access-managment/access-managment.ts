@@ -152,7 +152,7 @@ export class AccessManagment {
     });
 
     newUser.confirmed().subscribe((user) => {
-
+      console.log(user);
     });
   }
 

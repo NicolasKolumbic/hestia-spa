@@ -28,7 +28,6 @@ export class UserDetailForm implements DrawerBody, OnInit {
   #spacesService = inject(SpaceService);
   #accessManagmentService = inject(AccessManagmentService);
 
-
   topologyNodes = signal<PermissionScope[]>([]);
   invitationForm = this.#formBuilder.group({
     firstName: ['', Validators.required],
@@ -40,16 +39,23 @@ export class UserDetailForm implements DrawerBody, OnInit {
   ngOnInit(): void {
     this.#spacesService.getTopology().subscribe((nodes: PermissionScope[]) => {
       this.invitationForm.patchValue({
-        firstName: this.accessUser()?.firstName,
-        lastName: this.accessUser()?.lastName,
-        email: this.accessUser()?.email,
+        firstName: this.accessUser()?.firstName ?? '',
+        lastName: this.accessUser()?.lastName ?? '',
+        email: this.accessUser()?.email ?? '',
         totalClient: false
       });
       this.topologyNodes.set(nodes);
     });
 
-    this.#accessManagmentService.getAssigmentsByUser(this.accessUser()!.userId).subscribe((assigments) => {
-      console.log(assigments);
+    if (this.accessUser() && this.accessUser()!.userId) {
+      this.#accessManagmentService.getAssigmentsByUser(this.accessUser()!.userId).subscribe((assigments) => {
+        console.log(assigments);
+      });
+    }
+
+    this.drawerRef().getData(() => {
+      return this.invitationForm.value;
     });
+
   }
 }
