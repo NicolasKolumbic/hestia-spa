@@ -17,7 +17,8 @@
                 Determine el alcance de los permisos del usuario, un sitio (casa, oficina, local, etc.) o varios, zonas
                 de estos sitios o dispositivos concretos.
             </p>
-            <hta-access-managment-scope [nodes]="topologyNodes()" [readonly]="isReadonly()" />
+            <hta-access-managment-scope [nodes]="topologyNodes()" [readonly]="isReadonly()"
+                (update)="onScopeUpdate($event)" />
         </div>
     </form>
 </div>

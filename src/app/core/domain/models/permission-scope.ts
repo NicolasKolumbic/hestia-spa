@@ -7,7 +7,7 @@ export class PermissionScope {
     data: {
         id: string;
         type: 'SITE' | 'ZONE' | 'DEVICE';
-        roleId?: string;
+        roleId: string | null;
     };
     icon?: string;
     children?: PermissionScope[];
@@ -16,7 +16,7 @@ export class PermissionScope {
     constructor({ key, label, data: { id, type }, selectable, children }: TopologyNodeDto) {
         this.key = key;
         this.label = label;
-        this.data = { id, type, roleId: '' };
+        this.data = { id, type, roleId: null };
         this.selectable = selectable;
         this.children = children?.map(child => new PermissionScope(child));
     }

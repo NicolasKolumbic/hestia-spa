@@ -16,6 +16,7 @@ import { RoleDto } from '@core/domain/dtos/role.dto';
 })
 export class RolesDropdown implements OnInit {
   setByName = input<string>('');
+  allowClear = input<boolean>(true);
 
   #hostControl = inject<ControlAccessor<string>>(HostControl);
   #roleService = inject(RolesService);
@@ -24,6 +25,7 @@ export class RolesDropdown implements OnInit {
   options = signal<DropdownOption[]>([]);
 
   changes = output<DropdownOption>();
+  clear = output<void>();
 
   ngOnInit(): void {
     if (!this.options().length) {
@@ -52,8 +54,9 @@ export class RolesDropdown implements OnInit {
       const role = this.options().find((role) => role.value === selectedRoleValue);
       if (role) {
         this.changes.emit(role);
+      } else {
+        this.clear.emit();
       }
-
     })
   }
 }

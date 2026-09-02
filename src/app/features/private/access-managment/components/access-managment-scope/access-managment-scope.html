@@ -31,7 +31,8 @@
                 <span class="font-medium text-surface-900">{{ rowNode.node.label }}</span>
             </td>
             <td>
-                <hta-roles-dropdown [ngModel]="rowData.roleId" (ngModelChange)="updateRole($event, rowNode.node)" />
+                <hta-roles-dropdown [ngModel]="rowData.roleId" (ngModelChange)="updateRole($event, rowNode.node)"
+                    [allowClear]="true" />
             </td>
         </tr>
     </ng-template>

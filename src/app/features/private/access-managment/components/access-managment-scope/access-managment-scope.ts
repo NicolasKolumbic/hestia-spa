@@ -1,11 +1,9 @@
-import { Component, input, signal } from '@angular/core';
+import { Component, input, output, signal } from '@angular/core';
 import { TreeTableModule } from 'primeng/treetable';
 import { RolesDropdown } from "@core/components/roles-dropdown/roles-dropdown";
-import { DropdownOption } from '@shared/abstractions/dropdown/dropdown-option';
 import { PermissionScope } from '@core/domain/models/permission-scope';
 import { FormsModule } from '@angular/forms';
 import { TableModule } from 'primeng/table';
-import { JsonPipe } from '@angular/common';
 
 @Component({
   selector: 'hta-access-managment-scope',
@@ -23,8 +21,17 @@ export class AccessManagmentScope {
   readonly = input<boolean>(false);
   selectedNodes = signal<PermissionScope[]>([]);
 
-  updateRole(roleId: string, node: PermissionScope) {
+  update = output<PermissionScope[]>();
+
+  updateRole(roleId: string | null, node: PermissionScope) {
     node.data.roleId = roleId;
-    this.selectedNodes.update((nodes) => [...nodes, node]);
+    if (roleId) {
+      this.selectedNodes.update((nodes) => [...nodes, node]);
+    } else {
+      this.selectedNodes.update((nodes) => {
+        return nodes.filter((n) => n.key !== node.key);
+      });
+    }
+    this.update.emit(this.selectedNodes());
   }
 }

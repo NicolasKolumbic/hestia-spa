@@ -33,6 +33,7 @@ export class UserDetailForm implements DrawerBody, OnInit {
     firstName: ['', Validators.required],
     lastName: ['', Validators.required],
     email: ['', Validators.required],
+    assignments: [[]],
     totalClient: [false]
   });
 
@@ -56,6 +57,9 @@ export class UserDetailForm implements DrawerBody, OnInit {
     this.drawerRef().getData(() => {
       return this.invitationForm.value;
     });
+  }
 
+  onScopeUpdate(scope: PermissionScope[]) {
+    console.log(scope);
   }
 }

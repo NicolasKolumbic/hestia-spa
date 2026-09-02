@@ -1,4 +1,4 @@
-import { Component, computed, inject, input, OnInit } from '@angular/core';
+import { Component, computed, inject, input, output } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { DropdownOption } from '@shared/abstractions/dropdown/dropdown-option';
 import { SelectChangeEvent, SelectModule } from 'primeng/select';
@@ -13,11 +13,12 @@ import { HostControl } from '@shared/directives/host-control';
   hostDirectives: [HostControl],
 })
 export class Dropdown {
+  id = input.required<string>();
   options = input.required<DropdownOption[]>();
   placeholder = input.required<string>();
   labelOption = input<string>('label');
   labelValue = input<string>('value');
-  id = input.required<string>();
+  allowClear = input<boolean>(false);
 
   #hostControl = inject(HostControl);
   control = this.#hostControl.control;
@@ -25,8 +26,4 @@ export class Dropdown {
   hasError = computed(() => {
     return this.#hostControl.hasErrors();
   });
-
-  updateHandler({ value }: SelectChangeEvent): void {
-    this.#hostControl.setValue(value);
-  }
 }
