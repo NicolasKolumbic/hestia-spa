@@ -1,6 +1,6 @@
 import { HttpClient, HttpParams } from "@angular/common/http";
 import { inject, Injectable } from "@angular/core";
-import { map, Observable } from 'rxjs';
+import { map, Observable, switchMap } from 'rxjs';
 import { Environment } from '@core/services/environment';
 
 import { ListUsersQuery } from '../interfaces/list-users-query.interface';
@@ -16,6 +16,9 @@ import { GridResponse } from '@core/domain/interfaces/grid-response.interface';
 import { UserManagment } from "../models/user-managment";
 import { AccessUser } from "../interfaces/access-user.interface";
 import { UserManagmentDto } from "../dtos/user-managment.dto";
+import { PermissionScope } from "@core/domain/models/permission-scope";
+import { PermissionDto } from "../interfaces/permission-dto";
+import { UpdatePermissionRequestDto } from "../interfaces/update-permission-request.dto";
 
 @Injectable({
     providedIn: 'root',
@@ -28,12 +31,12 @@ export class AccessManagmentService {
         return `${this.#environment.apiUrl}/access-managment`;
     }
 
-    listUsers(query: ListUsersQuery): Observable<GridResponse<UserManagment>> {
-        let params = new HttpParams();
-        if (query.search) params = params.set('search', query.search);
-        if (query.status) params = params.set('status', query.status);
-        if (query.roleCode) params = params.set('roleCode', query.roleCode);
-        if (query.scopeType) params = params.set('scopeType', query.scopeType);
+    listUsers({ roleCode, scopeType, search, status }: ListUsersQuery): Observable<GridResponse<UserManagment>> {
+        let params: any = {};
+        if (search) params['search'] = search;
+        if (status && status.length > 0) params['status'] = status;
+        if (roleCode && roleCode.length > 0) params['roleCode'] = roleCode;
+        if (scopeType && scopeType.length > 0) params['scopeType'] = scopeType;
 
         return this.#http.get<GridResponse<UserManagmentDto>>(`${this.apiUrl}/users`, { params }).pipe(map((res) => {
             return {
@@ -58,16 +61,16 @@ export class AccessManagmentService {
         return this.#http.get<AccessUserDetail>(`${this.apiUrl}/users/${userId}`, { params });
     }
 
-    getAssigmentsByUser(userId: string): Observable<AccessUser[]> {
-        return this.#http.get<AccessUser[]>(`${this.apiUrl}/users/${userId}/assignments`);
+    getAssigmentsByUser(userId: string): Observable<PermissionDto[]> {
+        return this.#http.get<PermissionDto[]>(`${this.apiUrl}/users/${userId}/assignments`);
     }
 
-    inviteUser(payload: InviteUserPayload): Observable<InviteUserResult> {
-        return this.#http.post<InviteUserResult>(`${this.apiUrl}/users/invite`, payload);
+    inviteUser(payload: InviteUserPayload): Observable<GridResponse<UserManagment>> {
+        return this.#http.post<InviteUserResult>(`${this.apiUrl}/users/invite`, payload).pipe(switchMap(() => this.listUsers({})))
     }
 
-    updateRoleAssignment(userId: string, payload: UpdateRoleAssignmentPayload): Observable<UpdateRoleAssignmentResult> {
-        return this.#http.put<UpdateRoleAssignmentResult>(`${this.apiUrl}/users/${userId}/assignments`, payload);
+    updateRoleAssignment(userId: string, payload: UpdatePermissionRequestDto): Observable<GridResponse<UserManagment>> {
+        return this.#http.put<UpdateRoleAssignmentResult>(`${this.apiUrl}/users/${userId}/assignments`, payload).pipe(switchMap(() => this.listUsers({})))
     }
 
     removeUser(clientId: string, userId: string, assignmentId: string): Observable<void> {

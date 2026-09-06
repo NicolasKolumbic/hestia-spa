@@ -18,6 +18,9 @@
       "@core/*": [
         "src/app/core/*"
       ],
+      "@features/*": [
+        "src/app/features/*"
+      ]
     }
   },
   "include": [

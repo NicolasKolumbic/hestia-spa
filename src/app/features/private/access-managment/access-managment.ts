@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AvatarModule } from 'primeng/avatar';
 import { ButtonModule } from 'primeng/button';
@@ -16,9 +16,6 @@ import { TreeModule } from 'primeng/tree';
 import { TreeNode } from 'primeng/api';
 import { UserStatus } from './typings/user-status.type';
 import { RoleCode } from './typings/role-code.type';
-import { USER_STATUS_LABELS } from './static/user-status.labels';
-import { SCOPE_TYPE_LABELS } from './static/scope-type.labels';
-import { ROLE_LABELS } from './static/role.labels';
 import { ScopeType } from './typings/scope.type';
 import { ScopeNodeData } from './interfaces/scope-node-data.interface';
 import { InviteForm } from './interfaces/invite-form.interface';
@@ -36,9 +33,9 @@ import { UserAccess } from './interfaces/user-access.interface';
 import { UserManagment } from './models/user-managment';
 import { AccessManagmentCard } from "./components/access-managment-card/access-managment-card";
 import { CardsGrid } from "@shared/components/cards-grid/cards-grid";
-import { SpaceService } from '@core/index';
 import { TopologyNodeDto } from '@core/domain/dtos/topology-node.dto';
 import { UserDetailForm } from './components/user-detail-form/user-detail-form';
+import { InviteUserPayload } from './interfaces/invite-user-payload.interface';
 
 @Component({
   selector: 'hta-access-managment',
@@ -74,10 +71,12 @@ export class AccessManagment {
   selectedUserDraft: UserAccess | null = null;
   selectedMembershipId: string | null = null;
 
-  searchTerm = '';
-  selectedStatuses: UserStatus[] = [];
-  selectedRoles: RoleCode[] = [];
-  selectedScopeTypes: ScopeType[] = [];
+  filter = signal({
+    searchTerm: '',
+    selectedStatuses: [] as UserStatus[],
+    selectedRoles: [] as RoleCode[],
+    selectedScopeTypes: [] as ScopeType[],
+  });
 
   selectedScopeNode: TreeNode<ScopeNodeData> | null = null;
 
@@ -89,9 +88,20 @@ export class AccessManagment {
     scopeType: 'CLIENT',
   };
 
+  filterChanged = computed(() => {
+    const { searchTerm, selectedRoles, selectedScopeTypes, selectedStatuses } = this.filter();
+    this.#accessManagmentService.listUsers({
+      search: searchTerm,
+      roleCode: selectedRoles,
+      scopeType: selectedScopeTypes,
+      status: selectedStatuses,
+    }).subscribe((response: GridResponse<UserManagment>) => {
+      this.onRefresh(response);
+    });
+  })
+
   #drawerManager = inject(DrawerManagerService);
   #accessManagmentService = inject(AccessManagmentService);
-  #siteService = inject(SpaceService);
 
   statusOptions = [
     { label: 'Activo', value: 'active' },
@@ -118,157 +128,64 @@ export class AccessManagment {
 
   filters: Filter[] = [
     {
+      name: 'status',
       label: 'Estado',
       type: 'multi-select',
       source: of(this.statusOptions),
     },
     {
+      name: 'role',
       label: 'Rol',
       type: 'multi-select',
       source: of(this.roleOptions),
     },
     {
+      name: 'scopeType',
       label: 'Tipo de scope',
       type: 'multi-select',
       source: of(this.scopeTypeOptions),
     },
   ];
 
-  clearFilters(): void {
-    this.searchTerm = '';
-    this.selectedStatuses = [];
-    this.selectedRoles = [];
-    this.selectedScopeTypes = [];
+
+  ngOnInit(): void {
+    this.#accessManagmentService.listUsers({}).subscribe((response: GridResponse<UserManagment>) => {
+      this.onRefresh(response);
+    });
   }
 
-  saveAccessChanges(): void {
-    if (!this.selectedUserDraft) return;
+  clearFilters(): void {
+    this.filter.set({
+      searchTerm: '',
+      selectedStatuses: [],
+      selectedRoles: [],
+      selectedScopeTypes: [],
+    });
   }
 
   openInviteDialog(): void {
-    const newUser = this.#drawerManager.open({
+    const newUser = this.#drawerManager.open<InviteUserPayload>({
       component: UserDetailForm,
       title: 'Invitar usuario',
     });
 
-    newUser.confirmed().subscribe((user) => {
-      console.log(user);
+    newUser.confirmed().subscribe((user: InviteUserPayload) => {
+      this.#accessManagmentService.inviteUser(user).subscribe((response: GridResponse<UserManagment>) => {
+        this.onRefresh(response);
+      });
     });
   }
 
-
-  inviteSummary(): string {
-    const selectedNode = this.inviteScopeNode?.data;
-    const userName = this.inviteForm.fullName || 'El usuario';
-    const role = this.roleLabel(this.inviteForm.role);
-    const scope = selectedNode?.label || 'Cliente completo · Familia Pérez';
-
-    return `${userName} tendrá acceso como ${role} sobre ${scope}.`;
+  onRefresh(response: GridResponse<UserManagment>): void {
+    this.users.set(response.items);
   }
 
-  /*membershipOptions(user: UserAccess): Array<{ label: string; value: string }> {
-    return user.memberships.map((membership) => ({
-      label: `${membership.clientName} · ${this.statusLabel(membership.status)}`,
-      value: membership.id,
+  updateFilterHandler({ role, status, scopeType }: { role: RoleCode[], status: UserStatus[], scopeType: ScopeType[] }): void {
+    this.filter.update((filter) => ({
+      ...filter,
+      selectedStatuses: status ?? [],
+      selectedRoles: role ?? [],
+      selectedScopeTypes: scopeType ?? [],
     }));
   }
-
-  currentMembership(user: UserAccess): Membership | undefined {
-    return user.memberships.find((membership) => membership.id === this.selectedMembershipId) ?? user.memberships[0];
-  }*/
-
-  addAssignmentToCurrentMembership(): void {
-    if (!this.selectedUserDraft || !this.selectedMembershipId || !this.selectedScopeNode?.data) return;
-
-    /*const membership = this.currentMembership(this.selectedUserDraft);
-    if (!membership) return;
-
-    const scopeData = this.selectedScopeNode.data;
-    const alreadyExists = membership.assignments.some(
-      (assignment) =>
-        assignment.role === this.draftRole
-        && assignment.scopeType === this.draftScopeType
-        && assignment.scopeId === scopeData.id,
-    );
-
-    if (alreadyExists) return;
-
-    membership.assignments.push({
-      id: crypto.randomUUID(),
-      role: this.draftRole,
-      scopeType: this.draftScopeType,
-      scopeId: scopeData.id,
-      scopeLabel: scopeData.label,
-    });*/
-  }
-
-  removeAssignment(assignmentId: string): void {
-    if (!this.selectedUserDraft) return;
-
-    /* const membership: Membership | undefined = this.currentMembership(this.selectedUserDraft);
-     if (!membership) return;*/
-
-    //membership.assignments = membership.assignments.filter((assignment) => assignment.id !== assignmentId);
-  }
-
-  onScopeNodeSelected(event: { node: TreeNode<ScopeNodeData> }): void {
-    const data = event.node.data;
-  }
-
-  onInviteScopeSelected(event: { node: TreeNode<ScopeNodeData> }): void {
-    const data = event.node.data;
-    if (data) {
-      this.inviteForm.scopeType = data.type;
-    }
-  }
-
-  effectivePermissionsByModule(user: UserAccess): Record<string, string[]> {
-    const modules: Record<string, Set<string>> = {};
-
-    /*for (const membership of user.memberships) {
-      for (const assignment of membership.assignments) {
-        const permissions = ROLE_PERMISSION_MAP[assignment.role] ?? [];
-
-        for (const permission of permissions) {
-          const [moduleName] = permission.split('.');
-          if (!modules[moduleName]) {
-            modules[moduleName] = new Set<string>();
-          }
-          modules[moduleName].add(permission);
-        }
-      }
-    }*/
-
-    return Object.entries(modules).reduce<Record<string, string[]>>((acc, [moduleName, permissions]) => {
-      acc[moduleName] = Array.from(permissions);
-      return acc;
-    }, {});
-  }
-
-  permissionModules(permissionsByModule: Record<string, string[]>): string[] {
-    return Object.keys(permissionsByModule);
-  }
-
-
-
-  roleLabel(role: RoleCode): string {
-    return ROLE_LABELS[role];
-  }
-
-  scopeTypeLabel(scopeType: ScopeType): string {
-    return SCOPE_TYPE_LABELS[scopeType];
-  }
-
-  statusLabel(status: UserStatus): string {
-    return USER_STATUS_LABELS[status];
-  }
-
-
-
-  ngOnInit(): void {
-    this.#accessManagmentService.listUsers({}).subscribe((response: GridResponse<UserManagment>) => {
-      this.users.set(response.items);
-    });
-  }
-
 }

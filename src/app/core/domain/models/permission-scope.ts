@@ -1,35 +1,36 @@
-import { UserPermissionRequestDto } from "../dtos/permission-request.dto";
+import { ScopeType } from "@features/private/access-managment/typings";
 import { TopologyNodeDto } from "../dtos/topology-node.dto";
+import { PermissionDto } from "@features/private/access-managment/interfaces/permission-dto";
 
 export class PermissionScope {
+    assignmentId?: string;
     key: string;
     label: string;
-    data: {
-        id: string;
-        type: 'SITE' | 'ZONE' | 'DEVICE';
-        roleId: string | null;
-    };
+    targetId?: string;
+    type?: ScopeType;
+    roleId: string | null;
     icon?: string;
     children?: PermissionScope[];
+    checked?: boolean;
     selectable?: boolean;
 
-    constructor({ key, label, data: { id, type }, selectable, children }: TopologyNodeDto) {
+    constructor({ key, label, data: { id, type }, selectable, children, icon }: TopologyNodeDto) {
         this.key = key;
         this.label = label;
-        this.data = { id, type, roleId: null };
-        this.selectable = selectable;
+        this.targetId = id;
+        this.type = type;
+        this.roleId = null;
+        this.checked = selectable;
         this.children = children?.map(child => new PermissionScope(child));
+        this.icon = icon;
+        this.selectable = true;
     }
 
-    get isValid(): boolean {
-        return this.data.roleId !== '' && this.data.id !== '';
-    }
-
-    toRequestDto(): UserPermissionRequestDto {
+    toRequestDto(): PermissionDto {
         return {
-            type: this.data.type,
-            resourceId: this.data.id,
-            roleId: this.data.roleId!,
+            scopeType: this.type!,
+            scopeId: this.targetId!,
+            roleId: this.roleId!,
         };
     }
 }

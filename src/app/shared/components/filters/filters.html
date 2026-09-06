@@ -4,14 +4,37 @@
 <p class="mt-1 text-sm text-[var(--surface-500)] dark:text-[var(--surface-400)]">
     {{ description() }}
 </p>
-<div class="flex gap-2 items-center mt-2">
-    @for (item of filters(); track $index) {
+
+@if (filterForm) {
+<div class="flex gap-2 items-center mt-2 flex-wrap" [formGroup]="filterForm">
+    @for (item of filters(); track item.name || item.label) {
+    @let controlName = getControlName(item);
     @let options = item.source | async;
+
+    @switch (item.type) {
+    @case ('multi-select') {
     @if(options) {
-    <hta-multi-select id="item.label" [placeholder]="item.label" [options]="options" />
+    <div class="flex-grow-1">
+        <hta-multi-select [id]="controlName" [placeholder]="item.label" [options]="options"
+            [formControlName]="controlName" />
+    </div>
+
+    }
+    }
+    @case ('dropdown') {
+    @if(options) {
+    <hta-dropdown [id]="controlName" [placeholder]="item.label" [options]="options" [formControlName]="controlName"
+        [allowClear]="true" />
+    }
+    }
+    @case ('text') {
+    <hta-float-label-input [id]="controlName" [label]="item.label" [formControlName]="controlName" />
+    }
     }
     }
 </div>
+}
+
 <div class="flex justify-end">
     <button pButton type="button" label="Limpiar filtros" icon="pi pi-filter-slash" severity="secondary"
         [outlined]="true" class="mt-2" (click)="clearFilters()"></button>

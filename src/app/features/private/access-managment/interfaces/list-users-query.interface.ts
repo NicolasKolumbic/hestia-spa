@@ -1,6 +1,8 @@
+import { RoleCode, ScopeType, UserStatus } from "../typings";
+
 export interface ListUsersQuery {
   search?: string;
-  status?: string;
-  roleCode?: string;
-  scopeType?: 'CLIENT' | 'SITE' | 'ZONE' | 'DEVICE';
+  status?: UserStatus[];
+  roleCode?: RoleCode[];
+  scopeType?: ScopeType[];
 }

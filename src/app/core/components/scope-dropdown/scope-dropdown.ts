@@ -9,7 +9,6 @@ import { HostControl } from '@shared/directives/host-control';
   selector: 'hta-scope-dropdown',
   imports: [ReactiveFormsModule, HostControl, Dropdown],
   templateUrl: './scope-dropdown.html',
-  styleUrl: './scope-dropdown.css',
   hostDirectives: [HostControl]
 })
 export class ScopeDropdown implements OnInit {

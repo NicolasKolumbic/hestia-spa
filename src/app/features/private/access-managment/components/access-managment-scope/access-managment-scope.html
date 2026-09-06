@@ -24,14 +24,16 @@
     </ng-template>
 
     <ng-template pTemplate="body" let-rowNode let-rowData="rowData">
-        <tr [ttRow]="rowNode" [class.p-treetable-row-selected]="rowNode.node.data.roleId">
+        <tr [ttRow]="rowNode" [class.p-treetable-row-selected]="rowNode.node.checked">
             <td>
-                <p-treeTableToggler [rowNode]="rowNode"></p-treeTableToggler>
-                <i [class]="rowNode.node.icon" class="mr-2 text-surface-500"></i>
-                <span class="font-medium text-surface-900">{{ rowNode.node.label }}</span>
+                <div class=" flex items-center gap-1">
+                    <p-treeTableToggler [rowNode]="rowNode"></p-treeTableToggler>
+                    <i [class]="rowNode.node.icon" class="mr-2 text-surface-500 text-2xl"></i>
+                    <span class="font-medium text-surface-900">{{ rowNode.node.label }}</span>
+                </div>
             </td>
             <td>
-                <hta-roles-dropdown [ngModel]="rowData.roleId" (ngModelChange)="updateRole($event, rowNode.node)"
+                <hta-roles-dropdown [ngModel]="rowNode.node.roleId" (ngModelChange)="updateRole($event, rowNode.node)"
                     [allowClear]="true" />
             </td>
         </tr>

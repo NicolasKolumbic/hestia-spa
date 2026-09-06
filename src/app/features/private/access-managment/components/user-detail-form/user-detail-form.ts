@@ -10,6 +10,10 @@ import { Checkbox } from 'primeng/checkbox';
 import { PermissionScope } from '@core/domain/models/permission-scope';
 import { UserManagment } from '../../models/user-managment';
 import { AccessManagmentService } from '../../services/access-managment.service';
+import { InviteUserPayload } from '../../interfaces/invite-user-payload.interface';
+import { PermissionDto } from '../../interfaces/permission-dto';
+import { map, Observable, switchMap } from 'rxjs';
+import { UpdatePermissionRequestDto } from '../../interfaces/update-permission-request.dto';
 
 @Component({
   selector: 'hta-user-detail-form',
@@ -23,6 +27,7 @@ export class UserDetailForm implements DrawerBody, OnInit {
   drawerRef = input.required<DrawerRef>();
   accessUser = input<UserManagment | null>();
   isReadonly = input<boolean>(false);
+  isEditing = input<boolean>(false);
 
   #formBuilder = inject(FormBuilder);
   #spacesService = inject(SpaceService);
@@ -33,33 +38,96 @@ export class UserDetailForm implements DrawerBody, OnInit {
     firstName: ['', Validators.required],
     lastName: ['', Validators.required],
     email: ['', Validators.required],
-    assignments: [[]],
     totalClient: [false]
   });
 
-  ngOnInit(): void {
-    this.#spacesService.getTopology().subscribe((nodes: PermissionScope[]) => {
-      this.invitationForm.patchValue({
-        firstName: this.accessUser()?.firstName ?? '',
-        lastName: this.accessUser()?.lastName ?? '',
-        email: this.accessUser()?.email ?? '',
-        totalClient: false
-      });
-      this.topologyNodes.set(nodes);
-    });
+  selectedPermission = signal<PermissionScope[]>([]);
+  updatePermission = signal<UpdatePermissionRequestDto | undefined>(undefined);
 
-    if (this.accessUser() && this.accessUser()!.userId) {
-      this.#accessManagmentService.getAssigmentsByUser(this.accessUser()!.userId).subscribe((assigments) => {
-        console.log(assigments);
-      });
-    }
+  ngOnInit(): void {
+    this.#spacesService.getTopology().pipe(switchMap((nodes: PermissionScope[]) => {
+      return this.#patchUserFormAndNodes(nodes);
+    })).pipe(map((permissions: PermissionDto[]) => {
+      return this.#patchSelectedPermission(permissions);
+    })).subscribe();
 
     this.drawerRef().getData(() => {
-      return this.invitationForm.value;
+      if (this.isEditing()) {
+        return this.#updatePermission();
+      }
+      return this.#addPermissions();
     });
   }
 
-  onScopeUpdate(scope: PermissionScope[]) {
-    console.log(scope);
+  onScopeUpdate(permissions: UpdatePermissionRequestDto) {
+    this.updatePermission.set(permissions);
+  }
+
+  #patchUserFormAndNodes(nodes: PermissionScope[]): Observable<PermissionDto[]> {
+    this.invitationForm.patchValue({
+      firstName: this.accessUser()?.firstName ?? '',
+      lastName: this.accessUser()?.lastName ?? '',
+      email: this.accessUser()?.email ?? '',
+      totalClient: false
+    });
+
+    this.topologyNodes.set(nodes);
+
+    return this.#accessManagmentService.getAssigmentsByUser(this.accessUser()!.userId);
+  }
+
+  #patchSelectedPermission(permissions: PermissionDto[]) {
+    const selectedPermissions = this.topologyNodes().filter(({ targetId, type }: PermissionScope) => {
+      return permissions.some(({ scopeId, scopeType }: PermissionDto) => scopeId === targetId && scopeType === type);
+    }).map((node: PermissionScope) => {
+      const permission = permissions.find(({ scopeId, scopeType }: PermissionDto) => scopeId === node.targetId && scopeType === node.type)!;
+      node.roleId = permission.roleId;
+      node.assignmentId = permission.assignmentId;
+      node.checked = true;
+      return node;
+    });
+
+    this.selectedPermission.set(selectedPermissions);
+
+    return selectedPermissions;
+  }
+
+  #addPermissions(): InviteUserPayload {
+    const { firstName, lastName, email, totalClient } = this.invitationForm.value;
+
+    return {
+      firstName,
+      lastName,
+      email,
+      permissions: this.selectedPermission()?.map((permission: PermissionScope) => permission.toRequestDto()) || [],
+    } as InviteUserPayload;
+  }
+
+  #updatePermission(): UpdatePermissionRequestDto {
+    const request: UpdatePermissionRequestDto = {};
+    const { firstName, lastName } = this.invitationForm.value;
+
+    if (this.updatePermission()) {
+      if (this.updatePermission()!.toDelete) {
+        request.toDelete = this.updatePermission()!.toDelete;
+      }
+      if (this.updatePermission()!.toUpdate) {
+        request.toUpdate = this.updatePermission()!.toUpdate;
+      }
+      if (this.updatePermission()!.toAdd) {
+        request.toAdd = this.updatePermission()!.toAdd;
+      }
+    }
+
+    request["userId"] = this.accessUser()?.userId;
+
+    if (firstName) {
+      request["firstName"] = firstName;
+    }
+    if (lastName) {
+      request["lastName"] = lastName;
+    }
+
+    return request;
   }
 }

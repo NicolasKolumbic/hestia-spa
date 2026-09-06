@@ -1,9 +1,12 @@
 import { DropdownOption } from "@shared/abstractions/dropdown/dropdown-option";
 import { Observable } from "rxjs";
 
+export type FilterType = 'text' | 'dropdown' | 'multi-select';
+
 export interface Filter {
+    name?: string;
     label: string;
-    type: 'text' | 'dropdown' | 'multi-select';
+    type: FilterType;
     source?: Observable<DropdownOption[]>;
-    defaultValue?: string;
-}
+    defaultValue?: unknown;
+}

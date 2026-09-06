@@ -3,10 +3,11 @@
         <hta-search-field placeholder="Buscar por email o nombre" class="w-[16rem]" />
         <hta-button label="Invitar usuario" icon="pi-user-plus" (click)="openInviteDialog()" />
     </ng-container>
-    <hta-filters description="Encontrá rápido usuarios por rol, estado y alcance." [filters]="filters" />
+    <hta-filters description="Encontrá rápido usuarios por rol, estado y alcance." [filters]="filters"
+        (update)="updateFilterHandler($event)" />
     <hta-cards-grid [items]="users()">
         <ng-template #content let-user>
-            <hta-access-managment-card [user]="user" />
+            <hta-access-managment-card [user]="user" (refresh)="onRefresh($event)" />
         </ng-template>
         <ng-template #emptyContent>
             <div
