@@ -3,6 +3,7 @@ import { Routes } from '@angular/router';
 // Guards (Debes crearlos luego para proteger la parte privada)
 import { authGuard } from './core/guards/auth.guard';
 import { publicGuard } from './core/guards/public.guard';
+import { accessManagementGuard } from '@core/guards/access-management.guard';
 
 export const routes: Routes = [
     // =========================================================
@@ -157,16 +158,19 @@ export const routes: Routes = [
             {
                 path: 'access-managment',
                 loadComponent: () => import('./features/private/access-managment/access-managment').then(m => m.AccessManagment),
+                canActivate: [accessManagementGuard],
                 title: 'Gestión de accesos'
             },
             {
                 path: 'clients-managment',
                 loadComponent: () => import('./features/private/client-managment/client-managment').then(m => m.ClientManagment),
+                canActivate: [accessManagementGuard],
                 title: 'Gestión de clientes'
             },
             {
                 path: 'clients-locations',
                 loadComponent: () => import('./features/private/client-locations/client-locations').then(m => m.ClientLocations),
+                canActivate: [accessManagementGuard],
                 title: 'Gestión de sitios'
             },
 

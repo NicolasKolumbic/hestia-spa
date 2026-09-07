@@ -14,9 +14,7 @@ import { InviteUserResult } from '../interfaces/invite-user-result.interface';
 import { UpdateRoleAssignmentResult } from '../interfaces/update-role-assignment-result.interface';
 import { GridResponse } from '@core/domain/interfaces/grid-response.interface';
 import { UserManagment } from "../models/user-managment";
-import { AccessUser } from "../interfaces/access-user.interface";
 import { UserManagmentDto } from "../dtos/user-managment.dto";
-import { PermissionScope } from "@core/domain/models/permission-scope";
 import { PermissionDto } from "../interfaces/permission-dto";
 import { UpdatePermissionRequestDto } from "../interfaces/update-permission-request.dto";
 
@@ -44,6 +42,10 @@ export class AccessManagmentService {
                 items: res.items.map(item => new UserManagment(item))
             }
         }));
+    }
+
+    hasHigherAccess(): Observable<{ hasAccess: boolean }> {
+        return this.#http.get<{ hasAccess: boolean }>(`${this.apiUrl}/hasHigherAccess`);
     }
 
     getSummary(clientId: string): Observable<AccessSummaryResponse> {

@@ -2,7 +2,7 @@
     <div class="flex items-center justify-center mt-[1rem]">
         <hta-hestia-brand width="40%"></hta-hestia-brand>
     </div>
-    <p-menu [model]="items" class="flex justify-center h-full w-full"
+    <p-menu [model]="items()" class="flex justify-center h-full w-full"
         styleClass="px-2 flex flex-col h-full overflow-y-auto border-none">
         <ng-template #submenuheader let-item>
             <span class="uppercase subtitle-menu pl-2">{{ item.label }}</span>

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { MenuItem } from 'primeng/api';
 import { MenuModule } from 'primeng/menu';
@@ -9,6 +9,10 @@ import { BadgeModule } from 'primeng/badge';
 import { RippleModule } from 'primeng/ripple';
 import { TranslateService } from '@ngx-translate/core';
 import { HestiaBrand } from '@shared/components/hestia-brand/hestia-brand';
+import { AccessManagmentService } from '@features/private/access-managment/services/access-managment.service';
+import { switchMap } from 'rxjs';
+
+type Menues = (MenuItem & { routerLinkActiveOptions?: { exact: boolean } })[];
 
 @Component({
   selector: 'hta-navbar',
@@ -17,19 +21,27 @@ import { HestiaBrand } from '@shared/components/hestia-brand/hestia-brand';
   styleUrl: './navbar.css',
 })
 export class Navbar implements OnInit {
-  items: (MenuItem & { routerLinkActiveOptions?: { exact: boolean } })[] | undefined;
+  items = signal<Menues>([]);
 
-  constructor(private translate: TranslateService) { }
-
-  ngOnInit() {
-    this.buildMenu();
-    this.translate.onLangChange.subscribe(() => {
-      this.buildMenu();
+  constructor(
+    private translate: TranslateService,
+    private accessManagmentService: AccessManagmentService,
+  ) {
+    this.accessManagmentService.hasHigherAccess().subscribe(({ hasAccess }) => {
+      this.buildMenu(hasAccess);
     });
   }
 
-  buildMenu() {
-    this.items = [
+  ngOnInit() {
+    this.translate.onLangChange.pipe(switchMap(() => {
+      return this.accessManagmentService.hasHigherAccess();
+    })).subscribe(({ hasAccess }) => {
+      this.buildMenu(hasAccess);
+    });
+  }
+
+  buildMenu(hasAccess: boolean = false) {
+    const menus = [
       {
         label: this.translate.instant('MENU.MAIN'),
         items: [
@@ -131,9 +143,12 @@ export class Navbar implements OnInit {
             icon: 'icon-marker-and-circle',
             routerLink: '/platform/clients-locations'
           }
-        ]
-
+        ],
+        hasAccess: hasAccess
       },
     ];
+
+    this.items.set(menus.filter(m => (!!m.hasAccess || !m.hasAccess)));
+
   }
 }
