@@ -4,4 +4,5 @@ export interface ClientManagmentDto {
     client: ClientDto;
     userCount: number;
     deviceCount: number;
+    hasOwner: boolean;
 }

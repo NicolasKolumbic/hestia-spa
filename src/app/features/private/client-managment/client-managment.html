@@ -14,7 +14,7 @@
                 </ng-container>
                 <div class="mb-6 w-full">
                     <div class="w-12 h-12 bg-primary-500/10 rounded-xl flex items-center justify-center mb-4">
-                        <i class="pi pi-building text-primary-500 text-xl"></i>
+                        <i class="icon-hestia-iso text-primary-500 text-4xl"></i>
                     </div>
                     <h3 class="text-xl font-bold text-slate-900 dark:text-white">{{client.name}}</h3>
                     <p class="text-sm text-slate-500 dark:text-slate-400">{{client.cuit}}</p>
@@ -32,13 +32,10 @@
                 </div>
                 <ng-container footer>
                     <div class="mt-auto flex flex-wrap gap-2 w-full">
-                        <button (click)="setOwner(client)" class="flex-1 bg-slate-900 dark:bg-slate-700 text-white text-xs font-bold py-2.5 rounded-lg
-                           hover:bg-primary-500 transition-colors flex items-center justify-center gap-2">
-                            <i class="pi pi-user-plus"></i> Crear Owner
-                        </button>
-
-                        <button [pTooltip]="client.isActive ? 'Inactivar Cliente' : 'Activar Cliente'"
-                            (click)="toggleStatus(client)" class="p-2.5 rounded-lg border transition-all" [class]="client.isActive 
+                        <hta-button label="Crear Owner" (click)="setOwner(client)" icon="pi pi-user-plus"
+                            [disabled]="client.hasOwner" />
+                        <button [pTooltip]=" client.isActive ? 'Inactivar Cliente' : 'Activar Cliente'"
+                            (click)=" toggleStatus(client)" class="p-2.5 rounded-lg border transition-all" [class]="client.isActive 
                              ? 'border-red-200 text-red-500 hover:bg-red-50' 
                              : 'border-emerald-200 text-emerald-500 hover:bg-emerald-50'">
                             <i [class]="client.isActive ? 'pi pi-power-off' : 'pi pi-play'"></i>

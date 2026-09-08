@@ -21,7 +21,7 @@ import { UserDetailForm } from '../access-managment/components/user-detail-form/
   templateUrl: './client-managment.html',
   styleUrl: './client-managment.css',
   providers: [
-    ClientsService
+    ClientsService,
   ]
 })
 export class ClientManagment implements OnInit {

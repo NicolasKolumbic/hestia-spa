@@ -17,8 +17,8 @@ export class ClientsService {
     return this.#http.get<QueryResponse<ClientManagmentDto>>(`${this.#environment.apiUrl}/clients`, { withCredentials: true })
       .pipe(map(({ currentPage, items, rowsByPage, totalCount, totalPages }: QueryResponse<ClientManagmentDto>) => {
         return {
-          items: items.map(({ client, deviceCount, userCount }: ClientManagmentDto) => {
-            return new ExtendedClient(client, deviceCount, userCount);
+          items: items.map(({ client, deviceCount, userCount, hasOwner }: ClientManagmentDto) => {
+            return new ExtendedClient(client, deviceCount, userCount, hasOwner);
           }),
           totalCount,
           totalPages,
