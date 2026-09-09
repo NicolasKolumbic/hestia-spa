@@ -1,0 +1,17 @@
+<div>
+    <form [formGroup]="siteForm">
+        <fieldset>
+            <hta-site-type-dropdown formControlName="type" id="siteType" class="my-4" />
+            <hta-float-label-input formControlName="name" id="clientFullName" label="Nombre del locación"
+                class="my-4" />
+            <hta-float-label-input formControlName="addressLine" id="addressLine" label="Dirección" class="my-4" />
+            <hta-float-label-input formControlName="city" id="city" label="Ciudad" class="my-4" />
+            <hta-float-label-input formControlName="countryCode" id="countryCode" label="País" class="my-4" />
+            <hta-float-label-input formControlName="locale" id="locale" label="Idioma" class="my-4" />
+            <hta-float-label-input formControlName="province" id="province" label="Provincia" class="my-4" />
+            <hta-float-label-input formControlName="latitude" id="latitude" label="Latitud" class="my-4" />
+            <hta-float-label-input formControlName="longitude" id="longitude" label="Longitud" class="my-4" />
+            <hta-float-label-input formControlName="postalCode" id="postalCode" label="Código Postal" class="my-4" />
+        </fieldset>
+    </form>
+</div>

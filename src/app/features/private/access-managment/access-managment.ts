@@ -37,6 +37,12 @@ import { TopologyNodeDto } from '@core/domain/dtos/topology-node.dto';
 import { UserDetailForm } from './components/user-detail-form/user-detail-form';
 import { InviteUserPayload } from './interfaces/invite-user-payload.interface';
 
+interface AccessManagmentFilters {
+  role: RoleCode[];
+  status: UserStatus[];
+  scopeType: ScopeType[];
+}
+
 @Component({
   selector: 'hta-access-managment',
   imports: [
@@ -180,7 +186,7 @@ export class AccessManagment {
     this.users.set(response.items);
   }
 
-  updateFilterHandler({ role, status, scopeType }: { role: RoleCode[], status: UserStatus[], scopeType: ScopeType[] }): void {
+  updateFilterHandler({ role, status, scopeType }: AccessManagmentFilters): void {
     this.filter.update((filter) => ({
       ...filter,
       selectedStatuses: status ?? [],
