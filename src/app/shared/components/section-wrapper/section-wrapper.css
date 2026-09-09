@@ -1,0 +1,5 @@
+:host-context(.internal-scroll) {
+    height: 100%;
+    display: block;
+    overflow: hidden;
+}

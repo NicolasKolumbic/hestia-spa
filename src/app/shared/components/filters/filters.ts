@@ -21,11 +21,11 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
   templateUrl: './filters.html',
   styleUrl: './filters.css',
 })
-export class Filters implements OnInit {
+export class Filters<T> implements OnInit {
   description = input.required<string>();
   filters = input.required<Filter[]>();
 
-  update = output<Record<string, unknown>>();
+  update = output<T>();
 
   #formBuilder = inject(FormBuilder);
   #destroyRef = inject(DestroyRef);
