@@ -23,8 +23,9 @@
                 <div class="flex items-center gap-4">
                     <i class="pi pi-sun text-6xl text-yellow-300 animate-spin-slow"></i>
                     <div>
-                        <span class="text-6xl font-bold">32°C</span>
-                        <p class="text-xl text-orange-50">Soleado &bull; Humedad 40%</p>
+                        <span class="text-6xl font-bold">{{ weather()?.temperature }}°C</span>
+                        <p class="text-xl text-orange-50">{{ weather()?.weather_code }} &bull; Humedad
+                            {{ weather()?.humidity }}%</p>
                     </div>
                 </div>
             </div>
@@ -32,7 +33,7 @@
             <div class="relative z-10 hidden sm:block text-right">
                 <div class="bg-white/20 backdrop-blur-md p-4 rounded-xl border border-white/30">
                     <p class="text-xs text-white/80 uppercase">Sensación Térmica</p>
-                    <span class="text-2xl font-bold">35°C</span>
+                    <span class="text-2xl font-bold">{{ weather()?.apparent_temperature }}°C</span>
                 </div>
             </div>
         </div>

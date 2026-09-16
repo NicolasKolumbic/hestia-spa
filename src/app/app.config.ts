@@ -34,7 +34,8 @@ const socketConfig: SocketIoConfig = {
   url: 'http://localhost:3000',
   options: {
     transports: ['websocket'],
-    autoConnect: true
+    autoConnect: true,
+    withCredentials: true
   }
 };
 

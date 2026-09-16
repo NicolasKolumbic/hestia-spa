@@ -75,7 +75,7 @@ export class Navbar implements OnInit {
             routerLink: '/platform/dispositivos/iluminacion'
           },
           {
-            label: this.translate.instant('MENU.CLIMATE'),
+            label: this.translate.instant('MENU.CLIMATE_CONTROL'),
             icon: 'pi pi-cloud',
             routerLink: '/platform/dispositivos/clima'
           },

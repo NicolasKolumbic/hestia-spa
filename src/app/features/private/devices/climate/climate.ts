@@ -1,9 +1,13 @@
-import { Component, computed, inject, OnInit } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { KnobModule } from 'primeng/knob';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
+import { filter, switchMap } from 'rxjs';
 import { DeviceService } from '@core/services/device.service';
+import { WeatherService } from '@core/services/weather.service';
+import { Site, SpaceService } from '@core/index';
+import { WeatherTimeStamp } from '../../../../core/domain/models/weather-timestamp';
 
 @Component({
   selector: 'app-climate',
@@ -14,11 +18,11 @@ import { DeviceService } from '@core/services/device.service';
 })
 export class Climate implements OnInit {
   #deviceService = inject(DeviceService);
+  #weatherService = inject(WeatherService);
+  #spaceService = inject(SpaceService);
 
-  /**
-   * Map climateDevices into the zone shape expected by the HTML template.
-   * Each thermostat/sensor channel becomes a "zone".
-   */
+  weather = signal<WeatherTimeStamp | null>(null);
+
   zones = computed(() =>
     this.#deviceService.climateDevices().flatMap(device =>
       device.channels.map(ch => ({
@@ -35,6 +39,15 @@ export class Climate implements OnInit {
 
   ngOnInit() {
     this.#deviceService.getAllDevices().subscribe();
+
+    this.#spaceService.selectedSite$
+      .pipe(
+        filter((site): site is Site => !!site && site.latitude !== undefined && site.longitude !== undefined),
+        switchMap(site => this.#weatherService.watchWeather(site.latitude, site.longitude))
+      )
+      .subscribe((weather: WeatherTimeStamp) => {
+        this.weather.set(weather);
+      });
   }
 
   getKnobColor(zone: { mode: string; isOn: boolean }): string {

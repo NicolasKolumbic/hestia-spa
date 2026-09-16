@@ -1,8 +1,6 @@
-import { HttpClient, HttpResponse } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { Router } from '@angular/router';
-import { from, Observable, Subject, switchMap, tap } from 'rxjs';
-import { environment } from 'src/environments/environment';
+import { Observable, Subject, tap } from 'rxjs';
 import { Environment } from './environment';
 import { LoggedResponseDto } from '@core/domain/dtos/logged-user-response.dto';
 import { User } from '@core/domain/models/user';
