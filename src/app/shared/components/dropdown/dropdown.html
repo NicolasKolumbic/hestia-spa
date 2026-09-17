@@ -2,7 +2,7 @@
 <p-floatlabel class="w-full" variant="in">
     <p-select [formControl]="formControl" appendTo="body" [showClear]="allowClear()" [id]="id()" [options]="options()"
         [optionLabel]="labelOption()" [optionValue]="labelValue()" class="w-full rounded-md" variant="filled"
-        styleClass="w-full rounded-xl border-slate-300 dark:border-slate-600 
+        [disabled]="disabled()" styleClass="w-full rounded-xl border-slate-300 dark:border-slate-600 
                                dark:bg-[#0F172A]"
         [invalid]="formControl.invalid && (formControl.touched || formControl.dirty)">
         <ng-template let-option #item>

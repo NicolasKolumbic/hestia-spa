@@ -19,6 +19,7 @@ export class Dropdown {
   labelOption = input<string>('label');
   labelValue = input<string>('value');
   allowClear = input<boolean>(false);
+  disabled = input<boolean>(false);
 
   #hostControl = inject(HostControl);
   control = this.#hostControl.control;

@@ -17,6 +17,7 @@ import { RoleDto } from '@core/domain/dtos/role.dto';
 export class RolesDropdown implements OnInit {
   setByName = input<string>('');
   allowClear = input<boolean>(true);
+  disabled = input<boolean>(false);
 
   #hostControl = inject<ControlAccessor<string>>(HostControl);
   #roleService = inject(RolesService);

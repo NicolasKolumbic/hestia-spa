@@ -8,6 +8,7 @@ import { UserInfo } from "@shared/components/user-info/user-info";
 import { AccessManagmentService } from '../../services/access-managment.service';
 import { UpdatePermissionRequestDto } from '../../interfaces/update-permission-request.dto';
 import { GridResponse } from '@core/domain/interfaces/grid-response.interface';
+import { UserDetails } from '../user-details/user-details';
 
 @Component({
   selector: 'hta-access-managment-card',
@@ -38,5 +39,16 @@ export class AccessManagmentCard {
         this.refresh.emit(response);
       });
     });
+  }
+
+  viewUserDrawer(): void {
+    this.#drawerManager.open<void>({
+      component: UserDetails,
+      title: 'Detalle del usuario',
+      inputs: {
+        accessUser: this.user(),
+      }
+    });
+
   }
 }

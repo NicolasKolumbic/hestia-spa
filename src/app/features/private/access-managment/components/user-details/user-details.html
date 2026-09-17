@@ -1,0 +1,22 @@
+<div class="text-base">
+    <div class="flex items-center gap-2">
+        <p>
+            <span class="font-bold">Nombre: </span>
+            {{ accessUser()?.firstName }}
+        </p>
+        <p>
+            <span class="font-bold">Apellido: </span>
+            {{ accessUser()?.lastName }}
+        </p>
+    </div>
+    <div class="flex items-center gap-2 mt-4">
+        <p>
+            <span class="font-bold">Email: </span>
+            {{ accessUser()?.email }}
+        </p>
+    </div>
+    <div>
+        <hta-access-managment-scope [nodes]="topologyNodes()" [(selectedNodes)]="selectedPermission"
+            [readonly]="true" />
+    </div>
+</div>
