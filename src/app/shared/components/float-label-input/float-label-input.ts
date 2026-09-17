@@ -17,16 +17,21 @@ import { InputTextModule } from 'primeng/inputtext';
   templateUrl: './float-label-input.html',
   styleUrl: './float-label-input.css'
 })
-export class FloatLabelInput extends BaseInput {
+export class FloatLabelInput extends BaseInput implements OnInit {
   label = input.required<string>();
   id = input.required<string>();
   errorMessages = input<Record<string, string>>({});
+  isDisabled = input<boolean>(false);
 
   constructor(@Optional() @Self() public ngControl: NgControl) {
     super();
     if (this.ngControl) {
       this.ngControl.valueAccessor = this;
     }
+  }
+
+  ngOnInit(): void {
+    this.setDisabledState(this.isDisabled());
   }
 
   get control() {

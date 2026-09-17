@@ -3,7 +3,7 @@
         <div class="grid grid-cols-2 gap-4">
             <hta-float-label-input formControlName="firstName" id="firstName" label="Nombre/s" />
             <hta-float-label-input formControlName="lastName" id="lastName" label="Apellido" />
-            <hta-float-label-input formControlName="email" id="email" label="Email" />
+            <hta-float-label-input formControlName="email" id="email" label="Email" [isDisabled]="isEditing()" />
         </div>
         <div class="flex items-center gap-2">
             <p-checkbox formControlName="totalClient" inputId="totalClient" name="size" value="Large" />

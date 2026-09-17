@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, input, signal } from '@angular/core';
 import { ControlValueAccessor } from '@angular/forms';
 
 @Component({
@@ -20,7 +20,7 @@ export class BaseInput implements ControlValueAccessor {
   registerOnTouched(fn: () => unknown): void {
     this.onTouched = fn;
   }
-  setDisabledState?(isDisabled: boolean): void {
+  setDisabledState(isDisabled: boolean): void {
     this.disabled.set(isDisabled);
   }
 
