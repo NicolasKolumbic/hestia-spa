@@ -77,6 +77,7 @@ export class ClientLocationForm implements OnInit {
                     ...siteDto
                 }).subscribe(() => {
                     this.site.set(siteDto);
+                    this.cancel();
                 });
             } else {
                 this.#spaceService.create({
@@ -86,6 +87,7 @@ export class ClientLocationForm implements OnInit {
                     ...siteDto
                 }).subscribe((newSite) => {
                     this.site.set(newSite);
+                    this.cancel();
                 });
             }
         }

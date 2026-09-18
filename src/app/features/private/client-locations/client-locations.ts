@@ -22,12 +22,7 @@ export class ClientLocations implements OnInit {
   selectedSite = signal<SiteCard | null>(null);
 
   ngOnInit(): void {
-    this.#spaceService.getAll().subscribe((response) => {
-      this.sites.set(response.items);
-      if (response.items.length > 0 && !this.selectedSite()) {
-        this.selectedSite.set(response.items[0]);
-      }
-    });
+    this.loadSites();
   }
 
   newSite(id?: string): void {
@@ -37,5 +32,14 @@ export class ClientLocations implements OnInit {
 
   selectSite(site: SiteCard): void {
     this.selectedSite.set(site);
+  }
+
+  loadSites(): void {
+    this.#spaceService.getAll().subscribe((response) => {
+      this.sites.set(response.items);
+      if (response.items.length > 0 && !this.selectedSite()) {
+        this.selectedSite.set(response.items[0]);
+      }
+    });
   }
 }

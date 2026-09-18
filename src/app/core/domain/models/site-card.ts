@@ -36,4 +36,8 @@ export class SiteCard {
         this.deviceCount = deviceCount;
         this.temperature = temperature;
     }
+
+    get isActive(): boolean {
+        return this.status === SiteStatus.ACTIVE;
+    }
 }

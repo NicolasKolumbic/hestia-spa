@@ -20,6 +20,17 @@
                 transition-all">
                     <i class="icon-map-and-marker text-2xl"></i>
                 </button>
+                @if(!site().isActive) {
+                <button (click)="active()"
+                    class="p-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-orange-500 transition-all">
+                    <i class="pi pi-check text-sm"></i>
+                </button>
+                } @else {
+                <button (click)="inactive()"
+                    class="p-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-orange-500 transition-all">
+                    <i class="pi pi-times text-sm"></i>
+                </button>
+                }
             </div>
 
         </div>

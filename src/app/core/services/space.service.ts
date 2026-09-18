@@ -75,6 +75,18 @@ export class SpaceService {
     });
   }
 
+  inative(siteId: string): Observable<Site> {
+    return this.#http.put<Site>(`${this.#apiUrl}/${siteId}/inative`, {
+      siteId,
+    });
+  }
+
+  active(siteId: string): Observable<Site> {
+    return this.#http.put<Site>(`${this.#apiUrl}/${siteId}/active`, {
+      siteId,
+    });
+  }
+
   delete(siteId: string): Observable<void> {
     return this.#http.delete<void>(`${this.#apiUrl}/${siteId}`);
   }
