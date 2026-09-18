@@ -169,6 +169,18 @@ export const routes: Routes = [
             },
             {
                 path: 'clients-locations',
+                loadComponent: () => import('./features/private/client-locations/components/client-location-form/client-location-form').then(m => m.ClientLocationForm),
+                canActivate: [accessManagementGuard],
+                title: 'Nuevo sitio'
+            },
+            {
+                path: 'clients-locations/:id',
+                loadComponent: () => import('./features/private/client-locations/components/client-location-form/client-location-form').then(m => m.ClientLocationForm),
+                canActivate: [accessManagementGuard],
+                title: 'Gestión de sitios'
+            },
+            {
+                path: 'client-locations-list',
                 loadComponent: () => import('./features/private/client-locations/client-locations').then(m => m.ClientLocations),
                 canActivate: [accessManagementGuard],
                 title: 'Gestión de sitios'

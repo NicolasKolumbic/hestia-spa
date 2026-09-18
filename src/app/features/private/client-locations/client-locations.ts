@@ -1,11 +1,10 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
+import { Router } from '@angular/router';
 import { SectionWrapper } from "@shared/components/section-wrapper/section-wrapper";
 import { ClientLocationCard } from "./components/client-location-card/client-location-card";
-import { Site, SpaceService } from '@core/index';
+import { SiteCard, SpaceService } from '@core/index';
 import { RenderMap } from '@shared/directives/render-map';
 import { Button } from '@shared/components/button/button';
-import { DrawerManagerService } from '@shared/components/drawer/services/drawer-manager.service';
-import { SiteLocationComponent } from './components/site-location/site-location.component';
 import { CardModule } from 'primeng/card';
 import { Button as ngButton } from 'primeng/button';
 
@@ -17,25 +16,26 @@ import { Button as ngButton } from 'primeng/button';
 })
 export class ClientLocations implements OnInit {
   #spaceService = inject(SpaceService);
-  #drawerManagerService = inject(DrawerManagerService);
+  #router = inject(Router);
 
-  sites = signal<Site[]>([]);
-  selectedSite = signal<Site | null>(null);
+  sites = signal<SiteCard[]>([]);
+  selectedSite = signal<SiteCard | null>(null);
 
   ngOnInit(): void {
     this.#spaceService.getAll().subscribe((response) => {
       this.sites.set(response.items);
+      if (response.items.length > 0 && !this.selectedSite()) {
+        this.selectedSite.set(response.items[0]);
+      }
     });
   }
 
-  newSite(): void {
-    this.#drawerManagerService.open({
-      title: 'Nuevo sitio',
-      component: SiteLocationComponent
-    });
+  newSite(id?: string): void {
+    const route = id ? ['/platform/clients-locations', id] : ['/platform/clients-locations'];
+    this.#router.navigate(route);
   }
 
-  selectSite(site: Site): void {
+  selectSite(site: SiteCard): void {
     this.selectedSite.set(site);
   }
 }

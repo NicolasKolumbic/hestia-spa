@@ -14,7 +14,7 @@
             </div>
             <div class="hidden md:block md:w-2/3 lg:w-3/4 relative z-0">
                 <div htaRenderMap class="w-full" [name]="selectedSite()?.name" [lat]="selectedSite()?.latitude"
-                    [lng]="selectedSite()?.longitude" style="height: 100%;"></div>
+                    [lng]="selectedSite()?.longitude" [readonly]="true" style="height: 100%;"></div>
             </div>
             <div class="md:hidden fixed bottom-6 right-6 z-20">
                 <p-button icon="pi pi-map" [rounded]="true" size="large" severity="primary"

@@ -1,7 +1,7 @@
 import { Component, inject, input, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { SiteTypeDropdownComponent } from '@core/components/site-type-dropdown/site-type-dropdown.component';
-import { Site } from '@core/domain/models/site';
+import { SiteCard } from '@core/domain/models/site-card';
 import { DrawerBody } from '@shared/components/drawer/interfaces/drawer-body';
 import { DrawerRef } from '@shared/components/drawer/interfaces/drawer-ref';
 import { FloatLabelInput } from '@shared/components/float-label-input/float-label-input';
@@ -17,7 +17,7 @@ import { FloatLabelInput } from '@shared/components/float-label-input/float-labe
     ]
 })
 export class SiteLocationComponent implements OnInit, DrawerBody {
-    site = input<Site>();
+    site = input<SiteCard>();
     drawerRef = input.required<DrawerRef>();
 
     #formBuilder = inject(FormBuilder);

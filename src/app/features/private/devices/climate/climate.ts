@@ -6,7 +6,7 @@ import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { filter, switchMap } from 'rxjs';
 import { DeviceService } from '@core/services/device.service';
 import { WeatherService } from '@core/services/weather.service';
-import { Site, SpaceService } from '@core/index';
+import { SiteCard, SpaceService } from '@core/index';
 import { WeatherTimeStamp } from '../../../../core/domain/models/weather-timestamp';
 
 @Component({
@@ -42,7 +42,7 @@ export class Climate implements OnInit {
 
     this.#spaceService.selectedSite$
       .pipe(
-        filter((site): site is Site => !!site && site.latitude !== undefined && site.longitude !== undefined),
+        filter((site): site is SiteCard => !!site && site.latitude !== undefined && site.longitude !== undefined),
         switchMap(site => this.#weatherService.watchWeather(site.latitude, site.longitude))
       )
       .subscribe((weather: WeatherTimeStamp) => {

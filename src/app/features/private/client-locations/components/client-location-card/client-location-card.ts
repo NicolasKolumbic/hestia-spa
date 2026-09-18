@@ -1,9 +1,7 @@
-import { Component, inject, input, output, signal } from '@angular/core';
-import { Site, SpaceService } from '@core/index';
+import { Component, inject, input, output } from '@angular/core';
+import { Router } from '@angular/router';
+import { SiteCard } from '@core/index';
 import { LeafletModule } from '@bluehalo/ngx-leaflet';
-import { SiteLocationComponent } from '../site-location/site-location.component';
-import { DrawerManagerService } from '@shared/components/drawer/services/drawer-manager.service';
-import { SiteDto } from '@core/domain/dtos/site.dto';
 import { SiteTypeIconComponent } from "@shared/bussiness/site-type-icon/site-type-icon.component";
 
 @Component({
@@ -13,43 +11,17 @@ import { SiteTypeIconComponent } from "@shared/bussiness/site-type-icon/site-typ
   styleUrl: './client-location-card.css',
 })
 export class ClientLocationCard {
-  site = input.required<Site>();
+  site = input.required<SiteCard>();
 
-  refresh = output<void>();
-  selectedSite = output<Site>();
+  selectedSite = output<SiteCard>();
 
-  #drawerManagerService = inject(DrawerManagerService);
-  #spaceService = inject(SpaceService);
+  #router = inject(Router);
 
-  openSiteDrawer(): void {
-    const drawerRef = this.#drawerManagerService.open<Site>({
-      title: 'Editar sitio',
-      component: SiteLocationComponent,
-      inputs: { site: this.site() }
-    });
-
-    drawerRef.confirmed().subscribe((site: Site) => {
-      const siteDto: SiteDto = {
-        siteId: site.siteId,
-        name: site.name,
-        type: site.type,
-        status: site.status,
-        address: site.address,
-        city: site.city,
-        countryCode: site.countryCode,
-        locale: site.locale,
-        province: site.province,
-        latitude: site.latitude,
-        longitude: site.longitude,
-        postalCode: site.postalCode,
-      };
-      this.#spaceService.update(siteDto).subscribe(() => {
-        this.refresh.emit();
-      });
-    });
+  editSite(): void {
+    this.#router.navigate(['/platform/clients-locations', this.site().siteId]);
   }
 
-  markToSite(site: Site): void {
+  markToSite(site: SiteCard): void {
     this.selectedSite.emit(site);
   }
 }

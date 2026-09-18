@@ -5,7 +5,7 @@ import { Dialog } from "@shared/components/dialog/dialog";
 import { FormsModule } from '@angular/forms';
 import { SiteManager } from "../site-manager/site-manager";
 import { SpaceService } from "@core/services/space.service";
-import { Site } from '@core/index';
+import { SiteCard } from '@core/index';
 import { tap } from 'rxjs';
 import { MatIconModule } from '@angular/material/icon';
 import { QueryResponse } from '@shared/abstractions/grid-response.dto';
@@ -29,7 +29,7 @@ export class SiteDropdown implements OnInit {
 
   menuItems = signal<MenuItem[]>([]);
   currentSite = signal<MenuItem | null>(null);
-  sites = signal<Site[]>([]);
+  sites = signal<SiteCard[]>([]);
 
   siteTypes = [
     { label: 'Casa', icon: 'pi pi-home', value: 'house' },
@@ -41,8 +41,8 @@ export class SiteDropdown implements OnInit {
 
   ngOnInit() {
     this.#siteService.getAll()
-      .pipe(tap((response: QueryResponse<Site>) => this.#buildMenuItems(response.items)))
-      .subscribe((response: QueryResponse<Site>) => {
+      .pipe(tap((response: QueryResponse<SiteCard>) => this.#buildMenuItems(response.items)))
+      .subscribe((response: QueryResponse<SiteCard>) => {
         const sites = response.items;
         this.sites.set(sites);
 
@@ -61,8 +61,8 @@ export class SiteDropdown implements OnInit {
       });
   }
 
-  #buildMenuItems(sites: Site[]): void {
-    const menuItems = sites.map((site: Site) => {
+  #buildMenuItems(sites: SiteCard[]): void {
+    const menuItems = sites.map((site: SiteCard) => {
       const item: MenuItem = {
         label: site.name,
         icon: this.#getIcon(site),
@@ -75,7 +75,7 @@ export class SiteDropdown implements OnInit {
     this.menuItems.set(menuItems);
   }
 
-  #getIcon(site: Site): string {
+  #getIcon(site: SiteCard): string {
     if (site.type === SiteType.COMMERCIAL) {
       return 'icon-building-office'
     } else if (site.type === SiteType.INDUSTRIAL) {

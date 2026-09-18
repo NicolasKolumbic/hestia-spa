@@ -141,7 +141,7 @@ export class Navbar implements OnInit {
           {
             label: this.translate.instant('MENU.CLIENTS_LOCATIONS'),
             icon: 'icon-marker-and-circle',
-            routerLink: '/platform/clients-locations'
+            routerLink: '/platform/client-locations-list'
           }
         ],
         hasAccess: hasAccess
