@@ -134,7 +134,7 @@ describe('WhepPlayerService', () => {
             fail('Expected connect to throw');
         } catch (error: any) {
             expect(service.state()).toBe('error');
-            expect(service.errorMessage()).toContain('401 Unauthorized');
+            expect(service.errorMessage()).toContain('No tenés permisos para visualizar esta cámara.');
             expect(mockPeerConnection.close).toHaveBeenCalled();
         }
     });
@@ -154,7 +154,7 @@ describe('WhepPlayerService', () => {
         mockPeerConnection.onconnectionstatechange();
 
         expect(service.state()).toBe('error');
-        expect(service.errorMessage()).toContain('La conexión WebRTC ha fallado');
+        expect(service.errorMessage()).toContain('Se perdió la conexión con la cámara.');
     });
 
     it('should disconnect cleanly and release peer connection, tracks and send DELETE if Location was present', async () => {

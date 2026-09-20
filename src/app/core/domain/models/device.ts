@@ -10,8 +10,12 @@ export class Device {
     model?: string;
     serialNumber?: string;
 
-    constructor({ channels, deviceId, name, status, manufacturer, model, serialNumber }: DeviceDto) {
-        this.deviceId = deviceId;
+    get id(): string {
+        return this.deviceId;
+    }
+
+    constructor({ channels, id, name, status, manufacturer, model, serialNumber }: DeviceDto) {
+        this.deviceId = id;
         this.name = name;
         this.status = status;
         this.channels = channels ? channels.map(channel => new DeviceChannel(channel)) : [];

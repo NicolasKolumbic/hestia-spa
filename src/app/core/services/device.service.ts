@@ -50,6 +50,10 @@ export class DeviceService {
         )
     );
 
+    readonly cameraDevices = computed(() =>
+        this.devices()
+    );
+
     constructor() {
         this.#ws.connect();
         this.#ws.listen<DeviceChannelDto>('channelUpdate').subscribe(updatedChannel => {
@@ -89,7 +93,7 @@ export class DeviceService {
                         ? new (ch.constructor as any)(updatedChannel)
                         : ch
                 );
-                return { ...device, channels: updatedChannels };
+                return Object.assign(Object.create(Object.getPrototypeOf(device)), device, { channels: updatedChannels });
             }
             return device;
         }));

@@ -61,7 +61,7 @@ export class WhepPlayerService {
                     }
                 } else if (cState === 'failed') {
                     this.state.set('error');
-                    this.errorMessage.set('La conexión WebRTC ha fallado.');
+                    this.errorMessage.set('Se perdió la conexión con la cámara.');
                 }
             };
 
@@ -72,7 +72,7 @@ export class WhepPlayerService {
                     this.state.set('playing');
                 } else if (iceState === 'failed') {
                     this.state.set('error');
-                    this.errorMessage.set('Error en la negociación ICE.');
+                    this.errorMessage.set('Se perdió la conexión con la cámara.');
                 } else if (iceState === 'disconnected') {
                     if (this.state() === 'playing') {
                         this.state.set('disconnected');
@@ -93,19 +93,27 @@ export class WhepPlayerService {
             }
 
             // 6. Post SDP offer to MediaMTX WHEP endpoint
-            const response = await fetch(whepUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/sdp',
-                },
-                body: offerSdp,
-            });
+            let response: Response;
+            try {
+                response = await fetch(whepUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/sdp',
+                    },
+                    body: offerSdp,
+                });
+            } catch {
+                throw new Error('No se pudo contactar al Gateway.');
+            }
 
             if (!response.ok) {
-                const errorBody = await response.text().catch(() => '');
-                throw new Error(
-                    `Fallo en la negociación WHEP: ${response.status} ${response.statusText}${errorBody ? ` (${errorBody})` : ''}`
-                );
+                if (response.status === 401 || response.status === 403) {
+                    throw new Error('No tenés permisos para visualizar esta cámara.');
+                } else if (response.status === 404) {
+                    throw new Error('Cámara no disponible.');
+                } else {
+                    throw new Error('No se pudo iniciar la transmisión.');
+                }
             }
 
             // Store resource location if returned by MediaMTX for future WHEP session termination
@@ -121,7 +129,7 @@ export class WhepPlayerService {
             return this.mediaStream() || incomingStream;
         } catch (error: any) {
             this.state.set('error');
-            const msg = error?.message || 'Error desconocido al inicializar el stream WebRTC.';
+            const msg = error?.message || 'No se pudo iniciar la transmisión.';
             this.errorMessage.set(msg);
             this.cleanupLocalResources();
             throw error;

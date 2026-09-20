@@ -121,13 +121,13 @@ describe('CameraStreamService', () => {
         const tokenReq = httpTestingController.expectOne('http://localhost:3000/api/devices/test-device-uuid-123/stream-token');
         const gatewayReq = httpTestingController.expectOne('http://localhost:8081/cameras/by-device/test-device-uuid-123/stream');
 
-        tokenReq.flush('Forbidden', { status: 403, statusText: 'Forbidden' });
         gatewayReq.flush({
             deviceId,
             protocol: 'webrtc',
             path: 'camara-1',
             baseUrl: 'http://localhost:8889',
         });
+        tokenReq.flush('Forbidden', { status: 403, statusText: 'Forbidden' });
     });
 
     it('should propagate errors if gateway request fails (e.g. 404 not found)', () => {

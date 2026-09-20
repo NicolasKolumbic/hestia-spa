@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { signal, ComponentRef, provideZonelessChangeDetection } from '@angular/core';
 import { of, throwError } from 'rxjs';
+import { By } from '@angular/platform-browser';
 import { CameraPlayer } from './camera-player';
 import { CameraStreamService, ResolvedCameraStream } from '@core/services/camera-stream.service';
 import { WhepPlayerService, StreamState } from '@core/services/whep-player.service';
@@ -82,13 +83,19 @@ describe('CameraPlayer', () => {
         fixture.detectChanges();
     });
 
-    it('should create in idle state when autoPlay is false', () => {
+    it('should create in idle state when autoPlay is false without calling stream services', () => {
         expect(component).toBeTruthy();
         expect(component.state()).toBe('idle');
+        expect(mockCameraStreamService.resolveCameraStream).not.toHaveBeenCalled();
+        expect(mockWhepPlayerService.connect).not.toHaveBeenCalled();
     });
 
-    it('should resolve stream and connect WHEP when startStream is called', async () => {
+    it('should show "Ver cámara" button in idle state and start stream on click', async () => {
+        const playBtn = fixture.debugElement.query(By.css('p-button[label="Ver cámara"]'));
+        expect(playBtn).toBeTruthy();
+
         await component.startStream();
+        fixture.detectChanges();
 
         expect(mockCameraStreamService.resolveCameraStream).toHaveBeenCalledWith('dev-1');
         expect(mockWhepPlayerService.connect).toHaveBeenCalledWith(
@@ -97,22 +104,67 @@ describe('CameraPlayer', () => {
         expect(component.state()).toBe('playing');
     });
 
-    it('should handle gateway 404 error appropriately', async () => {
+    it('should display "EN VIVO" badge only when state is playing', () => {
+        whepStateSignal.set('idle');
+        fixture.detectChanges();
+        let liveBadge = fixture.debugElement.query(By.css('.animate-pulse'));
+        expect(liveBadge).toBeFalsy();
+
+        whepStateSignal.set('playing');
+        fixture.detectChanges();
+        liveBadge = fixture.debugElement.query(By.css('.animate-pulse'));
+        expect(liveBadge).toBeTruthy();
+        expect(liveBadge.nativeElement.textContent).toContain('EN VIVO');
+    });
+
+    it('should handle 404 error with friendly Spanish description', async () => {
         mockCameraStreamService.resolveCameraStream.and.returnValue(
             throwError(() => ({ status: 404, message: 'Not Found' }))
         );
 
         await component.startStream();
+        fixture.detectChanges();
 
         expect(component.state()).toBe('error');
-        expect(component.errorMessage()).toContain('no está disponible o está deshabilitada');
+        expect(component.errorMessage()).toBe('Cámara no disponible.');
+        expect(fixture.nativeElement.textContent).toContain('No se pudo conectar con la cámara');
+        expect(fixture.nativeElement.textContent).toContain('Cámara no disponible.');
     });
 
-    it('should request a fresh stream token on reconnect', () => {
+    it('should handle 401/403 error with permissions message', async () => {
+        mockCameraStreamService.resolveCameraStream.and.returnValue(
+            throwError(() => ({ status: 403, message: 'Forbidden' }))
+        );
+
+        await component.startStream();
+        fixture.detectChanges();
+
+        expect(component.state()).toBe('error');
+        expect(component.errorMessage()).toBe('No tenés permisos para visualizar esta cámara.');
+    });
+
+    it('should handle Gateway unreachable error when status is 0 or network error', async () => {
+        mockCameraStreamService.resolveCameraStream.and.returnValue(
+            throwError(() => ({ status: 0, message: 'Failed to fetch Gateway' }))
+        );
+
+        await component.startStream();
+        fixture.detectChanges();
+
+        expect(component.state()).toBe('error');
+        expect(component.errorMessage()).toBe('No se pudo contactar al Gateway.');
+    });
+
+    it('should request a fresh stream token on reconnect/retry', () => {
         component.reconnect();
 
         expect(mockWhepPlayerService.disconnect).toHaveBeenCalled();
         expect(mockCameraStreamService.resolveCameraStream).toHaveBeenCalledWith('dev-1');
+    });
+
+    it('should stop the stream when stopStream is called', () => {
+        component.stopStream();
+        expect(mockWhepPlayerService.disconnect).toHaveBeenCalled();
     });
 
     it('should toggle audio mute state', () => {

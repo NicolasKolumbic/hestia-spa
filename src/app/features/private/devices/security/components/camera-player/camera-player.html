@@ -30,9 +30,9 @@
             <p-progressSpinner strokeWidth="4" ariaLabel="Cargando cámara" styleClass="w-12 h-12"></p-progressSpinner>
             <p class="text-sm font-medium text-neutral-300">
                 @if (state() === 'loading') {
-                    Solicitando acceso y credenciales...
+                    Preparando transmisión...
                 } @else {
-                    Estableciendo conexión WebRTC en tiempo real...
+                    Conectando con la cámara...
                 }
             </p>
         </div>
@@ -45,11 +45,11 @@
                 <i class="pi pi-exclamation-triangle text-2xl"></i>
             </div>
             <div class="space-y-1">
-                <h4 class="font-semibold text-base text-red-200">No se pudo reproducir el video</h4>
+                <h4 class="font-semibold text-base text-red-200">No se pudo conectar con la cámara</h4>
                 <p class="text-xs text-neutral-400 max-w-sm">{{ errorMessage() }}</p>
             </div>
             <p-button
-                label="Reintentar conexión"
+                label="Reintentar"
                 icon="pi pi-refresh"
                 size="small"
                 severity="secondary"
@@ -62,12 +62,12 @@
     @if (state() === 'disconnected') {
         <div class="absolute inset-0 bg-neutral-950/90 flex flex-col items-center justify-center gap-3 z-10 text-white">
             <i class="pi pi-power-off text-3xl text-neutral-400"></i>
-            <p class="text-sm text-neutral-300">Transmisión detenida</p>
+            <p class="text-sm text-neutral-300">Transmisión finalizada</p>
             <p-button
-                label="Reconectar"
+                label="Ver cámara"
                 icon="pi pi-play"
                 size="small"
-                (onClick)="reconnect()"
+                (onClick)="startStream()"
             ></p-button>
         </div>
     }
@@ -77,7 +77,7 @@
         <div class="absolute inset-0 bg-neutral-950 flex flex-col items-center justify-center gap-3 z-10 text-white">
             <i class="pi pi-camera text-4xl text-neutral-500"></i>
             <p-button
-                label="Ver en vivo"
+                label="Ver cámara"
                 icon="pi pi-play"
                 size="small"
                 (onClick)="startStream()"

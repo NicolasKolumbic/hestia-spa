@@ -1,7 +1,7 @@
 import { DeviceChannelDto } from "./device-channel.dto";
 
 export interface DeviceDto {
-    deviceId: string;
+    id: string;
     name: string;
     manufacturer?: string;
     model?: string;

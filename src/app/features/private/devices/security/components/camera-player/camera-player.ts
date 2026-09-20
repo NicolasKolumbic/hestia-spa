@@ -28,7 +28,7 @@ import { StreamState, WhepPlayerService } from '@core/services/whep-player.servi
 export class CameraPlayer implements OnInit {
     readonly deviceId = input.required<string>();
     readonly cameraName = input<string>('Cámara');
-    readonly autoPlay = input<boolean>(true);
+    readonly autoPlay = input<boolean>(false);
 
     readonly videoElement = viewChild<ElementRef<HTMLVideoElement>>('video');
 
@@ -104,20 +104,31 @@ export class CameraPlayer implements OnInit {
                 try {
                     await this.#whepService.connect(resolved.whepUrl);
                 } catch (error: any) {
-                    this.#localError.set(error?.message || 'Error al conectar con el servidor de video.');
+                    const msg = error?.message || '';
+                    if (msg.includes('permisos')) {
+                        this.#localError.set('No tenés permisos para visualizar esta cámara.');
+                    } else if (msg.includes('disponible')) {
+                        this.#localError.set('Cámara no disponible.');
+                    } else if (msg.includes('Gateway') || msg.includes('Failed to fetch') || msg.includes('NetworkError')) {
+                        this.#localError.set('No se pudo contactar al Gateway.');
+                    } else if (msg.includes('conexión')) {
+                        this.#localError.set('Se perdió la conexión con la cámara.');
+                    } else {
+                        this.#localError.set('No se pudo iniciar la transmisión.');
+                    }
                 }
             },
             error: (err) => {
                 this.#localLoading.set(false);
                 const status = err?.status;
-                if (status === 404) {
-                    this.#localError.set('La cámara no está disponible o está deshabilitada en el Gateway.');
-                } else if (status === 403) {
-                    this.#localError.set('No tienes permisos suficientes para visualizar esta cámara.');
-                } else if (status === 401) {
-                    this.#localError.set('Sesión no autorizada. Por favor, inicia sesión nuevamente.');
+                if (status === 401 || status === 403) {
+                    this.#localError.set('No tenés permisos para visualizar esta cámara.');
+                } else if (status === 404) {
+                    this.#localError.set('Cámara no disponible.');
+                } else if (status === 0 || err?.name === 'TimeoutError' || err?.message?.toLowerCase().includes('gateway')) {
+                    this.#localError.set('No se pudo contactar al Gateway.');
                 } else {
-                    this.#localError.set('No se pudo obtener la configuración de streaming de la cámara.');
+                    this.#localError.set('No se pudo iniciar la transmisión.');
                 }
             },
         });
