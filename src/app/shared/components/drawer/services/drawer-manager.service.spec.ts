@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { DrawerManager } from './drawer-manager';
+import { DrawerManagerService } from './drawer-manager.service';
 
-describe('DrawerManager', () => {
-  let service: DrawerManager;
+describe('DrawerManagerService', () => {
+  let service: DrawerManagerService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(DrawerManager);
+    service = TestBed.inject(DrawerManagerService);
   });
 
   it('should be created', () => {

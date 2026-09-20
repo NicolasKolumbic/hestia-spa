@@ -1,1 +1,122 @@
-<video #video autoplay muted controls style="width: 100%;"></video>
+<div class="camera-player-container relative w-full aspect-video bg-black rounded-xl overflow-hidden shadow-lg flex items-center justify-center">
+    <!-- Native Video Element -->
+    <video
+        #video
+        autoplay
+        playsinline
+        [muted]="isMuted()"
+        class="w-full h-full object-contain"
+        [class.invisible]="state() !== 'playing'"
+    ></video>
+
+    <!-- Top Overlay Bar -->
+    <div class="absolute top-3 left-3 right-3 flex items-center justify-between z-20 pointer-events-none">
+        <div class="flex items-center gap-2 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full text-white text-xs font-medium">
+            <i class="pi pi-video text-primary"></i>
+            <span>{{ cameraName() }}</span>
+        </div>
+
+        @if (state() === 'playing') {
+            <div class="flex items-center gap-1.5 bg-red-600/90 text-white text-xs font-semibold px-2.5 py-0.5 rounded-full uppercase tracking-wider animate-pulse">
+                <span class="w-2 h-2 rounded-full bg-white"></span>
+                EN VIVO
+            </div>
+        }
+    </div>
+
+    <!-- Loading / Connecting State Overlay -->
+    @if (state() === 'loading' || state() === 'connecting') {
+        <div class="absolute inset-0 bg-neutral-900/90 backdrop-blur-sm flex flex-col items-center justify-center gap-3 z-10 text-white">
+            <p-progressSpinner strokeWidth="4" ariaLabel="Cargando cámara" styleClass="w-12 h-12"></p-progressSpinner>
+            <p class="text-sm font-medium text-neutral-300">
+                @if (state() === 'loading') {
+                    Solicitando acceso y credenciales...
+                } @else {
+                    Estableciendo conexión WebRTC en tiempo real...
+                }
+            </p>
+        </div>
+    }
+
+    <!-- Error State Overlay -->
+    @if (state() === 'error') {
+        <div class="absolute inset-0 bg-neutral-950/95 flex flex-col items-center justify-center p-6 text-center gap-4 z-10 text-white">
+            <div class="w-12 h-12 rounded-full bg-red-500/20 text-red-400 flex items-center justify-center">
+                <i class="pi pi-exclamation-triangle text-2xl"></i>
+            </div>
+            <div class="space-y-1">
+                <h4 class="font-semibold text-base text-red-200">No se pudo reproducir el video</h4>
+                <p class="text-xs text-neutral-400 max-w-sm">{{ errorMessage() }}</p>
+            </div>
+            <p-button
+                label="Reintentar conexión"
+                icon="pi pi-refresh"
+                size="small"
+                severity="secondary"
+                (onClick)="reconnect()"
+            ></p-button>
+        </div>
+    }
+
+    <!-- Disconnected State Overlay -->
+    @if (state() === 'disconnected') {
+        <div class="absolute inset-0 bg-neutral-950/90 flex flex-col items-center justify-center gap-3 z-10 text-white">
+            <i class="pi pi-power-off text-3xl text-neutral-400"></i>
+            <p class="text-sm text-neutral-300">Transmisión detenida</p>
+            <p-button
+                label="Reconectar"
+                icon="pi pi-play"
+                size="small"
+                (onClick)="reconnect()"
+            ></p-button>
+        </div>
+    }
+
+    <!-- Idle State Overlay -->
+    @if (state() === 'idle') {
+        <div class="absolute inset-0 bg-neutral-950 flex flex-col items-center justify-center gap-3 z-10 text-white">
+            <i class="pi pi-camera text-4xl text-neutral-500"></i>
+            <p-button
+                label="Ver en vivo"
+                icon="pi pi-play"
+                size="small"
+                (onClick)="startStream()"
+            ></p-button>
+        </div>
+    }
+
+    <!-- Bottom Controls Overlay (When Playing) -->
+    @if (state() === 'playing') {
+        <div class="absolute bottom-3 right-3 flex items-center gap-2 z-20">
+            <button
+                type="button"
+                class="control-btn"
+                [pTooltip]="isMuted() ? 'Activar audio' : 'Silenciar audio'"
+                tooltipPosition="top"
+                (click)="toggleAudio()"
+            >
+                <i [class]="isMuted() ? 'pi pi-volume-off' : 'pi pi-volume-up'"></i>
+            </button>
+
+            <button
+                type="button"
+                class="control-btn"
+                pTooltip="Reconectar stream"
+                tooltipPosition="top"
+                (click)="reconnect()"
+            >
+                <i class="pi pi-refresh"></i>
+            </button>
+
+            <button
+                type="button"
+                class="control-btn text-red-400 hover:text-red-300"
+                pTooltip="Detener transmisión"
+                tooltipPosition="top"
+                (click)="stopStream()"
+            >
+                <i class="pi pi-stop"></i>
+            </button>
+        </div>
+    }
+</div>

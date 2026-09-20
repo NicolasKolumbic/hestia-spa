@@ -1,13 +1,16 @@
 import { TestBed } from '@angular/core/testing';
+import { ZoneService } from './zone.service';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 
-import { Zone } from './zone.service';
-
-describe('Zone', () => {
-  let service: Zone;
+describe('ZoneService', () => {
+  let service: ZoneService;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
-    service = TestBed.inject(Zone);
+    TestBed.configureTestingModule({
+      providers: [provideHttpClient(), provideHttpClientTesting()]
+    });
+    service = TestBed.inject(ZoneService);
   });
 
   it('should be created', () => {

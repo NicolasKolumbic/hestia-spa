@@ -1,19 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { UserAccessStatus } from './user-access-status';
+import { UserAccessScopeTag } from './user-access-status-tag';
 
-describe('UserAccessStatus', () => {
-  let component: UserAccessStatus;
-  let fixture: ComponentFixture<UserAccessStatus>;
+describe('UserAccessScopeTag', () => {
+  let component: UserAccessScopeTag;
+  let fixture: ComponentFixture<UserAccessScopeTag>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [UserAccessStatus]
+      imports: [UserAccessScopeTag]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(UserAccessStatus);
+    fixture = TestBed.createComponent(UserAccessScopeTag);
     component = fixture.componentInstance;
+    fixture.componentRef.setInput('status', 'ACTIVE');
     fixture.detectChanges();
   });
 

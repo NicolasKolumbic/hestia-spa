@@ -10,6 +10,10 @@ export class Environment {
     return this.isProduction ? 'https://hestia-web-api.onrender.com/api' : 'http://localhost:3000/api';
   }
 
+  get gatewayUrl(): string {
+    return environment.gatewayUrl || (this.isProduction ? '' : 'http://localhost:8081');
+  }
+
   get isProduction(): boolean {
     return environment.production;
   }

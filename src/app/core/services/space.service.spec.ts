@@ -1,12 +1,16 @@
 import { TestBed } from '@angular/core/testing';
-import { Space } from './space.service';
+import { SpaceService } from './space.service';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 
-describe('Space', () => {
-  let service: Space;
+describe('SpaceService', () => {
+  let service: SpaceService;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
-    service = TestBed.inject(Space);
+    TestBed.configureTestingModule({
+      providers: [provideHttpClient(), provideHttpClientTesting()]
+    });
+    service = TestBed.inject(SpaceService);
   });
 
   it('should be created', () => {
