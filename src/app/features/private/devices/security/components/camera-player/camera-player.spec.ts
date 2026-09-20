@@ -155,6 +155,32 @@ describe('CameraPlayer', () => {
         expect(component.errorMessage()).toBe('No se pudo contactar al Gateway.');
     });
 
+    it('should handle timeout error with friendly Spanish description', async () => {
+        mockWhepPlayerService.connect.and.rejectWith(
+            new Error('Se agotó el tiempo de espera para conectar con la cámara.')
+        );
+
+        await component.startStream();
+        fixture.detectChanges();
+
+        expect(component.state()).toBe('error');
+        expect(component.errorMessage()).toBe('Se agotó el tiempo de espera para conectar con la cámara.');
+        expect(fixture.nativeElement.textContent).toContain('Se agotó el tiempo de espera para conectar con la cámara.');
+    });
+
+    it('should not set visual error state when connect is aborted by user disconnect or component destroy', async () => {
+        whepStateSignal.set('disconnected');
+        mockWhepPlayerService.connect.and.rejectWith(
+            new DOMException('Connection aborted by user', 'AbortError')
+        );
+
+        await component.startStream();
+        fixture.detectChanges();
+
+        expect(component.state()).toBe('disconnected');
+        expect(component.errorMessage()).toBeNull();
+    });
+
     it('should request a fresh stream token on reconnect/retry', () => {
         component.reconnect();
 

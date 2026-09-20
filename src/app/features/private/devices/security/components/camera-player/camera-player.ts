@@ -104,8 +104,15 @@ export class CameraPlayer implements OnInit {
                 try {
                     await this.#whepService.connect(resolved.whepUrl);
                 } catch (error: any) {
+                    // Check if cancelled/aborted by user or component destruction
+                    if (this.#whepService.state() === 'disconnected' || (error?.name === 'AbortError' && !error?.message?.includes('tiempo de espera'))) {
+                        return;
+                    }
+
                     const msg = error?.message || '';
-                    if (msg.includes('permisos')) {
+                    if (msg.includes('tiempo de espera')) {
+                        this.#localError.set('Se agotó el tiempo de espera para conectar con la cámara.');
+                    } else if (msg.includes('permisos')) {
                         this.#localError.set('No tenés permisos para visualizar esta cámara.');
                     } else if (msg.includes('disponible')) {
                         this.#localError.set('Cámara no disponible.');

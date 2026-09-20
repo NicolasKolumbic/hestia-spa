@@ -90,11 +90,14 @@ describe('WhepPlayerService', () => {
 
         await service.connect(whepUrl);
 
-        expect(window.fetch).toHaveBeenCalledWith(whepUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/sdp' },
-            body: 'v=0\r\no=mock-sdp-offer\r\n',
-        });
+        expect(window.fetch).toHaveBeenCalledWith(
+            whepUrl,
+            jasmine.objectContaining({
+                method: 'POST',
+                headers: { 'Content-Type': 'application/sdp' },
+                body: 'v=0\r\no=mock-sdp-offer\r\n',
+            })
+        );
 
         expect(mockPeerConnection.setRemoteDescription).toHaveBeenCalled();
     });
@@ -172,7 +175,81 @@ describe('WhepPlayerService', () => {
 
         await service.disconnect();
 
-        expect(window.fetch).toHaveBeenCalledWith('http://localhost:8889/resource/session-123', { method: 'DELETE' });
+        expect(window.fetch).toHaveBeenCalledWith(
+            'http://localhost:8889/resource/session-123',
+            jasmine.objectContaining({ method: 'DELETE' })
+        );
+        expect(mockPeerConnection.close).toHaveBeenCalled();
+        expect(service.state()).toBe('disconnected');
+        expect(service.mediaStream()).toBeNull();
+    });
+
+    it('should handle timeout when WHEP POST takes too long', async () => {
+        const timeoutError = new DOMException('Timeout', 'TimeoutError');
+        window.fetch = jasmine.createSpy('fetch').and.rejectWith(timeoutError);
+
+        try {
+            await service.connect('http://localhost:8889/cam/whep');
+            fail('Expected connect to throw timeout error');
+        } catch (error: any) {
+            expect(service.state()).toBe('error');
+            expect(service.errorMessage()).toContain('Se agotó el tiempo de espera para conectar con la cámara.');
+            expect(mockPeerConnection.close).toHaveBeenCalled();
+        }
+    });
+
+    it('should abort in-flight connect POST when disconnect() is called without setting error state', async () => {
+        let resolveFetch: any;
+        window.fetch = jasmine.createSpy('fetch').and.callFake((url: string, init?: RequestInit) => {
+            const signal = init?.signal as AbortSignal | undefined;
+            return new Promise((resolve, reject) => {
+                resolveFetch = resolve;
+                if (signal?.aborted) {
+                    reject(new DOMException('User disconnected', 'AbortError'));
+                } else if (signal) {
+                    signal.addEventListener('abort', () => {
+                        reject(new DOMException('User disconnected', 'AbortError'));
+                    });
+                }
+            });
+        });
+
+        const connectPromise = service.connect('http://localhost:8889/cam/whep');
+
+        // Allow connect() to progress to fetch
+        await new Promise((r) => setTimeout(r, 10));
+
+        // Disconnect while connect is in flight
+        await service.disconnect();
+
+        try {
+            await connectPromise;
+        } catch (e: any) {
+            // Error thrown from aborted connect
+            expect(e.name).toBe('AbortError');
+        }
+
+        // State must be disconnected, not error
+        expect(service.state()).toBe('disconnected');
+        expect(service.errorMessage()).toBeNull();
+        expect(mockPeerConnection.close).toHaveBeenCalled();
+    });
+
+    it('should maintain cleanup even if DELETE request fails or times out', async () => {
+        window.fetch = jasmine.createSpy('fetch').and.resolveTo({
+            ok: true,
+            status: 201,
+            headers: new Headers({ Location: 'http://localhost:8889/resource/session-123' }),
+            text: () => Promise.resolve('v=0\r\no=mock-answer\r\n'),
+        } as any);
+
+        await service.connect('http://localhost:8889/cam/whep');
+
+        // Simulate network failure during DELETE
+        window.fetch = jasmine.createSpy('fetch').and.rejectWith(new Error('Network error on DELETE'));
+
+        await service.disconnect();
+
         expect(mockPeerConnection.close).toHaveBeenCalled();
         expect(service.state()).toBe('disconnected');
         expect(service.mediaStream()).toBeNull();
