@@ -26,7 +26,7 @@ describe('CameraPlayer', () => {
         mockCameraStreamService = {
             resolveCameraStream: jasmine.createSpy('resolveCameraStream').and.returnValue(
                 of({
-                    whepUrl: 'http://localhost:8889/camara-cocina-comedor/whep?token=token-123',
+                    whepUrl: 'http://localhost:8889/camara-cocina-comedor/whep',
                     streamInfo: {
                         deviceId: 'dev-1',
                         protocol: 'webrtc',
@@ -99,7 +99,8 @@ describe('CameraPlayer', () => {
 
         expect(mockCameraStreamService.resolveCameraStream).toHaveBeenCalledWith('dev-1');
         expect(mockWhepPlayerService.connect).toHaveBeenCalledWith(
-            'http://localhost:8889/camara-cocina-comedor/whep?token=token-123'
+            'http://localhost:8889/camara-cocina-comedor/whep',
+            'token-123'
         );
         expect(component.state()).toBe('playing');
     });

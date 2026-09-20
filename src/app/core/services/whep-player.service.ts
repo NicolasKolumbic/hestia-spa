@@ -18,10 +18,10 @@ export class WhepPlayerService {
     /**
      * Connects to MediaMTX using the WHEP standard protocol.
      * Starts by establishing a local RTCPeerConnection with recvonly transceivers,
-     * gathers candidates, sends the SDP offer, and sets the remote SDP answer.
+     * gathers candidates, sends the SDP offer with Authorization Bearer header, and sets the remote SDP answer.
      * Supports cancellation and explicit timeout (10s).
      */
-    async connect(whepUrl: string): Promise<MediaStream> {
+    async connect(whepUrl: string, streamToken: string): Promise<MediaStream> {
         // Disconnect previous session if any exists
         await this.disconnect();
 
@@ -117,13 +117,14 @@ export class WhepPlayerService {
                 throw new Error('No se pudo generar la descripción SDP local.');
             }
 
-            // 6. Post SDP offer to MediaMTX WHEP endpoint with timeout signal
+            // 6. Post SDP offer to MediaMTX WHEP endpoint with Authorization Bearer header
             let response: Response;
             try {
                 response = await fetch(whepUrl, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/sdp',
+                        'Authorization': `Bearer ${streamToken}`,
                     },
                     body: offerSdp,
                     signal: currentAbortController.signal,

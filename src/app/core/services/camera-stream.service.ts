@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { forkJoin, map, Observable } from 'rxjs';
+import { map, Observable, switchMap } from 'rxjs';
 import { Environment } from './environment';
 import { StreamTokenResponseDto } from '@core/domain/dtos/stream-token-response.dto';
 import { CameraStreamInfoDto } from '@core/domain/dtos/camera-stream-info.dto';
@@ -28,34 +28,40 @@ export class CameraStreamService {
 
     /**
      * Queries the local IoT Gateway to resolve the camera streaming configuration (path, baseUrl, protocol).
+     * Protected endpoint: requires Authorization: Bearer <STREAM_TOKEN>.
      */
-    getGatewayStreamInfo(deviceId: string): Observable<CameraStreamInfoDto> {
+    getGatewayStreamInfo(deviceId: string, streamToken: string): Observable<CameraStreamInfoDto> {
         const gatewayBase = this.#environment.gatewayUrl.replace(/\/+$/, '');
         const url = `${gatewayBase}/cameras/by-device/${deviceId}/stream`;
-        return this.#http.get<CameraStreamInfoDto>(url);
+        return this.#http.get<CameraStreamInfoDto>(url, {
+            headers: {
+                Authorization: `Bearer ${streamToken}`,
+            },
+        });
     }
 
     /**
-     * Resolves both the Stream Token and the Gateway stream metadata in parallel
-     * and constructs the WHEP endpoint URL ready for WebRTC negotiation.
+     * Resolves the Stream Token first, then queries the Gateway with Bearer authentication,
+     * and constructs the clean WHEP endpoint URL (without tokens in query string).
      * The token is never stored in persistent storage.
      */
     resolveCameraStream(deviceId: string): Observable<ResolvedCameraStream> {
-        return forkJoin({
-            tokenResponse: this.getStreamToken(deviceId),
-            streamInfo: this.getGatewayStreamInfo(deviceId),
-        }).pipe(
-            map(({ tokenResponse, streamInfo }) => {
-                const cleanBase = streamInfo.baseUrl.replace(/\/+$/, '');
-                const cleanPath = streamInfo.path.replace(/^\/+/, '');
-                const whepUrl = `${cleanBase}/${cleanPath}/whep?token=${encodeURIComponent(tokenResponse.token)}`;
+        return this.getStreamToken(deviceId).pipe(
+            switchMap((tokenResponse) =>
+                this.getGatewayStreamInfo(deviceId, tokenResponse.token).pipe(
+                    map((streamInfo) => {
+                        const cleanBase = streamInfo.baseUrl.replace(/\/+$/, '');
+                        const cleanPath = streamInfo.path.replace(/^\/+/, '');
+                        const whepUrl = `${cleanBase}/${cleanPath}/whep`;
 
-                return {
-                    whepUrl,
-                    streamInfo,
-                    tokenResponse,
-                };
-            })
+                        return {
+                            whepUrl,
+                            streamInfo,
+                            tokenResponse,
+                        };
+                    })
+                )
+            )
         );
     }
 }

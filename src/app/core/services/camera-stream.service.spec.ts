@@ -60,8 +60,9 @@ describe('CameraStreamService', () => {
         req.flush(mockResponse);
     });
 
-    it('should request stream info from gateway', () => {
+    it('should request stream info from gateway with Bearer token', () => {
         const deviceId = 'test-device-uuid-123';
+        const streamToken = 'eyJhbGciOiJSUzI1NiJ9.test-jwt-payload';
         const mockStreamInfo: CameraStreamInfoDto = {
             deviceId,
             protocol: 'webrtc',
@@ -69,7 +70,7 @@ describe('CameraStreamService', () => {
             baseUrl: 'http://localhost:8889',
         };
 
-        service.getGatewayStreamInfo(deviceId).subscribe((info) => {
+        service.getGatewayStreamInfo(deviceId, streamToken).subscribe((info) => {
             expect(info).toEqual(mockStreamInfo);
             expect(info.path).toBe('camara-cocina-comedor');
             expect(info.baseUrl).toBe('http://localhost:8889');
@@ -77,10 +78,11 @@ describe('CameraStreamService', () => {
 
         const req = httpTestingController.expectOne('http://localhost:8081/cameras/by-device/test-device-uuid-123/stream');
         expect(req.request.method).toBe('GET');
+        expect(req.request.headers.get('Authorization')).toBe(`Bearer ${streamToken}`);
         req.flush(mockStreamInfo);
     });
 
-    it('should resolve stream and construct valid WHEP url combining token and gateway info', () => {
+    it('should sequentially resolve stream: request token first, then query gateway with Bearer header, and return clean WHEP url', () => {
         const deviceId = 'test-device-uuid-123';
         const mockTokenResponse: StreamTokenResponseDto = {
             token: 'test.rs256.token',
@@ -96,19 +98,26 @@ describe('CameraStreamService', () => {
         };
 
         service.resolveCameraStream(deviceId).subscribe((resolved) => {
-            expect(resolved.whepUrl).toBe('http://localhost:8889/camara-cocina-comedor/whep?token=test.rs256.token');
+            // WHEP url must be clean, without any ?token=
+            expect(resolved.whepUrl).toBe('http://localhost:8889/camara-cocina-comedor/whep');
+            expect(resolved.whepUrl).not.toContain('token');
             expect(resolved.streamInfo).toEqual(mockStreamInfo);
             expect(resolved.tokenResponse).toEqual(mockTokenResponse);
         });
 
+        // 1. First: cloud API stream-token request is made
         const tokenReq = httpTestingController.expectOne('http://localhost:3000/api/devices/test-device-uuid-123/stream-token');
-        const gatewayReq = httpTestingController.expectOne('http://localhost:8081/cameras/by-device/test-device-uuid-123/stream');
-
+        expect(tokenReq.request.method).toBe('POST');
         tokenReq.flush(mockTokenResponse);
+
+        // 2. Second: gateway request is made with the Bearer token from step 1
+        const gatewayReq = httpTestingController.expectOne('http://localhost:8081/cameras/by-device/test-device-uuid-123/stream');
+        expect(gatewayReq.request.method).toBe('GET');
+        expect(gatewayReq.request.headers.get('Authorization')).toBe('Bearer test.rs256.token');
         gatewayReq.flush(mockStreamInfo);
     });
 
-    it('should propagate errors if stream token request fails', () => {
+    it('should propagate errors if stream token request fails and not call gateway', () => {
         const deviceId = 'test-device-uuid-123';
 
         service.resolveCameraStream(deviceId).subscribe({
@@ -119,15 +128,10 @@ describe('CameraStreamService', () => {
         });
 
         const tokenReq = httpTestingController.expectOne('http://localhost:3000/api/devices/test-device-uuid-123/stream-token');
-        const gatewayReq = httpTestingController.expectOne('http://localhost:8081/cameras/by-device/test-device-uuid-123/stream');
-
-        gatewayReq.flush({
-            deviceId,
-            protocol: 'webrtc',
-            path: 'camara-1',
-            baseUrl: 'http://localhost:8889',
-        });
         tokenReq.flush('Forbidden', { status: 403, statusText: 'Forbidden' });
+
+        // Gateway must NOT be called if token fails
+        httpTestingController.expectNone('http://localhost:8081/cameras/by-device/test-device-uuid-123/stream');
     });
 
     it('should propagate errors if gateway request fails (e.g. 404 not found)', () => {
@@ -141,14 +145,15 @@ describe('CameraStreamService', () => {
         });
 
         const tokenReq = httpTestingController.expectOne('http://localhost:3000/api/devices/non-existent-device/stream-token');
-        const gatewayReq = httpTestingController.expectOne('http://localhost:8081/cameras/by-device/non-existent-device/stream');
-
         tokenReq.flush({
             token: 'some.token',
             expiresIn: 120,
             deviceId,
             gatewayId: 'gw-1',
         });
+
+        const gatewayReq = httpTestingController.expectOne('http://localhost:8081/cameras/by-device/non-existent-device/stream');
+        expect(gatewayReq.request.headers.get('Authorization')).toBe('Bearer some.token');
         gatewayReq.flush('Not Found', { status: 404, statusText: 'Not Found' });
     });
 });

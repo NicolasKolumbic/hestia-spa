@@ -102,7 +102,7 @@ export class CameraPlayer implements OnInit {
             next: async (resolved) => {
                 this.#localLoading.set(false);
                 try {
-                    await this.#whepService.connect(resolved.whepUrl);
+                    await this.#whepService.connect(resolved.whepUrl, resolved.tokenResponse.token);
                 } catch (error: any) {
                     // Check if cancelled/aborted by user or component destruction
                     if (this.#whepService.state() === 'disconnected' || (error?.name === 'AbortError' && !error?.message?.includes('tiempo de espera'))) {

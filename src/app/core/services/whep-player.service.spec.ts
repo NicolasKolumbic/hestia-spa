@@ -67,7 +67,7 @@ describe('WhepPlayerService', () => {
             text: () => Promise.resolve('v=0\r\no=mock-sdp-answer\r\n'),
         } as any);
 
-        const connectPromise = service.connect('http://localhost:8889/camara-cocina-comedor/whep?token=fake');
+        const connectPromise = service.connect('http://localhost:8889/camara-cocina-comedor/whep', 'test.jwt.token');
         await connectPromise;
 
         expect((window as any).RTCPeerConnection).toHaveBeenCalled();
@@ -77,8 +77,9 @@ describe('WhepPlayerService', () => {
         expect(mockPeerConnection.setLocalDescription).toHaveBeenCalled();
     });
 
-    it('should send SDP offer via HTTP POST and process SDP answer', async () => {
-        const whepUrl = 'http://localhost:8889/camara-cocina-comedor/whep?token=token123';
+    it('should send SDP offer via HTTP POST with Authorization Bearer header and process SDP answer', async () => {
+        const whepUrl = 'http://localhost:8889/camara-cocina-comedor/whep';
+        const streamToken = 'stream-jwt-rs256-token';
         const mockAnswerSdp = 'v=0\r\no=mock-answer\r\n';
 
         window.fetch = jasmine.createSpy('fetch').and.resolveTo({
@@ -88,13 +89,16 @@ describe('WhepPlayerService', () => {
             text: () => Promise.resolve(mockAnswerSdp),
         } as any);
 
-        await service.connect(whepUrl);
+        await service.connect(whepUrl, streamToken);
 
         expect(window.fetch).toHaveBeenCalledWith(
             whepUrl,
             jasmine.objectContaining({
                 method: 'POST',
-                headers: { 'Content-Type': 'application/sdp' },
+                headers: {
+                    'Content-Type': 'application/sdp',
+                    'Authorization': `Bearer ${streamToken}`,
+                },
                 body: 'v=0\r\no=mock-sdp-offer\r\n',
             })
         );
@@ -110,7 +114,7 @@ describe('WhepPlayerService', () => {
             text: () => Promise.resolve('v=0\r\no=mock-answer\r\n'),
         } as any);
 
-        await service.connect('http://localhost:8889/cam/whep');
+        await service.connect('http://localhost:8889/cam/whep', 'jwt-token');
 
         const mockTrack = { kind: 'video', stop: jasmine.createSpy('stop') } as any;
         const mockStream = { getTracks: () => [mockTrack] } as any;
@@ -133,7 +137,7 @@ describe('WhepPlayerService', () => {
         } as any);
 
         try {
-            await service.connect('http://localhost:8889/cam/whep?token=bad');
+            await service.connect('http://localhost:8889/cam/whep', 'bad-token');
             fail('Expected connect to throw');
         } catch (error: any) {
             expect(service.state()).toBe('error');
@@ -150,7 +154,7 @@ describe('WhepPlayerService', () => {
             text: () => Promise.resolve('v=0\r\no=mock-answer\r\n'),
         } as any);
 
-        await service.connect('http://localhost:8889/cam/whep');
+        await service.connect('http://localhost:8889/cam/whep', 'jwt-token');
 
         // Simulate failed state
         mockPeerConnection.connectionState = 'failed';
@@ -168,7 +172,7 @@ describe('WhepPlayerService', () => {
             text: () => Promise.resolve('v=0\r\no=mock-answer\r\n'),
         } as any);
 
-        await service.connect('http://localhost:8889/cam/whep');
+        await service.connect('http://localhost:8889/cam/whep', 'jwt-token');
 
         // Reset fetch spy to verify DELETE
         window.fetch = jasmine.createSpy('fetch').and.resolveTo({ ok: true } as any);
@@ -189,7 +193,7 @@ describe('WhepPlayerService', () => {
         window.fetch = jasmine.createSpy('fetch').and.rejectWith(timeoutError);
 
         try {
-            await service.connect('http://localhost:8889/cam/whep');
+            await service.connect('http://localhost:8889/cam/whep', 'jwt-token');
             fail('Expected connect to throw timeout error');
         } catch (error: any) {
             expect(service.state()).toBe('error');
@@ -214,7 +218,7 @@ describe('WhepPlayerService', () => {
             });
         });
 
-        const connectPromise = service.connect('http://localhost:8889/cam/whep');
+        const connectPromise = service.connect('http://localhost:8889/cam/whep', 'jwt-token');
 
         // Allow connect() to progress to fetch
         await new Promise((r) => setTimeout(r, 10));
@@ -243,7 +247,7 @@ describe('WhepPlayerService', () => {
             text: () => Promise.resolve('v=0\r\no=mock-answer\r\n'),
         } as any);
 
-        await service.connect('http://localhost:8889/cam/whep');
+        await service.connect('http://localhost:8889/cam/whep', 'jwt-token');
 
         // Simulate network failure during DELETE
         window.fetch = jasmine.createSpy('fetch').and.rejectWith(new Error('Network error on DELETE'));
