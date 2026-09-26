@@ -2,6 +2,12 @@ import { Injectable, signal } from '@angular/core';
 
 export type StreamState = 'idle' | 'loading' | 'connecting' | 'playing' | 'disconnected' | 'error';
 
+export const DEFAULT_RTC_CONFIGURATION: RTCConfiguration = {
+    iceServers: [
+        { urls: 'stun:stun.cloudflare.com:3478' }
+    ]
+};
+
 @Injectable({
     providedIn: 'root',
 })
@@ -17,11 +23,15 @@ export class WhepPlayerService {
 
     /**
      * Connects to MediaMTX using the WHEP standard protocol.
-     * Starts by establishing a local RTCPeerConnection with recvonly transceivers,
+     * Starts by establishing a local RTCPeerConnection with recvonly transceivers and STUN configuration,
      * gathers candidates, sends the SDP offer with Authorization Bearer header, and sets the remote SDP answer.
      * Supports cancellation and explicit timeout (10s).
      */
-    async connect(whepUrl: string, streamToken: string): Promise<MediaStream> {
+    async connect(
+        whepUrl: string,
+        streamToken: string,
+        rtcConfig?: RTCConfiguration
+    ): Promise<MediaStream> {
         // Disconnect previous session if any exists
         await this.disconnect();
 
@@ -43,8 +53,9 @@ export class WhepPlayerService {
         }, 10000);
 
         try {
-            // 1. Instantiate RTCPeerConnection without external STUN/TURN for LAN/local testing
-            const pc = new RTCPeerConnection();
+            // 1. Instantiate RTCPeerConnection with provided or default STUN/ICE configuration
+            const config = rtcConfig ?? DEFAULT_RTC_CONFIGURATION;
+            const pc = new RTCPeerConnection(config);
             this.#peerConnection = pc;
 
             const incomingStream = new MediaStream();

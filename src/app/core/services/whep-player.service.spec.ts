@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { provideZonelessChangeDetection } from '@angular/core';
-import { WhepPlayerService } from './whep-player.service';
+import { DEFAULT_RTC_CONFIGURATION, WhepPlayerService } from './whep-player.service';
 
 describe('WhepPlayerService', () => {
     let service: WhepPlayerService;
@@ -57,6 +57,56 @@ describe('WhepPlayerService', () => {
         expect(service.state()).toBe('idle');
         expect(service.mediaStream()).toBeNull();
         expect(service.errorMessage()).toBeNull();
+    });
+
+    it('should instantiate RTCPeerConnection with default Cloudflare STUN server configuration', async () => {
+        window.fetch = jasmine.createSpy('fetch').and.resolveTo({
+            ok: true,
+            status: 201,
+            headers: new Headers(),
+            text: () => Promise.resolve('v=0\r\no=mock-sdp-answer\r\n'),
+        } as any);
+
+        await service.connect('http://localhost:8889/camara-cocina-comedor/whep', 'test.jwt.token');
+
+        expect((window as any).RTCPeerConnection).toHaveBeenCalledWith(DEFAULT_RTC_CONFIGURATION);
+        expect(DEFAULT_RTC_CONFIGURATION.iceServers).toEqual([
+            { urls: 'stun:stun.cloudflare.com:3478' }
+        ]);
+    });
+
+    it('should accept and use custom RTCConfiguration when provided, overriding default STUN', async () => {
+        window.fetch = jasmine.createSpy('fetch').and.resolveTo({
+            ok: true,
+            status: 201,
+            headers: new Headers(),
+            text: () => Promise.resolve('v=0\r\no=mock-sdp-answer\r\n'),
+        } as any);
+
+        const customConfig: RTCConfiguration = {
+            iceServers: [
+                { urls: 'stun:custom.stun.server:19302' },
+            ],
+            iceTransportPolicy: 'all',
+        };
+
+        await service.connect('http://localhost:8889/camara/whep', 'jwt-token', customConfig);
+
+        expect((window as any).RTCPeerConnection).toHaveBeenCalledWith(customConfig);
+    });
+
+    it('should not contain any hardcoded TURN credentials in DEFAULT_RTC_CONFIGURATION', () => {
+        expect(DEFAULT_RTC_CONFIGURATION.iceServers).toBeDefined();
+        const servers = DEFAULT_RTC_CONFIGURATION.iceServers || [];
+        for (const server of servers) {
+            expect((server as any).username).toBeUndefined();
+            expect((server as any).credential).toBeUndefined();
+            const urls = Array.isArray(server.urls) ? server.urls : [server.urls];
+            for (const u of urls) {
+                expect(u.startsWith('turn:')).toBeFalse();
+                expect(u.startsWith('turns:')).toBeFalse();
+            }
+        }
     });
 
     it('should configure recvonly transceivers for video and audio', async () => {
