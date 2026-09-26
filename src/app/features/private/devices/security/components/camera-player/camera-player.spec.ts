@@ -27,17 +27,15 @@ describe('CameraPlayer', () => {
             resolveCameraStream: jasmine.createSpy('resolveCameraStream').and.returnValue(
                 of({
                     whepUrl: 'http://localhost:8889/camara-cocina-comedor/whep',
-                    streamInfo: {
-                        deviceId: 'dev-1',
-                        protocol: 'webrtc',
-                        path: 'camara-cocina-comedor',
-                        baseUrl: 'http://localhost:8889',
-                    },
                     tokenResponse: {
                         token: 'token-123',
                         expiresIn: 120,
                         deviceId: 'dev-1',
                         gatewayId: 'gw-1',
+                        stream: {
+                            protocol: 'webrtc',
+                            whepUrl: 'http://localhost:8889/camara-cocina-comedor/whep',
+                        },
                     },
                 } as ResolvedCameraStream)
             ),

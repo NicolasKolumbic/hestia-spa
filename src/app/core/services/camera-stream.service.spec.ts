@@ -5,7 +5,6 @@ import { provideHttpClient } from '@angular/common/http';
 import { CameraStreamService } from './camera-stream.service';
 import { Environment } from './environment';
 import { StreamTokenResponseDto } from '@core/domain/dtos/stream-token-response.dto';
-import { CameraStreamInfoDto } from '@core/domain/dtos/camera-stream-info.dto';
 
 describe('CameraStreamService', () => {
     let service: CameraStreamService;
@@ -40,120 +39,146 @@ describe('CameraStreamService', () => {
         expect(service).toBeTruthy();
     });
 
-    it('should request stream token from cloud api', () => {
+    it('should request stream token with stream metadata from cloud api', () => {
         const deviceId = 'test-device-uuid-123';
         const mockResponse: StreamTokenResponseDto = {
             token: 'eyJhbGciOiJSUzI1NiJ9.test-jwt-payload',
             expiresIn: 120,
             deviceId,
             gatewayId: 'gateway-uuid-456',
+            stream: {
+                protocol: 'webrtc',
+                whepUrl: 'https://camera-tunnel.trycloudflare.com/camara-cocina-comedor/whep',
+            },
         };
 
         service.getStreamToken(deviceId).subscribe((response) => {
             expect(response).toEqual(mockResponse);
             expect(response.token).toBe('eyJhbGciOiJSUzI1NiJ9.test-jwt-payload');
+            expect(response.stream.whepUrl).toBe(
+                'https://camera-tunnel.trycloudflare.com/camara-cocina-comedor/whep',
+            );
         });
 
-        const req = httpTestingController.expectOne('http://localhost:3000/api/devices/test-device-uuid-123/stream-token');
+        const req = httpTestingController.expectOne(
+            'http://localhost:3000/api/devices/test-device-uuid-123/stream-token',
+        );
         expect(req.request.method).toBe('POST');
         expect(req.request.body).toEqual({});
         req.flush(mockResponse);
     });
 
-    it('should request stream info from gateway with Bearer token', () => {
-        const deviceId = 'test-device-uuid-123';
-        const streamToken = 'eyJhbGciOiJSUzI1NiJ9.test-jwt-payload';
-        const mockStreamInfo: CameraStreamInfoDto = {
-            deviceId,
-            protocol: 'webrtc',
-            path: 'camara-cocina-comedor',
-            baseUrl: 'http://localhost:8889',
-        };
-
-        service.getGatewayStreamInfo(deviceId, streamToken).subscribe((info) => {
-            expect(info).toEqual(mockStreamInfo);
-            expect(info.path).toBe('camara-cocina-comedor');
-            expect(info.baseUrl).toBe('http://localhost:8889');
-        });
-
-        const req = httpTestingController.expectOne('http://localhost:8081/cameras/by-device/test-device-uuid-123/stream');
-        expect(req.request.method).toBe('GET');
-        expect(req.request.headers.get('Authorization')).toBe(`Bearer ${streamToken}`);
-        req.flush(mockStreamInfo);
-    });
-
-    it('should sequentially resolve stream: request token first, then query gateway with Bearer header, and return clean WHEP url', () => {
+    it('should resolve stream in a single HTTP request using Cloud whepUrl directly without calling gateway or modifying url', () => {
         const deviceId = 'test-device-uuid-123';
         const mockTokenResponse: StreamTokenResponseDto = {
             token: 'test.rs256.token',
             expiresIn: 120,
             deviceId,
             gatewayId: 'gw-1',
-        };
-        const mockStreamInfo: CameraStreamInfoDto = {
-            deviceId,
-            protocol: 'webrtc',
-            path: 'camara-cocina-comedor',
-            baseUrl: 'http://localhost:8889',
+            stream: {
+                protocol: 'webrtc',
+                whepUrl: 'https://camera-tunnel.trycloudflare.com/camara-cocina-comedor/whep',
+            },
         };
 
         service.resolveCameraStream(deviceId).subscribe((resolved) => {
-            // WHEP url must be clean, without any ?token=
-            expect(resolved.whepUrl).toBe('http://localhost:8889/camara-cocina-comedor/whep');
+            // Must use whepUrl directly from Cloud API response without modification
+            expect(resolved.whepUrl).toBe(
+                'https://camera-tunnel.trycloudflare.com/camara-cocina-comedor/whep',
+            );
             expect(resolved.whepUrl).not.toContain('token');
-            expect(resolved.streamInfo).toEqual(mockStreamInfo);
+            expect(resolved.whepUrl).not.toContain('?');
             expect(resolved.tokenResponse).toEqual(mockTokenResponse);
+            expect(resolved.tokenResponse.token).toBe('test.rs256.token');
         });
 
-        // 1. First: cloud API stream-token request is made
-        const tokenReq = httpTestingController.expectOne('http://localhost:3000/api/devices/test-device-uuid-123/stream-token');
+        // Exactly ONE HTTP request must be made (POST to Cloud API)
+        const tokenReq = httpTestingController.expectOne(
+            'http://localhost:3000/api/devices/test-device-uuid-123/stream-token',
+        );
         expect(tokenReq.request.method).toBe('POST');
         tokenReq.flush(mockTokenResponse);
 
-        // 2. Second: gateway request is made with the Bearer token from step 1
-        const gatewayReq = httpTestingController.expectOne('http://localhost:8081/cameras/by-device/test-device-uuid-123/stream');
-        expect(gatewayReq.request.method).toBe('GET');
-        expect(gatewayReq.request.headers.get('Authorization')).toBe('Bearer test.rs256.token');
-        gatewayReq.flush(mockStreamInfo);
-    });
-
-    it('should propagate errors if stream token request fails and not call gateway', () => {
-        const deviceId = 'test-device-uuid-123';
-
-        service.resolveCameraStream(deviceId).subscribe({
-            next: () => fail('Should have failed'),
-            error: (error) => {
-                expect(error.status).toBe(403);
-            },
-        });
-
-        const tokenReq = httpTestingController.expectOne('http://localhost:3000/api/devices/test-device-uuid-123/stream-token');
-        tokenReq.flush('Forbidden', { status: 403, statusText: 'Forbidden' });
-
-        // Gateway must NOT be called if token fails
+        // Gateway :8081 must NOT be called
         httpTestingController.expectNone('http://localhost:8081/cameras/by-device/test-device-uuid-123/stream');
     });
 
-    it('should propagate errors if gateway request fails (e.g. 404 not found)', () => {
+    it('should propagate 409 Conflict errors (GATEWAY_OFFLINE / GATEWAY_MEDIA_NOT_READY / PUBLIC_MEDIA_UNAVAILABLE)', () => {
+        const deviceId = 'test-device-uuid-123';
+
+        service.resolveCameraStream(deviceId).subscribe({
+            next: () => fail('Should have failed with 409 Conflict'),
+            error: (error) => {
+                expect(error.status).toBe(409);
+            },
+        });
+
+        const tokenReq = httpTestingController.expectOne(
+            'http://localhost:3000/api/devices/test-device-uuid-123/stream-token',
+        );
+        tokenReq.flush(
+            { message: 'GATEWAY_MEDIA_NOT_READY', statusCode: 409 },
+            { status: 409, statusText: 'Conflict' },
+        );
+    });
+
+    it('should propagate 404 Not Found errors (CAMERA_NOT_FOUND_ON_GATEWAY / Device Not Found)', () => {
         const deviceId = 'non-existent-device';
 
         service.resolveCameraStream(deviceId).subscribe({
-            next: () => fail('Should have failed'),
+            next: () => fail('Should have failed with 404 Not Found'),
             error: (error) => {
                 expect(error.status).toBe(404);
             },
         });
 
-        const tokenReq = httpTestingController.expectOne('http://localhost:3000/api/devices/non-existent-device/stream-token');
-        tokenReq.flush({
-            token: 'some.token',
-            expiresIn: 120,
-            deviceId,
-            gatewayId: 'gw-1',
+        const tokenReq = httpTestingController.expectOne(
+            'http://localhost:3000/api/devices/non-existent-device/stream-token',
+        );
+        tokenReq.flush(
+            { message: 'CAMERA_NOT_FOUND_ON_GATEWAY', statusCode: 404 },
+            { status: 404, statusText: 'Not Found' },
+        );
+    });
+
+    it('should propagate 401/403 Forbidden errors when user lacks camera permissions', () => {
+        const deviceId = 'unauthorized-device';
+
+        service.resolveCameraStream(deviceId).subscribe({
+            next: () => fail('Should have failed with 403 Forbidden'),
+            error: (error) => {
+                expect(error.status).toBe(403);
+            },
         });
 
-        const gatewayReq = httpTestingController.expectOne('http://localhost:8081/cameras/by-device/non-existent-device/stream');
-        expect(gatewayReq.request.headers.get('Authorization')).toBe('Bearer some.token');
-        gatewayReq.flush('Not Found', { status: 404, statusText: 'Not Found' });
+        const tokenReq = httpTestingController.expectOne(
+            'http://localhost:3000/api/devices/unauthorized-device/stream-token',
+        );
+        tokenReq.flush('Forbidden', { status: 403, statusText: 'Forbidden' });
+    });
+
+    it('SECURITY: should not expose Stream JWT in URL query string or make HTTP requests to gatewayUrl', () => {
+        const deviceId = 'secure-camera-dev';
+        const mockTokenResponse: StreamTokenResponseDto = {
+            token: 'eyJhbGciOiJSUzI1NiJ9.sensitive-signature',
+            expiresIn: 120,
+            deviceId,
+            gatewayId: 'gw-sec-1',
+            stream: {
+                protocol: 'webrtc',
+                whepUrl: 'https://secure-tunnel.trycloudflare.com/secure-cam/whep',
+            },
+        };
+
+        service.resolveCameraStream(deviceId).subscribe((resolved) => {
+            expect(resolved.whepUrl).not.toContain('?');
+            expect(resolved.whepUrl).not.toContain('jwt');
+            expect(resolved.whepUrl).not.toContain('sensitive-signature');
+        });
+
+        const tokenReq = httpTestingController.expectOne(
+            'http://localhost:3000/api/devices/secure-camera-dev/stream-token',
+        );
+        tokenReq.flush(mockTokenResponse);
     });
 });
