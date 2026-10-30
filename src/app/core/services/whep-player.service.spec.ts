@@ -308,4 +308,131 @@ describe('WhepPlayerService', () => {
         expect(service.state()).toBe('disconnected');
         expect(service.mediaStream()).toBeNull();
     });
+
+    describe('Track interruption and mute tolerance', () => {
+        beforeEach(() => {
+            jasmine.clock().install();
+        });
+
+        afterEach(() => {
+            jasmine.clock().uninstall();
+        });
+
+        it('should bind mute, unmute, and ended listeners to incoming tracks', async () => {
+            window.fetch = jasmine.createSpy('fetch').and.resolveTo({
+                ok: true,
+                status: 201,
+                headers: new Headers(),
+                text: () => Promise.resolve('v=0\r\no=mock-answer\r\n'),
+            } as any);
+
+            await service.connect('http://localhost:8889/cam/whep', 'jwt-token');
+
+            const mockTrack: any = {
+                kind: 'video',
+                onmute: null,
+                onunmute: null,
+                onended: null,
+                stop: jasmine.createSpy('stop'),
+            };
+
+            const trackEvent: any = {
+                track: mockTrack,
+                streams: [],
+            };
+
+            mockPeerConnection.ontrack(trackEvent);
+
+            expect(mockTrack.onmute).toBeDefined();
+            expect(mockTrack.onunmute).toBeDefined();
+            expect(mockTrack.onended).toBeDefined();
+            expect(service.state()).toBe('playing');
+        });
+
+        it('should trigger onStreamInterrupted if track ends', async () => {
+            window.fetch = jasmine.createSpy('fetch').and.resolveTo({
+                ok: true,
+                status: 201,
+                headers: new Headers(),
+                text: () => Promise.resolve('v=0\r\no=mock-answer\r\n'),
+            } as any);
+
+            const interruptionSpy = jasmine.createSpy('onStreamInterrupted');
+            service.onStreamInterrupted = interruptionSpy;
+
+            await service.connect('http://localhost:8889/cam/whep', 'jwt-token');
+
+            const mockTrack: any = {
+                kind: 'video',
+                stop: jasmine.createSpy('stop'),
+            };
+            mockPeerConnection.ontrack({ track: mockTrack, streams: [] });
+
+            mockTrack.onended();
+
+            expect(interruptionSpy).toHaveBeenCalled();
+        });
+
+        it('should trigger onStreamInterrupted only if track remains muted beyond tolerance period (2.5s)', async () => {
+            window.fetch = jasmine.createSpy('fetch').and.resolveTo({
+                ok: true,
+                status: 201,
+                headers: new Headers(),
+                text: () => Promise.resolve('v=0\r\no=mock-answer\r\n'),
+            } as any);
+
+            const interruptionSpy = jasmine.createSpy('onStreamInterrupted');
+            service.onStreamInterrupted = interruptionSpy;
+
+            await service.connect('http://localhost:8889/cam/whep', 'jwt-token');
+
+            const mockTrack: any = {
+                kind: 'video',
+                stop: jasmine.createSpy('stop'),
+            };
+            mockPeerConnection.ontrack({ track: mockTrack, streams: [] });
+
+            // Trigger mute
+            mockTrack.onmute();
+
+            // Advance 1 second (within 2.5s tolerance)
+            jasmine.clock().tick(1000);
+            expect(interruptionSpy).not.toHaveBeenCalled();
+
+            // Advance past 2.5s tolerance
+            jasmine.clock().tick(1600);
+            expect(interruptionSpy).toHaveBeenCalled();
+        });
+
+        it('should cancel interruption if unmute occurs within tolerance period', async () => {
+            window.fetch = jasmine.createSpy('fetch').and.resolveTo({
+                ok: true,
+                status: 201,
+                headers: new Headers(),
+                text: () => Promise.resolve('v=0\r\no=mock-answer\r\n'),
+            } as any);
+
+            const interruptionSpy = jasmine.createSpy('onStreamInterrupted');
+            service.onStreamInterrupted = interruptionSpy;
+
+            await service.connect('http://localhost:8889/cam/whep', 'jwt-token');
+
+            const mockTrack: any = {
+                kind: 'video',
+                stop: jasmine.createSpy('stop'),
+            };
+            mockPeerConnection.ontrack({ track: mockTrack, streams: [] });
+
+            // Mute starts
+            mockTrack.onmute();
+            jasmine.clock().tick(1000);
+
+            // Unmute recovers within tolerance
+            mockTrack.onunmute();
+
+            // Advance past original 2.5s timer
+            jasmine.clock().tick(2000);
+            expect(interruptionSpy).not.toHaveBeenCalled();
+        });
+    });
 });

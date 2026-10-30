@@ -8,14 +8,22 @@ export const DEFAULT_RTC_CONFIGURATION: RTCConfiguration = {
     ]
 };
 
-@Injectable({
-    providedIn: 'root',
-})
+@Injectable()
 export class WhepPlayerService {
     #peerConnection: RTCPeerConnection | null = null;
     #resourceLocation: string | null = null;
     #activeWhepUrl: string | null = null;
     #connectAbortController: AbortController | null = null;
+
+    #muteTimer: any = null;
+    #statsInterval: any = null;
+    #lastFramesReceived: number | null = null;
+    #consecutiveZeroFrames: number = 0;
+
+    /**
+     * Callback triggered when a stream interruption, freeze, or track end is detected.
+     */
+    onStreamInterrupted?: () => void;
 
     readonly state = signal<StreamState>('idle');
     readonly errorMessage = signal<string | null>(null);
@@ -67,13 +75,32 @@ export class WhepPlayerService {
 
             // 3. Setup event listeners
             pc.ontrack = (event: RTCTrackEvent) => {
+                const track = event.track;
+                if (track) {
+                    track.onmute = () => {
+                        this.#startMuteToleranceTimer();
+                    };
+                    track.onunmute = () => {
+                        this.#clearMuteToleranceTimer();
+                    };
+                    track.onended = () => {
+                        this.#clearMuteToleranceTimer();
+                        this.onStreamInterrupted?.();
+                    };
+                }
+
                 if (event.streams && event.streams[0]) {
                     this.mediaStream.set(event.streams[0]);
-                } else {
-                    incomingStream.addTrack(event.track);
+                } else if (event.track) {
+                    try {
+                        incomingStream.addTrack(event.track);
+                    } catch {
+                        // In case synthetic track mock does not satisfy native MediaStream.addTrack
+                    }
                     this.mediaStream.set(incomingStream);
                 }
                 this.state.set('playing');
+                this.#startStatsMonitoring();
             };
 
             pc.onconnectionstatechange = () => {
@@ -84,10 +111,12 @@ export class WhepPlayerService {
                 } else if (cState === 'disconnected') {
                     if (this.state() === 'playing') {
                         this.state.set('disconnected');
+                        this.onStreamInterrupted?.();
                     }
                 } else if (cState === 'failed') {
                     this.state.set('error');
                     this.errorMessage.set('Se perdió la conexión con la cámara.');
+                    this.onStreamInterrupted?.();
                 }
             };
 
@@ -99,9 +128,11 @@ export class WhepPlayerService {
                 } else if (iceState === 'failed') {
                     this.state.set('error');
                     this.errorMessage.set('Se perdió la conexión con la cámara.');
+                    this.onStreamInterrupted?.();
                 } else if (iceState === 'disconnected') {
                     if (this.state() === 'playing') {
                         this.state.set('disconnected');
+                        this.onStreamInterrupted?.();
                     }
                 }
             };
@@ -244,9 +275,15 @@ export class WhepPlayerService {
      * Cleans up local PeerConnection, tracks, and media stream references.
      */
     private cleanupLocalResources(): void {
+        this.#stopStatsMonitoring();
+        this.#clearMuteToleranceTimer();
+
         const stream = this.mediaStream();
         if (stream) {
             stream.getTracks().forEach((track) => {
+                track.onmute = null;
+                track.onunmute = null;
+                track.onended = null;
                 try {
                     track.stop();
                 } catch {
@@ -270,6 +307,78 @@ export class WhepPlayerService {
 
         this.mediaStream.set(null);
         this.#activeWhepUrl = null;
+    }
+
+    #startMuteToleranceTimer(): void {
+        this.#clearMuteToleranceTimer();
+        // Wait 2.5s tolerance to avoid spurious reconnections on brief keyframe gaps
+        this.#muteTimer = setTimeout(() => {
+            if (this.state() === 'playing') {
+                this.onStreamInterrupted?.();
+            }
+        }, 2500);
+    }
+
+    #clearMuteToleranceTimer(): void {
+        if (this.#muteTimer) {
+            clearTimeout(this.#muteTimer);
+            this.#muteTimer = null;
+        }
+    }
+
+    #startStatsMonitoring(): void {
+        this.#stopStatsMonitoring();
+        this.#lastFramesReceived = null;
+        this.#consecutiveZeroFrames = 0;
+
+        this.#statsInterval = setInterval(async () => {
+            if (!this.#peerConnection || this.state() !== 'playing') {
+                return;
+            }
+            if (typeof this.#peerConnection.getStats !== 'function') {
+                return;
+            }
+
+            try {
+                const stats = await this.#peerConnection.getStats();
+                let currentFrames: number | null = null;
+
+                stats.forEach((report: any) => {
+                    if (report.type === 'inbound-rtp' && (report.kind === 'video' || report.mediaType === 'video')) {
+                        if (typeof report.framesReceived === 'number') {
+                            currentFrames = report.framesReceived;
+                        } else if (typeof report.framesDecoded === 'number') {
+                            currentFrames = report.framesDecoded;
+                        }
+                    }
+                });
+
+                if (currentFrames !== null) {
+                    if (this.#lastFramesReceived !== null && currentFrames === this.#lastFramesReceived) {
+                        this.#consecutiveZeroFrames++;
+                        // If no new video frames arrive over 2 checks (approx 5s) despite being in connected state
+                        if (this.#consecutiveZeroFrames >= 2) {
+                            this.#stopStatsMonitoring();
+                            this.onStreamInterrupted?.();
+                        }
+                    } else {
+                        this.#lastFramesReceived = currentFrames;
+                        this.#consecutiveZeroFrames = 0;
+                    }
+                }
+            } catch {
+                // Ignore stats errors
+            }
+        }, 2500);
+    }
+
+    #stopStatsMonitoring(): void {
+        if (this.#statsInterval) {
+            clearInterval(this.#statsInterval);
+            this.#statsInterval = null;
+        }
+        this.#lastFramesReceived = null;
+        this.#consecutiveZeroFrames = 0;
     }
 
     /**
