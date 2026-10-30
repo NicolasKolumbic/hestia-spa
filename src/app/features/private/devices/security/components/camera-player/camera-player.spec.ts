@@ -142,7 +142,7 @@ describe('CameraPlayer', () => {
         expect(component.errorMessage()).toBe('No tenés permisos para visualizar esta cámara.');
     });
 
-    it('should handle Gateway unreachable error when status is 0 or network error', async () => {
+    it('should enter reconnecting state when Gateway is unreachable (status 0)', async () => {
         mockCameraStreamService.resolveCameraStream.and.returnValue(
             throwError(() => ({ status: 0, message: 'Failed to fetch Gateway' }))
         );
@@ -150,11 +150,12 @@ describe('CameraPlayer', () => {
         await component.startStream();
         fixture.detectChanges();
 
-        expect(component.state()).toBe('error');
+        expect(component.state()).toBe('reconnecting');
+        expect(component.retryAttempt()).toBe(1);
         expect(component.errorMessage()).toBe('No se pudo contactar al Gateway.');
     });
 
-    it('should handle timeout error with friendly Spanish description', async () => {
+    it('should enter reconnecting state on timeout error', async () => {
         mockWhepPlayerService.connect.and.rejectWith(
             new Error('Se agotó el tiempo de espera para conectar con la cámara.')
         );
@@ -162,9 +163,9 @@ describe('CameraPlayer', () => {
         await component.startStream();
         fixture.detectChanges();
 
-        expect(component.state()).toBe('error');
+        expect(component.state()).toBe('reconnecting');
+        expect(component.retryAttempt()).toBe(1);
         expect(component.errorMessage()).toBe('Se agotó el tiempo de espera para conectar con la cámara.');
-        expect(fixture.nativeElement.textContent).toContain('Se agotó el tiempo de espera para conectar con la cámara.');
     });
 
     it('should not set visual error state when connect is aborted by user disconnect or component destroy', async () => {
@@ -205,5 +206,152 @@ describe('CameraPlayer', () => {
     it('should disconnect and cleanup on destroy', () => {
         fixture.destroy();
         expect(mockWhepPlayerService.disconnect).toHaveBeenCalled();
+    });
+
+    describe('Concurrency and Session Generation', () => {
+        it('should discard stream resolution if stopStream is called while connect is in flight', async () => {
+            let resolveConnect: any;
+            mockWhepPlayerService.connect.and.returnValue(
+                new Promise((resolve) => {
+                    resolveConnect = resolve;
+                })
+            );
+
+            // Start stream (async connect in flight)
+            const streamPromise = component.startStream();
+            expect(component.state()).toBe('connecting');
+
+            // User clicks stop while connect is pending
+            component.stopStream();
+            expect(component.state()).toBe('stopped');
+
+            // Now connect finishes later
+            resolveConnect(new MediaStream());
+            await streamPromise;
+
+            // State must remain stopped and NOT flip to playing
+            expect(component.state()).toBe('stopped');
+            // Disconnect should have been called again to release orphan session
+            expect(mockWhepPlayerService.disconnect).toHaveBeenCalledTimes(2);
+        });
+    });
+
+    describe('Exponential Backoff and Retry Exhaustion', () => {
+        it('should enter error state after 3 failed attempts', async () => {
+            mockWhepPlayerService.connect.and.rejectWith(new Error('Network error'));
+
+            // Attempt 1
+            await component.startStream();
+            expect(component.state()).toBe('reconnecting');
+            expect(component.retryAttempt()).toBe(1);
+
+            // Attempt 2
+            await component.startStream(true);
+            expect(component.state()).toBe('reconnecting');
+            expect(component.retryAttempt()).toBe(2);
+
+            // Attempt 3
+            await component.startStream(true);
+            expect(component.state()).toBe('reconnecting');
+            expect(component.retryAttempt()).toBe(3);
+
+            // Attempt 4 (exhausted)
+            await component.startStream(true);
+            expect(component.state()).toBe('error');
+            expect(component.errorMessage()).toContain('Se agotaron los reintentos');
+        });
+    });
+
+    describe('Stream Interruption Detection', () => {
+        it('should enter reconnecting state when onStreamInterrupted callback fires during playback', () => {
+            component.playerState.set('playing');
+            expect(component.state()).toBe('playing');
+
+            // Simulate WhepPlayerService detecting freeze or track ended
+            mockWhepPlayerService.onStreamInterrupted();
+
+            expect(component.state()).toBe('reconnecting');
+            expect(component.retryAttempt()).toBe(1);
+            expect(component.errorMessage()).toContain('Se interrumpió la señal de video');
+        });
+    });
+
+    describe('Multi-Camera Independence', () => {
+        let whepA: any;
+        let whepB: any;
+        let fixtureA: ComponentFixture<CameraPlayer>;
+        let fixtureB: ComponentFixture<CameraPlayer>;
+        let camA: CameraPlayer;
+        let camB: CameraPlayer;
+
+        beforeEach(async () => {
+            let instanceCount = 0;
+            whepA = {
+                state: signal<StreamState>('playing'),
+                errorMessage: signal<string | null>(null),
+                mediaStream: signal<MediaStream | null>(null),
+                disconnect: jasmine.createSpy('disconnectA'),
+            };
+            whepB = {
+                state: signal<StreamState>('playing'),
+                errorMessage: signal<string | null>(null),
+                mediaStream: signal<MediaStream | null>(null),
+                disconnect: jasmine.createSpy('disconnectB'),
+            };
+
+            await TestBed.resetTestingModule();
+            await TestBed.configureTestingModule({
+                imports: [CameraPlayer],
+                providers: [
+                    provideZonelessChangeDetection(),
+                    { provide: CameraStreamService, useValue: mockCameraStreamService },
+                ],
+            })
+            .overrideComponent(CameraPlayer, {
+                set: {
+                    providers: [
+                        {
+                            provide: WhepPlayerService,
+                            useFactory: () => {
+                                instanceCount++;
+                                return instanceCount === 1 ? whepA : whepB;
+                            },
+                        },
+                    ],
+                },
+            })
+            .compileComponents();
+
+            fixtureA = TestBed.createComponent(CameraPlayer);
+            camA = fixtureA.componentInstance;
+            fixtureA.componentRef.setInput('deviceId', 'cam-1');
+            fixtureA.detectChanges();
+
+            fixtureB = TestBed.createComponent(CameraPlayer);
+            camB = fixtureB.componentInstance;
+            fixtureB.componentRef.setInput('deviceId', 'cam-2');
+            fixtureB.detectChanges();
+        });
+
+        it('should maintain independent sessions so stopping Camera A does not affect Camera B', () => {
+            camA.playerState.set('playing');
+            camB.playerState.set('playing');
+
+            expect(camA.state()).toBe('playing');
+            expect(camB.state()).toBe('playing');
+
+            // Stop Camera A
+            camA.stopStream();
+
+            expect(camA.state()).toBe('stopped');
+            expect(whepA.disconnect).toHaveBeenCalled();
+
+            // Camera B remains playing and its disconnect was not called
+            expect(camB.state()).toBe('playing');
+            expect(whepB.disconnect).not.toHaveBeenCalled();
+
+            fixtureA.destroy();
+            fixtureB.destroy();
+        });
     });
 });
