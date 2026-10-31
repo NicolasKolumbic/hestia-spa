@@ -224,12 +224,15 @@ export class CameraPlayer implements OnInit {
             status === 401 ||
             status === 403 ||
             msg.toLowerCase().includes('permisos') ||
-            msg.toLowerCase().includes('autorizado')
+            msg.toLowerCase().includes('autorizado') ||
+            msg.toLowerCase().includes('forbidden') ||
+            msg.toLowerCase().includes('revocada')
         ) {
             this.playerState.set('error');
             this.playerErrorMessage.set('No tenés permisos para visualizar esta cámara.');
             this.#retryCount = 0;
             this.retryAttempt.set(0);
+            this.#whepService.disconnect();
             return;
         }
 

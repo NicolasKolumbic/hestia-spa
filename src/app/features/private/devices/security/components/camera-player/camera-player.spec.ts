@@ -260,6 +260,30 @@ describe('CameraPlayer', () => {
             expect(component.state()).toBe('error');
             expect(component.errorMessage()).toContain('Se agotaron los reintentos');
         });
+
+        it('should halt retries and disconnect WebRTC resources immediately on 403 / permission rejection', async () => {
+            const forbiddenError = { status: 403, message: 'Forbidden: No tenés permisos' };
+            mockCameraStreamService.resolveCameraStream.and.returnValue(throwError(() => forbiddenError));
+
+            await component.startStream();
+
+            expect(component.state()).toBe('error');
+            expect(component.errorMessage()).toContain('No tenés permisos para visualizar esta cámara');
+            expect(component.retryAttempt()).toBe(0);
+            expect(mockWhepPlayerService.disconnect).toHaveBeenCalled();
+        });
+
+        it('should halt retries and disconnect WebRTC resources on revoked stream error', async () => {
+            const revokedError = { status: 403, message: 'Sesión revocada' };
+            mockWhepPlayerService.connect.and.rejectWith(revokedError);
+
+            await component.startStream();
+
+            expect(component.state()).toBe('error');
+            expect(component.errorMessage()).toContain('No tenés permisos para visualizar esta cámara');
+            expect(component.retryAttempt()).toBe(0);
+            expect(mockWhepPlayerService.disconnect).toHaveBeenCalled();
+        });
     });
 
     describe('Stream Interruption Detection', () => {
