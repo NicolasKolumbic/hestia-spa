@@ -25,16 +25,14 @@
     </div>
 
     <!-- Loading / Authorizing / Connecting State Overlay -->
-    @if (state() === 'authorizing' || state() === 'connecting' || state() === 'loading') {
+    @if (state() === 'authorizing' || state() === 'connecting') {
         <div class="absolute inset-0 bg-neutral-900/90 backdrop-blur-sm flex flex-col items-center justify-center gap-3 z-10 text-white">
             <p-progressSpinner strokeWidth="4" ariaLabel="Cargando cámara" styleClass="w-12 h-12"></p-progressSpinner>
             <p class="text-sm font-medium text-neutral-300">
                 @if (state() === 'authorizing') {
                     Solicitando autorización...
-                } @else if (state() === 'connecting') {
-                    Conectando con la cámara...
                 } @else {
-                    Preparando transmisión...
+                    Conectando con la cámara...
                 }
             </p>
         </div>
