@@ -44,29 +44,23 @@
     };
 
     const CLIENT_ID = 'd678c832-5d05-4dbe-a66e-3e4fed996fd1';
-    let authenticated = false;
 
-    async function ensureAuthenticated() {
-      if (authenticated) return;
-      console.log('Iniciando sesión con usuario de pruebas legítimo (e2e-with-perms)...');
+    async function loginAs(email, password) {
+      console.log(`Iniciando sesión como ${email}...`);
       const loginRes = await fetch('http://localhost:3000/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({
-          email: 'e2e-with-perms@hestia.local',
-          password: 'password123'
-        })
+        body: JSON.stringify({ email, password })
       });
       if (!loginRes.ok) {
-        throw new Error(`Login falló con status ${loginRes.status}`);
+        throw new Error(`Login falló para ${email} con status ${loginRes.status}`);
       }
-      authenticated = true;
-      console.log('Sesión legítima iniciada correctamente.');
+      return loginRes;
     }
 
     async function startCamera(config) {
-      const { name, deviceId, path, statusElId, jtiElId, pcElId, videoElId, logElId } = config;
+      const { name, deviceId, path, userEmail, userPass, statusElId, jtiElId, pcElId, videoElId, logElId } = config;
       const statusEl = document.getElementById(statusElId);
       const jtiEl = document.getElementById(jtiElId);
       const pcEl = document.getElementById(pcElId);
@@ -79,8 +73,10 @@
       }
 
       try {
-        await ensureAuthenticated();
-        log('1. Solicitando stream-token a NestJS mediante sesión legítima...');
+        log(`1. Iniciando sesión para ${userEmail}...`);
+        await loginAs(userEmail, userPass);
+        
+        log('2. Solicitando stream-token a NestJS...');
         const tokenRes = await fetch(`http://localhost:3000/api/devices/${deviceId}/stream-token`, {
           method: 'POST',
           headers: {
@@ -101,7 +97,7 @@
         window.__cameraStatus[name].jti = streamSessionId;
         log(`Token obtenido: JTI=${streamSessionId}`);
 
-        log('2. Creando RTCPeerConnection...');
+        log('3. Creando RTCPeerConnection...');
         const pc = new RTCPeerConnection({
           iceServers: [{ urls: 'stun:stun.cloudflare.com:3478' }]
         });
@@ -124,18 +120,20 @@
             statusEl.textContent = 'CONECTADA';
             statusEl.className = 'badge badge-ok';
             window.__cameraStatus[name].connected = true;
-          } else if (pc.connectionState === 'failed' || pc.connectionState === 'closed') {
+          } else if (pc.connectionState === 'disconnected' || pc.connectionState === 'failed' || pc.connectionState === 'closed') {
             statusEl.textContent = pc.connectionState.toUpperCase();
             statusEl.className = 'badge badge-err';
             window.__cameraStatus[name].connected = false;
+            if (!window.__cameraStatus[name].disconnectedAt) {
+              window.__cameraStatus[name].disconnectedAt = Date.now();
+            }
           }
         };
 
         const offer = await pc.createOffer();
         await pc.setLocalDescription(offer);
 
-        log('3. Enviando SDP Offer por WHEP con Authorization: Bearer y solo ?jti en URL...');
-        // Seguridad D.3: El token va exclusivamente en Authorization Bearer header, URL contiene únicamente ?jti=<UUID>
+        log('4. Enviando SDP Offer por WHEP...');
         const whepUrl = `http://localhost:8889/${path}/whep?jti=${streamSessionId}`;
         const whepRes = await fetch(whepUrl, {
           method: 'POST',
@@ -154,7 +152,7 @@
         const answerSdp = await whepRes.text();
         log(`WHEP 201 OK. Location=${location}`);
 
-        log('4. Configurando SDP Answer...');
+        log('5. Configurando SDP Answer...');
         await pc.setRemoteDescription({ type: 'answer', sdp: answerSdp });
         log('SDP Answer configurado. Estableciendo ICE...');
 
@@ -168,28 +166,34 @@
     }
 
     async function init() {
-      await Promise.all([
-        startCamera({
-          name: 'cocina',
-          deviceId: '774d115b-fdce-496f-9929-31eefa7f4db3',
-          path: 'camara-cocina-comedor',
-          statusElId: 'status-cocina',
-          jtiElId: 'jti-cocina',
-          pcElId: 'pc-cocina',
-          videoElId: 'video-cocina',
-          logElId: 'log-cocina'
-        }),
-        startCamera({
-          name: 'living',
-          deviceId: 'dd602a34-be87-4d6e-800b-1cce57de2ef1',
-          path: 'camara-living',
-          statusElId: 'status-living',
-          jtiElId: 'jti-living',
-          pcElId: 'pc-living',
-          videoElId: 'video-living',
-          logElId: 'log-living'
-        })
-      ]);
+      // 1. Iniciar Cocina Comedor con e2e-no-perms (sujeto de prueba)
+      await startCamera({
+        name: 'cocina',
+        deviceId: '774d115b-fdce-496f-9929-31eefa7f4db3',
+        path: 'camara-cocina-comedor',
+        userEmail: 'e2e-no-perms@hestia.local',
+        userPass: 'password123',
+        statusElId: 'status-cocina',
+        jtiElId: 'jti-cocina',
+        pcElId: 'pc-cocina',
+        videoElId: 'video-cocina',
+        logElId: 'log-cocina'
+      });
+
+      // 2. Iniciar Living con e2e-with-perms (control)
+      await startCamera({
+        name: 'living',
+        deviceId: 'dd602a34-be87-4d6e-800b-1cce57de2ef1',
+        path: 'camara-living',
+        userEmail: 'e2e-with-perms@hestia.local',
+        userPass: 'password123',
+        statusElId: 'status-living',
+        jtiElId: 'jti-living',
+        pcElId: 'pc-living',
+        videoElId: 'video-living',
+        logElId: 'log-living'
+      });
+
       document.getElementById('summary').textContent = 'Ambas cámaras iniciadas.';
     }
 
