@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Hestia Dual Camera Validation Harness</title>
+  <style>
+    body { font-family: monospace; background: #121212; color: #eee; padding: 20px; }
+    .grid { display: flex; gap: 20px; margin-top: 20px; }
+    .card { background: #1e1e1e; padding: 15px; border-radius: 8px; flex: 1; border: 1px solid #333; }
+    video { width: 100%; height: 260px; background: #000; border-radius: 4px; object-fit: cover; }
+    .badge { display: inline-block; padding: 4px 8px; border-radius: 4px; font-weight: bold; }
+    .badge-ok { background: #1b5e20; color: #a5d6a7; }
+    .badge-err { background: #b71c1c; color: #ffcdd2; }
+    .badge-pending { background: #f57f17; color: #fff9c4; }
+    pre { background: #000; padding: 8px; border-radius: 4px; overflow-x: auto; font-size: 11px; max-height: 150px; }
+  </style>
+</head>
+<body>
+  <h2>HESTIA — Dual Camera Live WebRTC Validation</h2>
+  <div id="summary">Iniciando conexiones WebRTC...</div>
+  <div class="grid">
+    <div class="card" id="card-cocina">
+      <h3>Cámara Cocina Comedor</h3>
+      <div>Estado: <span id="status-cocina" class="badge badge-pending">INICIANDO</span></div>
+      <div>JTI: <code id="jti-cocina">-</code></div>
+      <div>PeerConnection: <span id="pc-cocina">-</span></div>
+      <video id="video-cocina" autoplay playsinline muted></video>
+      <pre id="log-cocina"></pre>
+    </div>
+    <div class="card" id="card-living">
+      <h3>Cámara Living</h3>
+      <div>Estado: <span id="status-living" class="badge badge-pending">INICIANDO</span></div>
+      <div>JTI: <code id="jti-living">-</code></div>
+      <div>PeerConnection: <span id="pc-living">-</span></div>
+      <video id="video-living" autoplay playsinline muted></video>
+      <pre id="log-living"></pre>
+    </div>
+  </div>
+
+  <script>
+    window.__cameraStatus = {
+      cocina: { connected: false, jti: null, state: 'idle' },
+      living: { connected: false, jti: null, state: 'idle' }
+    };
+
+    const CLIENT_ID = 'd678c832-5d05-4dbe-a66e-3e4fed996fd1';
+    let authenticated = false;
+
+    async function ensureAuthenticated() {
+      if (authenticated) return;
+      console.log('Iniciando sesión con usuario de pruebas legítimo (e2e-with-perms)...');
+      const loginRes = await fetch('http://localhost:3000/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          email: 'e2e-with-perms@hestia.local',
+          password: 'password123'
+        })
+      });
+      if (!loginRes.ok) {
+        throw new Error(`Login falló con status ${loginRes.status}`);
+      }
+      authenticated = true;
+      console.log('Sesión legítima iniciada correctamente.');
+    }
+
+    async function startCamera(config) {
+      const { name, deviceId, path, statusElId, jtiElId, pcElId, videoElId, logElId } = config;
+      const statusEl = document.getElementById(statusElId);
+      const jtiEl = document.getElementById(jtiElId);
+      const pcEl = document.getElementById(pcElId);
+      const videoEl = document.getElementById(videoElId);
+      const logEl = document.getElementById(logElId);
+
+      function log(msg) {
+        logEl.textContent += `[${new Date().toISOString().substring(11, 19)}] ${msg}\n`;
+        console.log(`[${name}] ${msg}`);
+      }
+
+      try {
+        await ensureAuthenticated();
+        log('1. Solicitando stream-token a NestJS mediante sesión legítima...');
+        const tokenRes = await fetch(`http://localhost:3000/api/devices/${deviceId}/stream-token`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-client-id': CLIENT_ID
+          },
+          credentials: 'include'
+        });
+
+        if (!tokenRes.ok) {
+          throw new Error(`Error en NestJS token: ${tokenRes.status} ${tokenRes.statusText}`);
+        }
+
+        const tokenData = await tokenRes.json();
+        const streamToken = tokenData.token;
+        const streamSessionId = tokenData.streamSessionId;
+        jtiEl.textContent = streamSessionId;
+        window.__cameraStatus[name].jti = streamSessionId;
+        log(`Token obtenido: JTI=${streamSessionId}`);
+
+        log('2. Creando RTCPeerConnection...');
+        const pc = new RTCPeerConnection({
+          iceServers: [{ urls: 'stun:stun.cloudflare.com:3478' }]
+        });
+
+        pc.addTransceiver('video', { direction: 'recvonly' });
+        pc.addTransceiver('audio', { direction: 'recvonly' });
+
+        pc.ontrack = (ev) => {
+          log(`Track recibido: ${ev.track.kind}`);
+          if (ev.streams && ev.streams[0]) {
+            videoEl.srcObject = ev.streams[0];
+          }
+        };
+
+        pc.onconnectionstatechange = () => {
+          pcEl.textContent = pc.connectionState;
+          window.__cameraStatus[name].state = pc.connectionState;
+          log(`ICE/PeerConnection: ${pc.connectionState}`);
+          if (pc.connectionState === 'connected') {
+            statusEl.textContent = 'CONECTADA';
+            statusEl.className = 'badge badge-ok';
+            window.__cameraStatus[name].connected = true;
+          } else if (pc.connectionState === 'failed' || pc.connectionState === 'closed') {
+            statusEl.textContent = pc.connectionState.toUpperCase();
+            statusEl.className = 'badge badge-err';
+            window.__cameraStatus[name].connected = false;
+          }
+        };
+
+        const offer = await pc.createOffer();
+        await pc.setLocalDescription(offer);
+
+        log('3. Enviando SDP Offer por WHEP con Authorization: Bearer y solo ?jti en URL...');
+        // Seguridad D.3: El token va exclusivamente en Authorization Bearer header, URL contiene únicamente ?jti=<UUID>
+        const whepUrl = `http://localhost:8889/${path}/whep?jti=${streamSessionId}`;
+        const whepRes = await fetch(whepUrl, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${streamToken}`,
+            'Content-Type': 'application/sdp'
+          },
+          body: offer.sdp
+        });
+
+        if (!whepRes.ok) {
+          throw new Error(`MediaMTX WHEP handshake falló: ${whepRes.status} ${whepRes.statusText}`);
+        }
+
+        const location = whepRes.headers.get('Location');
+        const answerSdp = await whepRes.text();
+        log(`WHEP 201 OK. Location=${location}`);
+
+        log('4. Configurando SDP Answer...');
+        await pc.setRemoteDescription({ type: 'answer', sdp: answerSdp });
+        log('SDP Answer configurado. Estableciendo ICE...');
+
+        window.__cameraStatus[name].pc = pc;
+      } catch (err) {
+        log(`ERROR: ${err.message}`);
+        statusEl.textContent = 'ERROR';
+        statusEl.className = 'badge badge-err';
+        window.__cameraStatus[name].state = 'error';
+      }
+    }
+
+    async function init() {
+      await Promise.all([
+        startCamera({
+          name: 'cocina',
+          deviceId: '774d115b-fdce-496f-9929-31eefa7f4db3',
+          path: 'camara-cocina-comedor',
+          statusElId: 'status-cocina',
+          jtiElId: 'jti-cocina',
+          pcElId: 'pc-cocina',
+          videoElId: 'video-cocina',
+          logElId: 'log-cocina'
+        }),
+        startCamera({
+          name: 'living',
+          deviceId: 'dd602a34-be87-4d6e-800b-1cce57de2ef1',
+          path: 'camara-living',
+          statusElId: 'status-living',
+          jtiElId: 'jti-living',
+          pcElId: 'pc-living',
+          videoElId: 'video-living',
+          logElId: 'log-living'
+        })
+      ]);
+      document.getElementById('summary').textContent = 'Ambas cámaras iniciadas.';
+    }
+
+    window.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
