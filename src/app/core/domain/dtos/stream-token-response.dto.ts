@@ -5,5 +5,6 @@ export interface StreamTokenResponseDto {
     expiresIn: number;
     deviceId: string;
     gatewayId: string;
+    streamSessionId?: string;
     stream: StreamInfoDto;
 }

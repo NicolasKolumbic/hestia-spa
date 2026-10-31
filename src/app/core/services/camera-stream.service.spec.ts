@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideZonelessChangeDetection } from '@angular/core';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideHttpClient } from '@angular/common/http';
-import { CameraStreamService } from './camera-stream.service';
+import { CameraStreamService, buildWhepUrlWithSession } from './camera-stream.service';
 import { Environment } from './environment';
 import { StreamTokenResponseDto } from '@core/domain/dtos/stream-token-response.dto';
 
@@ -180,5 +180,51 @@ describe('CameraStreamService', () => {
             'http://localhost:3000/api/devices/secure-camera-dev/stream-token',
         );
         tokenReq.flush(mockTokenResponse);
+    });
+
+    it('should incorporate streamSessionId into whepUrl as jti query parameter when provided', () => {
+        const deviceId = 'camera-session-test-dev';
+        const mockTokenResponse: StreamTokenResponseDto = {
+            token: 'valid.token',
+            expiresIn: 120,
+            deviceId,
+            gatewayId: 'gw-1',
+            streamSessionId: 'session-uuid-1111-2222',
+            stream: {
+                protocol: 'webrtc',
+                whepUrl: 'https://tunnel.com/camara-cocina/whep',
+            },
+        };
+
+        service.resolveCameraStream(deviceId).subscribe((resolved) => {
+            expect(resolved.whepUrl).toBe(
+                'https://tunnel.com/camara-cocina/whep?jti=session-uuid-1111-2222',
+            );
+            expect(resolved.whepUrl).not.toContain('valid.token');
+            expect(resolved.tokenResponse.streamSessionId).toBe('session-uuid-1111-2222');
+        });
+
+        const tokenReq = httpTestingController.expectOne(
+            'http://localhost:3000/api/devices/camera-session-test-dev/stream-token',
+        );
+        tokenReq.flush(mockTokenResponse);
+    });
+
+    it('buildWhepUrlWithSession should safely handle existing query parameters and prevent duplicate jti', () => {
+        // 1. Clean URL
+        const u1 = buildWhepUrlWithSession('http://localhost:8889/cam/whep', 'jti-123');
+        expect(u1).toBe('http://localhost:8889/cam/whep?jti=jti-123');
+
+        // 2. Existing params preserved
+        const u2 = buildWhepUrlWithSession('http://localhost:8889/cam/whep?custom=abc', 'jti-123');
+        expect(u2).toBe('http://localhost:8889/cam/whep?custom=abc&jti=jti-123');
+
+        // 3. Duplicate jti prevented (overwrites)
+        const u3 = buildWhepUrlWithSession('http://localhost:8889/cam/whep?jti=old-val&other=1', 'new-val');
+        expect(u3).toBe('http://localhost:8889/cam/whep?jti=new-val&other=1');
+
+        // 4. Empty sessionId returns rawUrl untouched
+        const u4 = buildWhepUrlWithSession('http://localhost:8889/cam/whep', undefined);
+        expect(u4).toBe('http://localhost:8889/cam/whep');
     });
 });

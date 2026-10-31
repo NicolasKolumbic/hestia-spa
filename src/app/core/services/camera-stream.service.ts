@@ -9,6 +9,26 @@ export interface ResolvedCameraStream {
     tokenResponse: StreamTokenResponseDto;
 }
 
+/**
+ * Safely appends the explicit streamSessionId as the 'jti' query parameter to a WHEP URL.
+ * Preserves existing query parameters and guarantees no duplicates can be introduced.
+ */
+export function buildWhepUrlWithSession(rawUrl: string, sessionId?: string): string {
+    if (!sessionId || !sessionId.trim()) {
+        return rawUrl;
+    }
+    try {
+        const parsed = new URL(rawUrl);
+        parsed.searchParams.set('jti', sessionId.trim());
+        return parsed.toString();
+    } catch {
+        const [base, query] = rawUrl.split('?');
+        const params = new URLSearchParams(query || '');
+        params.set('jti', sessionId.trim());
+        return `${base}?${params.toString()}`;
+    }
+}
+
 @Injectable({
     providedIn: 'root',
 })
@@ -28,12 +48,13 @@ export class CameraStreamService {
     /**
      * Resolves the camera streaming endpoint and ephemeral token directly from Hestia Cloud.
      * The Cloud API acts as the single authority on whepUrl and token generation.
-     * The WHEP endpoint URL is returned clean without tokens in query parameters.
+     * Incorporates the streamSessionId into the WHEP URL as 'jti' for MediaMTX session correlation
+     * without requiring Angular to decode or parse the signed JWT.
      */
     resolveCameraStream(deviceId: string): Observable<ResolvedCameraStream> {
         return this.getStreamToken(deviceId).pipe(
             map((tokenResponse) => ({
-                whepUrl: tokenResponse.stream.whepUrl,
+                whepUrl: buildWhepUrlWithSession(tokenResponse.stream.whepUrl, tokenResponse.streamSessionId),
                 tokenResponse,
             }))
         );
