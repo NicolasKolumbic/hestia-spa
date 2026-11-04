@@ -226,5 +226,13 @@ describe('CameraStreamService', () => {
         // 4. Empty sessionId returns rawUrl untouched
         const u4 = buildWhepUrlWithSession('http://localhost:8889/cam/whep', undefined);
         expect(u4).toBe('http://localhost:8889/cam/whep');
+
+        // 5. Remote Tailscale Serve HTTPS URL with jti and stripping any accidental token param
+        const u5 = buildWhepUrlWithSession(
+            'https://nicolas.tail6aa4c6.ts.net/camara-cocina-comedor/whep?token=should-be-removed',
+            'session-ts-999',
+        );
+        expect(u5).toBe('https://nicolas.tail6aa4c6.ts.net/camara-cocina-comedor/whep?jti=session-ts-999');
+        expect(u5).not.toContain('token=');
     });
 });

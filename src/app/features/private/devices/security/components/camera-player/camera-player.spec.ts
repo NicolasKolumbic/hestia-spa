@@ -298,6 +298,20 @@ describe('CameraPlayer', () => {
             expect(component.retryAttempt()).toBe(1);
             expect(component.errorMessage()).toContain('Se interrumpió la señal de video');
         });
+
+        it('should enter reconnecting state when ICE connection fails and whepService transitions to error before invoking onStreamInterrupted', () => {
+            component.playerState.set('playing');
+            whepStateSignal.set('playing');
+            expect(component.state()).toBe('playing');
+
+            // Simulate real WhepPlayerService order: sets state to 'error' first, then calls onStreamInterrupted
+            whepStateSignal.set('error');
+            whepErrorSignal.set('Se perdió la conexión con la cámara.');
+            mockWhepPlayerService.onStreamInterrupted();
+
+            expect(component.state()).toBe('reconnecting');
+            expect(component.retryAttempt()).toBe(1);
+        });
     });
 
     describe('Multi-Camera Independence', () => {

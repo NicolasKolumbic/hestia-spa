@@ -435,4 +435,115 @@ describe('WhepPlayerService', () => {
             expect(interruptionSpy).not.toHaveBeenCalled();
         });
     });
+
+    describe('Remote Tailscale HTTPS, Location resolution (POST/PATCH/DELETE), and ICE errors', () => {
+        it('should connect to remote Tailscale HTTPS WHEP URL with jti and resolve root-relative Location for PATCH and DELETE', async () => {
+            const remoteWhepUrl = 'https://nicolas.tail6aa4c6.ts.net/camara-cocina-comedor/whep?jti=session-ts-123';
+            const streamToken = 'rs256.bearer.jwt';
+
+            window.fetch = jasmine.createSpy('fetch').and.resolveTo({
+                ok: true,
+                status: 201,
+                headers: new Headers({ Location: '/camara-cocina-comedor/whep/6a51a60d-32dc-4918-a685-6ef41684369c' }),
+                text: () => Promise.resolve('v=0\r\no=mock-answer\r\n'),
+            } as any);
+
+            await service.connect(remoteWhepUrl, streamToken);
+
+            expect(window.fetch).toHaveBeenCalledWith(
+                remoteWhepUrl,
+                jasmine.objectContaining({
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/sdp',
+                        'Authorization': `Bearer ${streamToken}`,
+                    },
+                })
+            );
+
+            // Verify PATCH against resolved Tailscale HTTPS resource Location
+            window.fetch = jasmine.createSpy('fetch').and.resolveTo({ ok: true, status: 204 } as any);
+            const patched = await service.patchIceCandidates('a=candidate:1 1 UDP 2130706431 100.92.29.55 8189 typ host\r\n', 'etag-1');
+            expect(patched).toBeTrue();
+            expect(window.fetch).toHaveBeenCalledWith(
+                'https://nicolas.tail6aa4c6.ts.net/camara-cocina-comedor/whep/6a51a60d-32dc-4918-a685-6ef41684369c',
+                jasmine.objectContaining({
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/trickle-ice-sdpfrag',
+                        'If-Match': 'etag-1',
+                    },
+                })
+            );
+
+            // Verify DELETE against resolved Tailscale HTTPS resource Location
+            window.fetch = jasmine.createSpy('fetch').and.resolveTo({ ok: true, status: 200 } as any);
+            await service.disconnect();
+            expect(window.fetch).toHaveBeenCalledWith(
+                'https://nicolas.tail6aa4c6.ts.net/camara-cocina-comedor/whep/6a51a60d-32dc-4918-a685-6ef41684369c',
+                jasmine.objectContaining({
+                    method: 'DELETE',
+                })
+            );
+        });
+
+        it('should normalize child-relative Location without leading slash and upstream localhost Location to Tailscale HTTPS origin', async () => {
+            const remoteWhepUrl = 'https://nicolas.tail6aa4c6.ts.net/camara-cocina-comedor/whep?jti=session-ts-456';
+
+            // Case 1: child-relative Location without leading slash ("session-child-789")
+            window.fetch = jasmine.createSpy('fetch').and.resolveTo({
+                ok: true,
+                status: 201,
+                headers: new Headers({ Location: 'session-child-789' }),
+                text: () => Promise.resolve('v=0\r\no=mock-answer\r\n'),
+            } as any);
+
+            await service.connect(remoteWhepUrl, 'token-1');
+            window.fetch = jasmine.createSpy('fetch').and.resolveTo({ ok: true } as any);
+            await service.disconnect();
+
+            expect(window.fetch).toHaveBeenCalledWith(
+                'https://nicolas.tail6aa4c6.ts.net/camara-cocina-comedor/whep/session-child-789',
+                jasmine.objectContaining({ method: 'DELETE' })
+            );
+
+            // Case 2: upstream localhost Location rewritten to Tailscale HTTPS origin
+            window.fetch = jasmine.createSpy('fetch').and.resolveTo({
+                ok: true,
+                status: 201,
+                headers: new Headers({ Location: 'http://localhost:8889/camara-cocina-comedor/whep/session-upstream-999' }),
+                text: () => Promise.resolve('v=0\r\no=mock-answer\r\n'),
+            } as any);
+
+            await service.connect(remoteWhepUrl, 'token-2');
+            window.fetch = jasmine.createSpy('fetch').and.resolveTo({ ok: true } as any);
+            await service.disconnect();
+
+            expect(window.fetch).toHaveBeenCalledWith(
+                'https://nicolas.tail6aa4c6.ts.net/camara-cocina-comedor/whep/session-upstream-999',
+                jasmine.objectContaining({ method: 'DELETE' })
+            );
+        });
+
+        it('should transition to error and invoke onStreamInterrupted when ICE connection fails (UDP 8189 / Tailscale unreachable)', async () => {
+            window.fetch = jasmine.createSpy('fetch').and.resolveTo({
+                ok: true,
+                status: 201,
+                headers: new Headers({ Location: '/camara-cocina-comedor/whep/session-ice-fail' }),
+                text: () => Promise.resolve('v=0\r\no=mock-answer\r\n'),
+            } as any);
+
+            const interruptionSpy = jasmine.createSpy('onStreamInterrupted');
+            service.onStreamInterrupted = interruptionSpy;
+
+            await service.connect('https://nicolas.tail6aa4c6.ts.net/camara-cocina-comedor/whep?jti=ice-1', 'jwt-token');
+
+            mockPeerConnection.iceConnectionState = 'failed';
+            mockPeerConnection.oniceconnectionstatechange();
+
+            expect(service.state()).toBe('error');
+            expect(service.errorMessage()).toBe('Se perdió la conexión con la cámara.');
+            expect(interruptionSpy).toHaveBeenCalled();
+        });
+    });
 });
