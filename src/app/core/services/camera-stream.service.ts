@@ -14,18 +14,22 @@ export interface ResolvedCameraStream {
  * Preserves existing query parameters and guarantees no duplicates can be introduced.
  */
 export function buildWhepUrlWithSession(rawUrl: string, sessionId?: string): string {
-    if (!sessionId || !sessionId.trim()) {
-        return rawUrl;
-    }
     try {
         const parsed = new URL(rawUrl);
-        parsed.searchParams.set('jti', sessionId.trim());
+        parsed.searchParams.delete('token');
+        if (sessionId && sessionId.trim()) {
+            parsed.searchParams.set('jti', sessionId.trim());
+        }
         return parsed.toString();
     } catch {
         const [base, query] = rawUrl.split('?');
         const params = new URLSearchParams(query || '');
-        params.set('jti', sessionId.trim());
-        return `${base}?${params.toString()}`;
+        params.delete('token');
+        if (sessionId && sessionId.trim()) {
+            params.set('jti', sessionId.trim());
+        }
+        const queryString = params.toString();
+        return queryString ? `${base}?${queryString}` : base;
     }
 }
 

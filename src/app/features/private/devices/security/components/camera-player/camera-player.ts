@@ -82,6 +82,9 @@ export class CameraPlayer implements OnInit {
         if (ws === 'disconnected') {
             return 'disconnected';
         }
+        if (ws === 'error') {
+            return 'error';
+        }
         return ps;
     });
 
@@ -92,7 +95,8 @@ export class CameraPlayer implements OnInit {
     constructor() {
         // Interruption callback from WhepPlayerService
         this.#whepService.onStreamInterrupted = () => {
-            if (this.state() === 'playing') {
+            const ps = this.playerState();
+            if (this.state() === 'playing' || ps === 'playing' || ps === 'connecting') {
                 this.#handleInterruption();
             }
         };

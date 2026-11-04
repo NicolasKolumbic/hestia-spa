@@ -232,6 +232,33 @@ export class WhepPlayerService {
     }
 
     /**
+     * Sends trickle ICE candidates or ICE restart fragment via HTTP PATCH to the active WHEP session resource.
+     */
+    async patchIceCandidates(sdpFragment: string, etag?: string): Promise<boolean> {
+        if (!this.#resourceLocation || !sdpFragment) {
+            return false;
+        }
+
+        const headers: Record<string, string> = {
+            'Content-Type': 'application/trickle-ice-sdpfrag',
+        };
+        if (etag) {
+            headers['If-Match'] = etag;
+        }
+
+        try {
+            const response = await fetch(this.#resourceLocation, {
+                method: 'PATCH',
+                headers,
+                body: sdpFragment,
+            });
+            return response.ok;
+        } catch {
+            return false;
+        }
+    }
+
+    /**
      * Disconnects the active WebRTC stream, terminates the WHEP session if applicable,
      * and releases all track and peer connection resources.
      * Aborts any pending WHEP POST connect operation.
@@ -412,12 +439,35 @@ export class WhepPlayerService {
 
     /**
      * Resolves absolute resource URL from WHEP endpoint and Location header.
+     * Supports root-relative paths (/path/whep/uuid), child-relative paths (uuid),
+     * and normalizes origin to match baseWhepUrl (preventing cross-origin leakage or
+     * upstream http://localhost:8889 redirects when accessed via Tailscale Serve HTTPS).
      */
     #resolveResourceUrl(baseWhepUrl: string, locationHeader: string): string {
+        const trimmedLocation = locationHeader.trim();
         try {
-            return new URL(locationHeader, baseWhepUrl).toString();
+            const base = new URL(baseWhepUrl);
+            let effectiveBase = base.toString();
+
+            if (!trimmedLocation.startsWith('/') && !/^[a-zA-Z][a-zA-Z0-9+.-]*:\/\//.test(trimmedLocation)) {
+                const baseWithSlash = new URL(base.toString());
+                baseWithSlash.search = '';
+                baseWithSlash.hash = '';
+                if (!baseWithSlash.pathname.endsWith('/')) {
+                    baseWithSlash.pathname = `${baseWithSlash.pathname}/`;
+                }
+                effectiveBase = baseWithSlash.toString();
+            }
+
+            const resolved = new URL(trimmedLocation, effectiveBase);
+
+            if (resolved.origin !== base.origin) {
+                return new URL(`${resolved.pathname}${resolved.search}`, base.origin).toString();
+            }
+
+            return resolved.toString();
         } catch {
-            return locationHeader;
+            return trimmedLocation;
         }
     }
 }
