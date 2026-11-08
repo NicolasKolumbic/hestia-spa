@@ -8,7 +8,8 @@ import { DeviceChannel } from '@core/domain/models/device-channel';
 /**
  * Generic device channel control.
  * Renders the appropriate UI based on the channel type.
- * To support a new device type, simply add a new @case here.
+ * Supports pending state indicators, disabled state during in-flight commands,
+ * and differentiation between confirmed physical state and pending requests.
  */
 @Component({
     selector: 'hta-device-channel-control',
@@ -17,24 +18,91 @@ import { DeviceChannel } from '@core/domain/models/device-channel';
     template: `
         @switch(channel.type) {
             @case ('SWITCH') {
-                <p-toggleSwitch [ngModel]="channel.isOn" (ngModelChange)="toggleChanged.emit($event)" />
+                <div class="flex items-center gap-3">
+                    <p-toggleSwitch 
+                        [ngModel]="channel.isOn" 
+                        [disabled]="channel.isPending"
+                        (ngModelChange)="onToggleChanged($event)" />
+                    @if (channel.isPending) {
+                        <span class="inline-flex items-center gap-1 text-xs text-orange-500 font-medium animate-pulse" 
+                              title="Comando en vuelo hacia el actuador">
+                            <i class="pi pi-spin pi-spinner text-xs"></i>
+                            <span>{{ channel.pendingIsOn ? 'Encendiendo...' : 'Apagando...' }}</span>
+                        </span>
+                    } @else if (channel.isUncertain) {
+                        <span class="inline-flex items-center gap-1 text-xs text-amber-500" 
+                              [title]="channel.uncertainReason ?? 'Operación finalizada sin confirmación física'">
+                            <i class="pi pi-exclamation-triangle text-xs"></i>
+                            <span>Sin confirmar</span>
+                        </span>
+                    } @else if (channel.lastError) {
+                        <span class="inline-flex items-center gap-1 text-xs text-red-500" 
+                              [title]="channel.lastError">
+                            <i class="pi pi-times-circle text-xs"></i>
+                            <span>Error</span>
+                        </span>
+                    }
+                </div>
             }
             @case ('DIMMER') {
                 <div class="flex flex-col gap-2">
-                    <p-toggleSwitch [ngModel]="channel.isOn" (ngModelChange)="toggleChanged.emit($event)" />
-                    <p-slider [ngModel]="channel.brightness" (ngModelChange)="brightnessChanged.emit($event)"
-                        [style]="{'width': '100%'}" [min]="0" [max]="100" />
+                    <div class="flex items-center gap-3">
+                        <p-toggleSwitch 
+                            [ngModel]="channel.isOn" 
+                            [disabled]="channel.isPending"
+                            (ngModelChange)="onToggleChanged($event)" />
+                        @if (channel.isPending) {
+                            <span class="inline-flex items-center gap-1 text-xs text-orange-500 font-medium animate-pulse">
+                                <i class="pi pi-spin pi-spinner text-xs"></i>
+                                <span>{{ channel.pendingIsOn ? 'Encendiendo...' : 'Apagando...' }}</span>
+                            </span>
+                        } @else if (channel.isUncertain) {
+                            <span class="inline-flex items-center gap-1 text-xs text-amber-500" [title]="channel.uncertainReason">
+                                <i class="pi pi-exclamation-triangle text-xs"></i>
+                                <span>Sin confirmar</span>
+                            </span>
+                        }
+                    </div>
+                    <p-slider 
+                        [ngModel]="channel.brightness" 
+                        [disabled]="channel.isPending"
+                        (ngModelChange)="onBrightnessChanged($event)"
+                        [style]="{'width': '100%'}" 
+                        [min]="0" 
+                        [max]="100" />
                 </div>
             }
             @case ('RGB_LIGHT') {
                 <div class="flex flex-col gap-2">
-                    <p-toggleSwitch [ngModel]="channel.isOn" (ngModelChange)="toggleChanged.emit($event)" />
                     <div class="flex items-center gap-3">
-                        <p-slider [ngModel]="channel.brightness" (ngModelChange)="brightnessChanged.emit($event)"
-                            class="flex-1" [style]="{'width': '100%'}" [min]="0" [max]="100" />
+                        <p-toggleSwitch 
+                            [ngModel]="channel.isOn" 
+                            [disabled]="channel.isPending"
+                            (ngModelChange)="onToggleChanged($event)" />
+                        @if (channel.isPending) {
+                            <span class="inline-flex items-center gap-1 text-xs text-orange-500 font-medium animate-pulse">
+                                <i class="pi pi-spin pi-spinner text-xs"></i>
+                                <span>{{ channel.pendingIsOn ? 'Encendiendo...' : 'Apagando...' }}</span>
+                            </span>
+                        } @else if (channel.isUncertain) {
+                            <span class="inline-flex items-center gap-1 text-xs text-amber-500" [title]="channel.uncertainReason">
+                                <i class="pi pi-exclamation-triangle text-xs"></i>
+                                <span>Sin confirmar</span>
+                            </span>
+                        }
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <p-slider 
+                            [ngModel]="channel.brightness" 
+                            [disabled]="channel.isPending"
+                            (ngModelChange)="onBrightnessChanged($event)"
+                            class="flex-1" 
+                            [style]="{'width': '100%'}" 
+                            [min]="0" 
+                            [max]="100" />
                         <button
                             (click)="colorPickerRequested.emit(channel)"
-                            [disabled]="!channel.isOn"
+                            [disabled]="!channel.isOn || channel.isPending"
                             class="w-8 h-8 rounded-full border-2 border-white shadow-sm cursor-pointer hover:scale-110 transition-transform disabled:opacity-50"
                             [style.background-color]="channel.color">
                         </button>
@@ -96,4 +164,18 @@ export class DeviceChannelControl {
     @Output() toggleChanged = new EventEmitter<boolean>();
     @Output() brightnessChanged = new EventEmitter<number>();
     @Output() colorPickerRequested = new EventEmitter<DeviceChannel>();
+
+    onToggleChanged(newVal: boolean): void {
+        if (this.channel.isPending) {
+            return; // Guard against repeated clicks during in-flight command
+        }
+        this.toggleChanged.emit(newVal);
+    }
+
+    onBrightnessChanged(newVal: number): void {
+        if (this.channel.isPending) {
+            return;
+        }
+        this.brightnessChanged.emit(newVal);
+    }
 }

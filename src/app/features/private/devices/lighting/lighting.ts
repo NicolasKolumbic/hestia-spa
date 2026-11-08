@@ -29,26 +29,11 @@ export class Lighting {
 
   title = computed<string>(() => {
     return this.isEditMode() ? 'Editar Dispositivo' : 'Agregar Dispositivo';
-  })
-
-
-  // Computed property or method to flatten channels for the view if needed, 
-  // or update the view to iterate over devices -> channels.
-  // For now, let's flatten it to match the existing 'lights' structure for easier migration, 
-  // or better, update the template to support the new structure.
-  // Given the existing template likely expects a flat list, let's create a computed signal or just use the service's signal directly if template changes.
-  // Let's assume we want to adapt the view to the new model.
-
-  // Actually, the previous 'lights' array had: { id, name, room, isOn, brightness, color }
-  // Our new structure is Device -> Channels. 
-  // A device usually is in a room (Zone). The current Device model in frontend doesn't have Zone yet (it was optional in backend).
-  // Let's update the template to iterate devices and their channels.
-
-  // For this step, I will expose the service and methods.
+  });
 
   constructor() {
-    this.#deviceService.getAllDevices().subscribe(() => {
-      console.log(this.#deviceService.devices());
+    this.#deviceService.getAllDevices().subscribe({
+      error: (err) => console.error('Error al inicializar dispositivos de iluminación:', err),
     });
   }
 
@@ -90,14 +75,12 @@ export class Lighting {
     });
   }
 
-  /*getActiveCount() {
-    return this.devices().filter(l => l.channels.some(c => c.isOn)).length;
-  }*/
-
   turnAllOff() {
     this.devices().forEach(device => {
       device.channels.forEach(ch => {
-        if (ch.isOn) this.toggleLight(ch);
+        if (ch.isOn && !ch.isPending) {
+          this.toggleLight(ch);
+        }
       });
     });
   }
@@ -105,28 +88,44 @@ export class Lighting {
   activateScene(scene: any) {
     this.devices().forEach(device => {
       const ch = device.channels[0];
-      if (ch) {
+      if (ch && !ch.isPending) {
         this.#deviceService.updateChannelState(ch.channelId, {
           isOn: true,
           payload: { ...ch.payload, brightness: scene.brightness, color: scene.color }
-        }).subscribe();
+        }).subscribe({
+          error: (err) => console.error(`Error al activar escena en canal ${ch.channelId}:`, err)
+        });
       }
     });
   }
 
   toggleLight(channel: DeviceChannel) {
-    this.#deviceService.updateChannelState(channel.channelId, { isOn: !channel.isOn }).subscribe();
+    if (channel.isPending) {
+      console.warn(`Operación en curso para canal ${channel.channelId}, comando bloqueado.`);
+      return;
+    }
+    this.#deviceService.updateChannelState(channel.channelId, { isOn: !channel.isOn }).subscribe({
+      error: (err) => console.error(`Error al alternar canal ${channel.channelId}:`, err)
+    });
   }
 
   updateBrightness(channel: DeviceChannel, value?: number) {
-    this.#deviceService.updateChannelState(channel.channelId, { payload: { ...channel.payload, brightness: value } }).subscribe();
+    if (channel.isPending) return;
+    this.#deviceService.updateChannelState(channel.channelId, { payload: { ...channel.payload, brightness: value } }).subscribe({
+      error: (err) => console.error(`Error al actualizar brillo en canal ${channel.channelId}:`, err)
+    });
   }
 
   updateColor(channel: DeviceChannel, color: string) {
-    this.#deviceService.updateChannelState(channel.channelId, { payload: { ...channel.payload, color } }).subscribe();
-    if (this.selectedLight) {
-      this.selectedLight.payload = { ...this.selectedLight.payload, color };
-    }
+    if (channel.isPending) return;
+    this.#deviceService.updateChannelState(channel.channelId, { payload: { ...channel.payload, color } }).subscribe({
+      next: () => {
+        if (this.selectedLight) {
+          this.selectedLight.payload = { ...this.selectedLight.payload, color };
+        }
+      },
+      error: (err) => console.error(`Error al actualizar color en canal ${channel.channelId}:`, err)
+    });
   }
 
   openColorPicker(channel: DeviceChannel) {

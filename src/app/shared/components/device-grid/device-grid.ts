@@ -1,4 +1,4 @@
-import { Component, input, output, signal, TemplateRef, viewChild } from '@angular/core';
+import { Component, contentChild, input, output, signal, TemplateRef } from '@angular/core';
 import { Device } from '@core/domain/models/device';
 import { Menu } from "primeng/menu";
 import { Button } from "primeng/button";
@@ -22,8 +22,8 @@ export class DeviceGrid {
 
   selected = signal<Device | null>(null);
 
-  headerTemplate = viewChild.required<TemplateRef<any>>('header');
-  contentTemplate = viewChild.required<TemplateRef<any>>('content');
+  headerTemplate = contentChild.required<TemplateRef<any>>('header');
+  contentTemplate = contentChild.required<TemplateRef<any>>('content');
 
   addHandler(): void {
     this.add.emit();

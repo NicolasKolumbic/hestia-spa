@@ -8,7 +8,7 @@
                   dark:bg-[var(--surface-800)] dark:border-[var(--surface-700)] dark:hover:border-orange-500/50 dark:hover:shadow-orange-900/20">
 
             <div class="p-6 pb-0 flex justify-between items-start">
-                <ng-container *ngTemplateOutlet="headerTemplate();context: { device: device }" />
+                <ng-container *ngTemplateOutlet="headerTemplate(); context: { $implicit: device, device: device }" />
 
                 <div class="p-6 pb-0 flex justify-between items-start">
                     <button (click)="menu.toggle($event); selected.set(device)"
@@ -27,7 +27,7 @@
                 </div>
             </div>
             <div class="p-6">
-                <ng-container *ngTemplateOutlet="contentTemplate();context: { device: device }" />
+                <ng-container *ngTemplateOutlet="contentTemplate(); context: { $implicit: device, device: device }" />
             </div>
         </div>
         }
