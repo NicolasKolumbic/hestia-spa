@@ -13,6 +13,8 @@ import { provideTranslateService } from "@ngx-translate/core";
 import { authInterceptor } from '@core/services/auth-interceptor';
 import { clientContextInterceptor } from '@core/services/client-context.interceptor';
 
+import { environment } from 'src/environments/environment';
+
 export class CustomTranslateLoader implements TranslateLoader {
   constructor(private http: HttpClient) { }
 
@@ -30,8 +32,23 @@ export function HttpLoaderFactory(http: HttpClient) {
   return new CustomTranslateLoader(http);
 }
 
-const socketConfig: SocketIoConfig = {
-  url: 'http://localhost:3000',
+export function getSocketUrl(): string {
+  if (environment.socketUrl) {
+    return environment.socketUrl;
+  }
+  if (environment.apiUrl) {
+    try {
+      const url = new URL(environment.apiUrl);
+      return url.origin;
+    } catch {
+      // fallback to default
+    }
+  }
+  return environment.production ? 'https://hestia-web-api.onrender.com' : 'http://localhost:3000';
+}
+
+export const socketConfig: SocketIoConfig = {
+  url: getSocketUrl(),
   options: {
     transports: ['websocket'],
     autoConnect: true,
