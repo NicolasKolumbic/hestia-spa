@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
@@ -9,7 +9,8 @@ import { DeviceChannel } from '@core/domain/models/device-channel';
  * Generic device channel control.
  * Renders the appropriate UI based on the channel type.
  * Supports pending state indicators, disabled state during in-flight commands,
- * and differentiation between confirmed physical state and pending requests.
+ * differentiation between confirmed physical state and pending requests,
+ * and transient active error management correlated by commandId.
  */
 @Component({
     selector: 'hta-device-channel-control',
@@ -35,11 +36,17 @@ import { DeviceChannel } from '@core/domain/models/device-channel';
                             <i class="pi pi-exclamation-triangle text-xs"></i>
                             <span>Sin confirmar</span>
                         </span>
-                    } @else if (channel.lastError) {
-                        <span class="inline-flex items-center gap-1 text-xs text-red-500" 
-                              [title]="channel.lastError">
+                    } @else if (activeError()) {
+                        <span class="inline-flex items-center gap-1.5 text-xs text-red-500 bg-red-50 dark:bg-red-950/40 px-2 py-0.5 rounded border border-red-200 dark:border-red-900" 
+                              [title]="activeError()!">
                             <i class="pi pi-times-circle text-xs"></i>
                             <span>Error</span>
+                            <button type="button" 
+                                    (click)="dismissError($event)" 
+                                    class="ml-0.5 hover:text-red-700 dark:hover:text-red-300 text-[10px] cursor-pointer"
+                                    title="Descartar mensaje">
+                                <i class="pi pi-times"></i>
+                            </button>
                         </span>
                     }
                 </div>
@@ -60,6 +67,18 @@ import { DeviceChannel } from '@core/domain/models/device-channel';
                             <span class="inline-flex items-center gap-1 text-xs text-amber-500" [title]="channel.uncertainReason">
                                 <i class="pi pi-exclamation-triangle text-xs"></i>
                                 <span>Sin confirmar</span>
+                            </span>
+                        } @else if (activeError()) {
+                            <span class="inline-flex items-center gap-1.5 text-xs text-red-500 bg-red-50 dark:bg-red-950/40 px-2 py-0.5 rounded border border-red-200 dark:border-red-900" 
+                                  [title]="activeError()!">
+                                <i class="pi pi-times-circle text-xs"></i>
+                                <span>Error</span>
+                                <button type="button" 
+                                        (click)="dismissError($event)" 
+                                        class="ml-0.5 hover:text-red-700 dark:hover:text-red-300 text-[10px] cursor-pointer"
+                                        title="Descartar mensaje">
+                                    <i class="pi pi-times"></i>
+                                </button>
                             </span>
                         }
                     </div>
@@ -88,6 +107,18 @@ import { DeviceChannel } from '@core/domain/models/device-channel';
                             <span class="inline-flex items-center gap-1 text-xs text-amber-500" [title]="channel.uncertainReason">
                                 <i class="pi pi-exclamation-triangle text-xs"></i>
                                 <span>Sin confirmar</span>
+                            </span>
+                        } @else if (activeError()) {
+                            <span class="inline-flex items-center gap-1.5 text-xs text-red-500 bg-red-50 dark:bg-red-950/40 px-2 py-0.5 rounded border border-red-200 dark:border-red-900" 
+                                  [title]="activeError()!">
+                                <i class="pi pi-times-circle text-xs"></i>
+                                <span>Error</span>
+                                <button type="button" 
+                                        (click)="dismissError($event)" 
+                                        class="ml-0.5 hover:text-red-700 dark:hover:text-red-300 text-[10px] cursor-pointer"
+                                        title="Descartar mensaje">
+                                    <i class="pi pi-times"></i>
+                                </button>
                             </span>
                         }
                     </div>
@@ -159,23 +190,114 @@ import { DeviceChannel } from '@core/domain/models/device-channel';
         }
     `,
 })
-export class DeviceChannelControl {
+export class DeviceChannelControl implements OnChanges {
     @Input({ required: true }) channel!: DeviceChannel;
     @Output() toggleChanged = new EventEmitter<boolean>();
     @Output() brightnessChanged = new EventEmitter<number>();
     @Output() colorPickerRequested = new EventEmitter<DeviceChannel>();
 
+    /** Local reactive active error for the current user interaction */
+    readonly activeError = signal<string | null>(null);
+
+    /** The commandId of the operation currently in-flight and observed by this component */
+    private trackedCommandId: string | null = null;
+
+    /** Tracks previous pending state to detect transitions */
+    private wasPending = false;
+
+    ngOnChanges(changes: SimpleChanges): void {
+        const channelChange = changes['channel'];
+        if (!channelChange) return;
+
+        const currentChannel = this.channel;
+        if (!currentChannel) return;
+
+        const isCurrentlyPending = currentChannel.isPending;
+        const currentCommandId = currentChannel.pendingCommandId ?? null;
+
+        if (channelChange.isFirstChange()) {
+            // Initial mount:
+            // If already pending when mounted (e.g. quick navigation while command was running), track it.
+            // Never treat pre-existing historical errors as active errors on mount.
+            if (isCurrentlyPending && currentCommandId) {
+                this.trackedCommandId = currentCommandId;
+                this.wasPending = true;
+            } else {
+                this.trackedCommandId = null;
+                this.wasPending = false;
+            }
+            this.activeError.set(null);
+            return;
+        }
+
+        // Subsequent transitions:
+        if (isCurrentlyPending) {
+            // Channel entered or continues in IN_FLIGHT
+            if (currentCommandId) {
+                this.trackedCommandId = currentCommandId;
+            }
+            this.wasPending = true;
+            this.activeError.set(null);
+        } else if (this.wasPending) {
+            // Transition: was in-flight, now finished
+            this.wasPending = false;
+
+            if (this.trackedCommandId) {
+                const failedCmd = currentChannel.payload?.lastFailedCommand;
+                const processedCmdId = currentChannel.payload?.lastProcessedCommandId;
+
+                if (failedCmd && failedCmd.commandId === this.trackedCommandId) {
+                    // Correlated failure for the specific command tracked
+                    const msg = failedCmd.error?.message || 'Error en la operación';
+                    this.activeError.set(msg);
+                } else if (processedCmdId === this.trackedCommandId) {
+                    // Correlated success for the specific command tracked
+                    this.activeError.set(null);
+                } else {
+                    // Transitioned without matching failed or processed command (e.g. uncertain sweep)
+                    this.activeError.set(null);
+                }
+                this.trackedCommandId = null;
+            }
+        } else {
+            // Neither previously pending nor currently pending
+            // Check if a direct update resolved or confirmed our trackedCommandId:
+            if (this.trackedCommandId) {
+                const failedCmd = currentChannel.payload?.lastFailedCommand;
+                const processedCmdId = currentChannel.payload?.lastProcessedCommandId;
+
+                if (failedCmd && failedCmd.commandId === this.trackedCommandId) {
+                    const msg = failedCmd.error?.message || 'Error en la operación';
+                    this.activeError.set(msg);
+                    this.trackedCommandId = null;
+                } else if (processedCmdId === this.trackedCommandId) {
+                    this.activeError.set(null);
+                    this.trackedCommandId = null;
+                }
+            }
+        }
+    }
+
     onToggleChanged(newVal: boolean): void {
-        if (this.channel.isPending) {
+        if (this.channel?.isPending) {
             return; // Guard against repeated clicks during in-flight command
         }
+        this.activeError.set(null);
         this.toggleChanged.emit(newVal);
     }
 
     onBrightnessChanged(newVal: number): void {
-        if (this.channel.isPending) {
+        if (this.channel?.isPending) {
             return;
         }
+        this.activeError.set(null);
         this.brightnessChanged.emit(newVal);
+    }
+
+    dismissError(event?: Event): void {
+        if (event) {
+            event.stopPropagation();
+        }
+        this.activeError.set(null);
     }
 }

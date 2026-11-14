@@ -41,9 +41,40 @@ export class DeviceChannel {
         return this.payload?.lastUncertainCommand?.reason;
     }
 
-    /** Error message if the last operation failed explicitly on hardware */
+    /** Access to the raw last failed command historical diagnostic entry */
+    get lastFailedCommand() {
+        return this.payload?.lastFailedCommand;
+    }
+
+    /**
+     * Historical error message from the last recorded failure, provided it was not
+     * superseded by a more recent successful confirmation.
+     * Note: This represents historical diagnostic data, NOT active UI state.
+     */
+    get historicalError(): string | undefined {
+        const failed = this.payload?.lastFailedCommand;
+        if (!failed?.error?.message) return undefined;
+
+        const confirmedAtStr = this.payload?.lastConfirmedAt;
+        const failedAtStr = failed.failedAt;
+
+        if (confirmedAtStr && failedAtStr) {
+            const confirmedTime = new Date(confirmedAtStr).getTime();
+            const failedTime = new Date(failedAtStr).getTime();
+            if (!isNaN(confirmedTime) && !isNaN(failedTime) && confirmedTime >= failedTime) {
+                return undefined;
+            }
+        }
+        return failed.error.message;
+    }
+
+    /**
+     * @deprecated Avoid using lastError as an active error flag in UI components.
+     * Use component-level reactive activeError instead.
+     * Retained as an alias to historicalError for backwards compatibility with diagnostic views.
+     */
     get lastError(): string | undefined {
-        return this.payload?.lastFailedCommand?.error?.message;
+        return this.historicalError;
     }
 
     constructor(data: DeviceChannelDto) {
