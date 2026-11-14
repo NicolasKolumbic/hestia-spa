@@ -279,25 +279,25 @@ export class DeviceChannelControl implements OnChanges {
     }
 
     onToggleChanged(newVal: boolean): void {
-        if (this.channel?.isPending) {
-            return; // Guard against repeated clicks during in-flight command
+            if (this.channel?.isPending) {
+                return; // Guard against repeated clicks during in-flight command
+            }
+            this.activeError.set(null);
+            this.toggleChanged.emit(newVal);
         }
-        this.activeError.set(null);
-        this.toggleChanged.emit(newVal);
-    }
 
-    onBrightnessChanged(newVal: number): void {
-        if (this.channel?.isPending) {
-            return;
+        onBrightnessChanged(newVal: number): void {
+            if (this.channel?.isPending) {
+                return;
+            }
+            this.activeError.set(null);
+            this.brightnessChanged.emit(newVal);
         }
-        this.activeError.set(null);
-        this.brightnessChanged.emit(newVal);
-    }
 
-    dismissError(event?: Event): void {
-        if (event) {
-            event.stopPropagation();
-        }
+        dismissError(event ?: Event): void {
+            if(event) {
+                event.stopPropagation();
+            }
         this.activeError.set(null);
+        }
     }
-}
