@@ -14,6 +14,8 @@ import {
     SECURITY_CHANNEL_TYPES,
 } from '@core/domain/models/device-channel-type';
 import { Environment } from './environment';
+import { environment } from 'src/environments/environment';
+import { WsFaultInjector } from '../diagnostics/ws-fault-injector';
 
 @Injectable({
     providedIn: 'root'
@@ -27,6 +29,12 @@ export class DeviceService implements OnDestroy {
     #channelApiUrl = `${this.#environment.apiUrl}/device-channels`;
 
     readonly devices = signal<Device[]>([]);
+
+    /**
+     * Diagnostic fault injector for development and testing.
+     * Guarded by environment.production so it is completely tree-shaken from production builds.
+     */
+    readonly faultInjector?: WsFaultInjector;
 
     /**
      * Parameterizable watchdog timeout in milliseconds.
@@ -78,8 +86,15 @@ export class DeviceService implements OnDestroy {
     constructor() {
         this.#ws.connect();
 
+        if (!environment.production) {
+            this.faultInjector = new WsFaultInjector();
+        }
+
         // 1. Listen for confirmed physical state or in-flight updates from Cloud
         const channelSub = this.#ws.listen<DeviceChannelDto>('channelUpdate').subscribe(updatedChannel => {
+            if (!environment.production && this.faultInjector?.shouldDrop(updatedChannel)) {
+                return;
+            }
             this.updateLocalDeviceChannel(updatedChannel);
         });
         this.wsSubscriptions.push(channelSub);
@@ -92,6 +107,8 @@ export class DeviceService implements OnDestroy {
     }
 
     ngOnDestroy(): void {
+        this.faultInjector?.disarm();
+
         // 1. Clean up all active watchdog timers
         for (const [channelId] of this.activeWatchdogs) {
             this.cancelWatchdog(channelId);
