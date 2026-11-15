@@ -140,4 +140,99 @@ describe('DeviceChannel Model', () => {
       expect(channel.lastError).toBe('Safe fallback error');
     });
   });
+
+  describe('isUncertain & uncertainReason', () => {
+    it('should return isUncertain=false and uncertainReason=undefined when no lastUncertainCommand exists', () => {
+      const channel = new DeviceChannel(createChannelDto({ payload: {} }));
+      expect(channel.isUncertain).toBeFalse();
+      expect(channel.uncertainReason).toBeUndefined();
+    });
+
+    it('should return isUncertain=true and reason when lastUncertainCommand exists with no confirmedAt', () => {
+      const channel = new DeviceChannel(
+        createChannelDto({
+          payload: {
+            lastUncertainCommand: {
+              commandId: 'cmd-timeout-1',
+              status: 'TIMED_OUT',
+              reason: 'Timeout awaiting physical confirmation',
+              reconciledAt: '2026-11-14T22:00:00.000Z',
+              requestedState: { isOn: true },
+            },
+          },
+        }),
+      );
+
+      expect(channel.isUncertain).toBeTrue();
+      expect(channel.uncertainReason).toBe('Timeout awaiting physical confirmation');
+      expect(channel.lastUncertainCommand?.commandId).toBe('cmd-timeout-1');
+    });
+
+    it('should return isUncertain=false when lastConfirmedAt is newer than reconciledAt (superseded)', () => {
+      const channel = new DeviceChannel(
+        createChannelDto({
+          isOn: true,
+          payload: {
+            lastUncertainCommand: {
+              commandId: 'cmd-timeout-1',
+              status: 'TIMED_OUT',
+              reason: 'Timeout awaiting physical confirmation',
+              reconciledAt: '2026-11-14T22:00:00.000Z',
+              requestedState: { isOn: true },
+            },
+            lastProcessedCommandId: 'cmd-success-2',
+            lastConfirmedAt: '2026-11-14T22:05:00.000Z',
+          },
+        }),
+      );
+
+      expect(channel.isUncertain).toBeFalse();
+      expect(channel.uncertainReason).toBeUndefined();
+      // Historical diagnostic data remains preserved in payload
+      expect(channel.lastUncertainCommand?.commandId).toBe('cmd-timeout-1');
+    });
+
+    it('should return isUncertain=true when reconciledAt is newer than lastConfirmedAt', () => {
+      const channel = new DeviceChannel(
+        createChannelDto({
+          isOn: false,
+          payload: {
+            lastConfirmedAt: '2026-11-14T21:00:00.000Z',
+            lastUncertainCommand: {
+              commandId: 'cmd-timeout-recent',
+              status: 'TIMED_OUT',
+              reason: 'Timeout reciente',
+              reconciledAt: '2026-11-14T22:00:00.000Z',
+              requestedState: { isOn: true },
+            },
+          },
+        }),
+      );
+
+      expect(channel.isUncertain).toBeTrue();
+      expect(channel.uncertainReason).toBe('Timeout reciente');
+    });
+
+    it('should return isUncertain=false when a newer command has been confirmed even without exact timestamps', () => {
+      const channel = new DeviceChannel(
+        createChannelDto({
+          isOn: true,
+          payload: {
+            lastUncertainCommand: {
+              commandId: 'cmd-timeout-1',
+              status: 'TIMED_OUT',
+              reason: 'Timeout',
+              requestedState: { isOn: true },
+            },
+            lastProcessedCommandId: 'cmd-success-newer',
+            lastConfirmedAt: '2026-11-14T22:10:00.000Z',
+          },
+        }),
+      );
+
+      expect(channel.isUncertain).toBeFalse();
+      expect(channel.uncertainReason).toBeUndefined();
+      expect(channel.lastUncertainCommand?.commandId).toBe('cmd-timeout-1');
+    });
+  });
 });

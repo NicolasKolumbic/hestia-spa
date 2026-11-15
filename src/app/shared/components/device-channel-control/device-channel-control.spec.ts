@@ -121,6 +121,28 @@ const compiled = fixture.nativeElement as HTMLElement;
 expect(compiled.textContent).toContain('Sin confirmar');
   });
 
+  it('should NOT render "Sin confirmar" badge when historical lastUncertainCommand is superseded by newer confirmation', () => {
+    setChannel(
+      createChannel({
+        isOn: true,
+        payload: {
+          lastUncertainCommand: {
+            commandId: 'cmd-timeout',
+            status: 'TIMED_OUT',
+            reason: 'El actuador no respondió dentro del límite de tiempo',
+            reconciledAt: '2026-11-14T10:00:00.000Z',
+          },
+          lastProcessedCommandId: 'cmd-later-success',
+          lastConfirmedAt: '2026-11-14T10:05:00.000Z',
+        },
+      }),
+    );
+
+    expect(component.channel.isUncertain).toBeFalse();
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.textContent).not.toContain('Sin confirmar');
+  });
+
           // -------------------------------------------------------------------------
           // HESTIA D.5.2.1: 10 Scenarios for Active Error Management
           // -------------------------------------------------------------------------

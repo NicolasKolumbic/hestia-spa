@@ -623,5 +623,156 @@ describe('DeviceService', () => {
       expect(service.devices()[0].name).toBe('Luz Cocina Actualizada');
       expect(service.devices()[0].channels[0].isOn).toBeTrue();
     });
+
+    it('12. WsFaultInjector integration: drops terminal event, activates watchdog and reconciles via HTTP', fakeAsync(() => {
+      service.watchdogTimeoutMs = 1000;
+      expect(service.faultInjector).toBeDefined();
+
+      // Arm fault injector for ch-light
+      service.faultInjector!.arm('ch-light', 'cmd-fault-test');
+      expect(service.faultInjector!.isActive()).toBeTrue();
+
+      // User initiates ON command
+      service.updateChannelState('ch-light', { isOn: true }).subscribe();
+      const putReq = httpMock.expectOne('http://localhost:3000/api/device-channels/ch-light');
+      putReq.flush({
+        channelId: 'ch-light',
+        deviceId: 'light-1',
+        channelIndex: 0,
+        name: 'Light',
+        type: 'SWITCH',
+        isPrimary: true,
+        isOn: false,
+        payload: {
+          pendingState: {
+            commandId: 'cmd-fault-test',
+            requestedState: { isOn: true },
+            requestedAt: new Date().toISOString(),
+            status: 'IN_FLIGHT',
+          },
+        },
+      });
+
+      expect(service.findChannelById('ch-light')!.isPending).toBeTrue();
+
+      // WebSocket confirmation arrives from hardware execution
+      channelUpdateSubject.next({
+        channelId: 'ch-light',
+        deviceId: 'light-1',
+        channelIndex: 0,
+        name: 'Light',
+        type: 'SWITCH',
+        isPrimary: true,
+        isOn: true,
+        payload: {
+          lastProcessedCommandId: 'cmd-fault-test',
+          lastConfirmedAt: new Date().toISOString(),
+        },
+      });
+
+      // The fault injector DROPPED the event -> channel MUST STILL BE IN_FLIGHT!
+      expect(service.findChannelById('ch-light')!.isPending).toBeTrue();
+      // Fault injector must have auto-disarmed after dropping 1 event
+      expect(service.faultInjector!.isActive()).toBeFalse();
+
+      // Tick past watchdog timeout (1000ms)
+      tick(1000);
+
+      // Watchdog fires GET /api/device-channels/ch-light
+      const getReq = httpMock.expectOne('http://localhost:3000/api/device-channels/ch-light');
+      expect(getReq.request.method).toBe('GET');
+
+      // Reconciles with PostgreSQL authoritative state
+      getReq.flush({
+        channelId: 'ch-light',
+        deviceId: 'light-1',
+        channelIndex: 0,
+        name: 'Light',
+        type: 'SWITCH',
+        isPrimary: true,
+        isOn: true,
+        payload: {
+          lastProcessedCommandId: 'cmd-fault-test',
+          lastConfirmedAt: new Date().toISOString(),
+        },
+      });
+
+      // UI recovers through watchdog!
+      const finalChannel = service.findChannelById('ch-light')!;
+      expect(finalChannel.isPending).toBeFalse();
+      expect(finalChannel.isOn).toBeTrue();
+    }));
+
+    it('13. Subsequent successful confirmation supersedes historical lastUncertainCommand', fakeAsync(() => {
+      // Channel initially has a historical lastUncertainCommand
+      const initialChannel = service.findChannelById('ch-light')!;
+      initialChannel.payload = {
+        lastUncertainCommand: {
+          commandId: 'cmd-old-timeout',
+          status: 'TIMED_OUT',
+          reason: 'Timeout anterior',
+          reconciledAt: '2026-11-14T20:00:00.000Z',
+          requestedState: { isOn: true },
+        },
+      };
+      expect(initialChannel.isUncertain).toBeTrue();
+
+      // User initiates new ON command
+      service.updateChannelState('ch-light', { isOn: true }).subscribe();
+      const putReq = httpMock.expectOne('http://localhost:3000/api/device-channels/ch-light');
+      putReq.flush({
+        channelId: 'ch-light',
+        deviceId: 'light-1',
+        channelIndex: 0,
+        name: 'Light',
+        type: 'SWITCH',
+        isPrimary: true,
+        isOn: false,
+        payload: {
+          lastUncertainCommand: {
+            commandId: 'cmd-old-timeout',
+            status: 'TIMED_OUT',
+            reason: 'Timeout anterior',
+            reconciledAt: '2026-11-14T20:00:00.000Z',
+            requestedState: { isOn: true },
+          },
+          pendingState: {
+            commandId: 'cmd-new-success',
+            requestedState: { isOn: true },
+            requestedAt: '2026-11-14T20:05:00.000Z',
+            status: 'IN_FLIGHT',
+          },
+        },
+      });
+
+      // Confirmation arrives via WebSocket
+      channelUpdateSubject.next({
+        channelId: 'ch-light',
+        deviceId: 'light-1',
+        channelIndex: 0,
+        name: 'Light',
+        type: 'SWITCH',
+        isPrimary: true,
+        isOn: true,
+        payload: {
+          lastUncertainCommand: {
+            commandId: 'cmd-old-timeout',
+            status: 'TIMED_OUT',
+            reason: 'Timeout anterior',
+            reconciledAt: '2026-11-14T20:00:00.000Z',
+            requestedState: { isOn: true },
+          },
+          lastProcessedCommandId: 'cmd-new-success',
+          lastConfirmedAt: '2026-11-14T20:05:01.000Z',
+        },
+      });
+
+      const updated = service.findChannelById('ch-light')!;
+      expect(updated.isPending).toBeFalse();
+      expect(updated.isOn).toBeTrue();
+      expect(updated.isUncertain).toBeFalse();
+      expect(updated.uncertainReason).toBeUndefined();
+      expect(updated.lastUncertainCommand?.commandId).toBe('cmd-old-timeout');
+    }));
   });
 });

@@ -31,14 +31,46 @@ export class DeviceChannel {
         return this.payload?.pendingState?.commandId;
     }
 
-    /** Indicates whether the last operation finished with an uncertain timeout */
+    /**
+     * Indicates whether the channel currently has an active, unresolved uncertain timeout.
+     * If a later physical confirmation has occurred (lastConfirmedAt >= reconciledAt)
+     * or a newer command was confirmed, the historical uncertainty is superseded and this returns false.
+     * Note: Diagnostic history is preserved in payload.lastUncertainCommand.
+     */
     get isUncertain(): boolean {
-        return !!this.payload?.lastUncertainCommand;
+        const uncertain = this.payload?.lastUncertainCommand;
+        if (!uncertain) return false;
+
+        const confirmedAtStr = this.payload?.lastConfirmedAt;
+        const reconciledAtStr = uncertain.reconciledAt;
+
+        if (confirmedAtStr && reconciledAtStr) {
+            const confirmedTime = new Date(confirmedAtStr).getTime();
+            const reconciledTime = new Date(reconciledAtStr).getTime();
+            if (!isNaN(confirmedTime) && !isNaN(reconciledTime) && confirmedTime >= reconciledTime) {
+                return false;
+            }
+        }
+
+        if (
+            this.payload?.lastProcessedCommandId &&
+            this.payload.lastProcessedCommandId !== uncertain.commandId &&
+            this.payload.lastConfirmedAt
+        ) {
+            return false;
+        }
+
+        return true;
     }
 
-    /** Descriptive reason if the state is uncertain */
+    /** Descriptive reason if the state is currently uncertain */
     get uncertainReason(): string | undefined {
-        return this.payload?.lastUncertainCommand?.reason;
+        return this.isUncertain ? this.payload?.lastUncertainCommand?.reason : undefined;
+    }
+
+    /** Access to the raw last uncertain command historical diagnostic entry */
+    get lastUncertainCommand() {
+        return this.payload?.lastUncertainCommand;
     }
 
     /** Access to the raw last failed command historical diagnostic entry */
