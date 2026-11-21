@@ -8,6 +8,7 @@ import { Device } from '@core/domain/models/device';
 import { DeviceChannel } from '@core/domain/models/device-channel';
 import { applyMonotonicUpdate } from '@core/domain/models/device-channel-updater';
 import {
+    CAMERA_CHANNEL_TYPES,
     CLIMATE_CHANNEL_TYPES,
     ENERGY_CHANNEL_TYPES,
     LIGHTING_CHANNEL_TYPES,
@@ -80,7 +81,9 @@ export class DeviceService implements OnDestroy {
     );
 
     readonly cameraDevices = computed(() =>
-        this.devices()
+        this.devices().filter(d =>
+            d.channels.some(ch => (CAMERA_CHANNEL_TYPES as string[]).includes(ch.type))
+        )
     );
 
     constructor() {

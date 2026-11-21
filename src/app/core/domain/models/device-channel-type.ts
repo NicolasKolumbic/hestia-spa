@@ -28,5 +28,8 @@ export const ENERGY_CHANNEL_TYPES: DeviceChannelType[] = ['SENSOR_POWER'];
 /** Tipos que corresponden a seguridad */
 export const SECURITY_CHANNEL_TYPES: DeviceChannelType[] = ['CAMERA', 'LOCK', 'SENSOR_MOTION'];
 
+/** Tipos que corresponden a cámaras de video */
+export const CAMERA_CHANNEL_TYPES: DeviceChannelType[] = ['CAMERA'];
+
 /** Tipos que son sensores (solo lectura) */
 export const SENSOR_CHANNEL_TYPES: DeviceChannelType[] = ['SENSOR_TEMP', 'SENSOR_HUMIDITY', 'SENSOR_MOTION', 'SENSOR_POWER', 'SENSOR'];

@@ -130,6 +130,95 @@ describe('DeviceService', () => {
     expect(service.lightingDevices()[0].deviceId).toBe('light-1');
   });
 
+  describe('M.3.1 Device classification (cameraDevices & lightingDevices)', () => {
+    const mockOfflineCamera = new Device({
+      id: 'cam-2',
+      name: 'Cámara Patio',
+      status: 'OFFLINE',
+      channels: [
+        {
+          channelId: 'ch-cam-2',
+          deviceId: 'cam-2',
+          channelIndex: 0,
+          name: 'Video Stream',
+          type: 'CAMERA',
+          isPrimary: true,
+          isOn: false,
+          brightness: 0,
+          color: '#fff',
+          payload: {},
+        },
+      ],
+    });
+
+    const mockDimmerLight = new Device({
+      id: 'light-2',
+      name: 'Luz Comedor',
+      status: 'OFFLINE',
+      channels: [
+        {
+          channelId: 'ch-light-2',
+          deviceId: 'light-2',
+          channelIndex: 0,
+          name: 'Dimmer',
+          type: 'DIMMER',
+          isPrimary: true,
+          isOn: false,
+          brightness: 50,
+          color: '#fff',
+          payload: {},
+        },
+      ],
+    });
+
+    it('should separate cameras and lights cleanly in a mixed device list', () => {
+      service.devices.set([mockCameraDevice, mockOfflineCamera, mockLockDevice, mockLightDevice, mockDimmerLight]);
+
+      expect(service.cameraDevices().map(d => d.deviceId)).toEqual(['cam-1', 'cam-2']);
+      expect(service.lightingDevices().map(d => d.deviceId)).toEqual(['light-1', 'light-2']);
+      expect(service.cameraDevices().length).toBe(2);
+      expect(service.lightingDevices().length).toBe(2);
+    });
+
+    it('should handle camera-only list without leaking into lightingDevices', () => {
+      service.devices.set([mockCameraDevice, mockOfflineCamera]);
+
+      expect(service.cameraDevices().length).toBe(2);
+      expect(service.lightingDevices().length).toBe(0);
+    });
+
+    it('should handle lighting-only list without leaking into cameraDevices', () => {
+      service.devices.set([mockLightDevice, mockDimmerLight]);
+
+      expect(service.cameraDevices().length).toBe(0);
+      expect(service.lightingDevices().length).toBe(2);
+    });
+
+    it('should return empty arrays for empty device list', () => {
+      service.devices.set([]);
+
+      expect(service.cameraDevices()).toEqual([]);
+      expect(service.lightingDevices()).toEqual([]);
+    });
+
+    it('should preserve ONLINE/OFFLINE status across filtered camera and lighting lists', () => {
+      service.devices.set([mockCameraDevice, mockOfflineCamera, mockLightDevice, mockDimmerLight]);
+
+      expect(service.cameraDevices().map(d => d.status)).toEqual(['ONLINE', 'OFFLINE']);
+      expect(service.lightingDevices().map(d => d.status)).toEqual(['ONLINE', 'OFFLINE']);
+    });
+
+    it('should reactively update cameraDevices and lightingDevices when devices signal changes', () => {
+      service.devices.set([mockLightDevice]);
+      expect(service.cameraDevices().length).toBe(0);
+      expect(service.lightingDevices().length).toBe(1);
+
+      service.devices.update(list => [...list, mockCameraDevice]);
+      expect(service.cameraDevices().map(d => d.deviceId)).toEqual(['cam-1']);
+      expect(service.lightingDevices().map(d => d.deviceId)).toEqual(['light-1']);
+    });
+  });
+
   describe('D.5.2.2 Monotonic Synchronization & Reconciliation', () => {
     beforeEach(() => {
       // Seed with light-1 having isOn: false
